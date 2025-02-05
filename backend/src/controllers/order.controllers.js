@@ -157,7 +157,6 @@ const getOrderStatus = async(req,res)=>{
 }
 
 /*
-
 const updateOrderStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -191,8 +190,6 @@ const updateOrderStatus = async (req, res) => {
 };
 
 */
-
-
 
 const assignDeliveryPartner = async(req,res)=>{
     try{
@@ -261,14 +258,59 @@ const applyDiscount = async(cart,couponCode)=>{
 
 }
 
-const updateOrderStatus = async(orderId, status, deliveryPartner)=>{
+import { getIO } from "../utils/loaction.js";
+import mongoose from "mongoose";
+//import Order from "../models/order.model.js";  // Ensure the correct model is imported
+
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status, deliveryPartner } = req.body; // Extract data from request body
+
+        if (!orderId || !status) {
+            return res.status(400).json({ message: "Order ID and status are required" });
+        }
+
+        const order = await Order.findByIdAndUpdate(
+            orderId,
+            { status, deliveryPartner },
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        // Emit WebSocket event for real-time updates
+        const io = getIO();
+        io.to(orderId).emit("orderUpdate", { orderId, status, deliveryPartner });
+
+        return res.status(200).json({ message: "Order status updated", order });
+
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const getAssignedOrders = async(req, res)=>{
     try{
-        const order = await Order.findByIdAndUpdate(orderId, {status, deliveryPartner}, {new:true});
-        io.emit(`orderStatus: ${orderId}`, {orderId, status, deliveryPartner});
-        return order;
+        const {deliveryPartnerId} = req.body;
+        const deliveryPartner = await User.findById({deliveryPartnerId});
+        if(!deliveryPartner){
+            return res.status(401).json({message:"Delivery Person not found"})
+        }
+        const deliveryPerson = await Order.findById({deliveryPartnerId});
+        if(!deliveryPerson){
+            return res.status(402).json({message:"No orders assigned"})
+        }
+        
+        return res.status(200).json({message:"Orders fetched successfully",deliveryPerson})
+
     }
     catch(error){
-        console.log("Error updating order status:", error);
+        console.log("Error fetching assigned orders:",error);
+        res.status(500).json({message:"Error fetching assigned orders"})
     }
 }
 
@@ -281,5 +323,6 @@ export {
     updateOrderStatus,
     assignDeliveryPartner,
     getDeliveryRoute,
-    applyDiscount
+    applyDiscount,
+    getAssignedOrders
 }

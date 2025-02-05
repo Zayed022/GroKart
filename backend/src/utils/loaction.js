@@ -1,7 +1,9 @@
 import { Server } from "socket.io";
 
+let io;
+
 export const initializeSocket = (server) => {
-    const io = new Server(app, {
+    io = new Server(server, {
         cors: {
             origin: "*",
             methods: ["GET", "POST"],
@@ -9,17 +11,21 @@ export const initializeSocket = (server) => {
     });
 
     io.on("connection", (socket) => {
-        console.log(`⚡: A user connected with ID: ${socket.id}`);
+        console.log(`⚡ User connected: ${socket.id}`);
 
-        socket.on("updateLocation", (locationData) => {
-            console.log("Received location update:", locationData);
-            io.emit("locationUpdated", locationData); // Broadcast to all connected clients
+        socket.on("joinOrderRoom", (orderId) => {
+            socket.join(orderId);
         });
 
         socket.on("disconnect", () => {
-            console.log(`❌: User disconnected ${socket.id}`);
+            console.log(`❌ User disconnected: ${socket.id}`);
         });
     });
+};
 
-    console.log("✅ WebSocket server initialized");
+export const getIO = () => {
+    if (!io) {
+        throw new Error("Socket.io has not been initialized!");
+    }
+    return io;
 };
