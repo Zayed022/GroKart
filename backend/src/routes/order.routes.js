@@ -7,7 +7,8 @@ import {
     updateOrderStatus,
     assignDeliveryPartner,
     getDeliveryRoute,
-    getAssignedOrders
+    getAssignedOrders,
+    
 } from "../controllers/order.controllers.js"
 
 const router = Router();
@@ -20,4 +21,5 @@ router.route("/:orderId/status").put(updateOrderStatus)
 router.route("/assign-partner").post(assignDeliveryPartner)
 router.route("/get-route").get(getDeliveryRoute)
 router.route("/get-assigned-orders").get(getAssignedOrders)
+
 export default router

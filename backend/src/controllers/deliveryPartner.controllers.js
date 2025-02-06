@@ -96,10 +96,29 @@ const logoutDeliveryPartner = async(req,res)=>{
     return res.status(201).json({message:"Delivery Partner logged out successfully"})
 }
 
+const getAllDeliveryPartner = async(req,res)=>{
+    try{
+        const deliveryPartners = await User.find({isDeliveryPartner:true});
+        return res.status(200).json({
+            success:true,
+            count: deliveryPartners.length,
+            data: deliveryPartners
+        });
+    }
+    catch(error){
+        console.log("Error fetching delivery partners:",error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+
 
 export {
     registerDeliveryPartner,
     deliveryPartnerLogin,
-    logoutDeliveryPartner
+    logoutDeliveryPartner,
+    getAllDeliveryPartner
 
 }

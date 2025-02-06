@@ -42,8 +42,6 @@ const registerAdmin = async(req,res)=>{
     }
 };
 
-
-
 const adminLogin = async (req, res) => {
     const { email, password } = req.body;
 
@@ -92,12 +90,31 @@ const adminLogin = async (req, res) => {
     }
 };
 
+const getAllAdmin = async(req,res)=>{
+    try{
+        const admin = await User.find({isAdmin:true})
+        return res.status(201).json({
+            success: true,
+            count:admin.length,
+            data: admin,
+        });
+    }
+    catch(error){
+        console.log("Error fetching admin",error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+
 
 
 
 
 export {
     registerAdmin,
-    adminLogin
+    adminLogin,
+    getAllAdmin
 
 }
