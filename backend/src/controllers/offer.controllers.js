@@ -36,5 +36,5 @@ const applyCouponCode = async(req, res)=>{
 export {
     createOffer,
     getAllOffers,
-    applyCouponCode
+    applyCouponCode,
 }

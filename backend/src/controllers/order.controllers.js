@@ -62,8 +62,9 @@ const createOrder = async(req,res)=>{
             offerDetails = offer._id;
         }
         let additionalAmount = 25;
+        let amount = Number(finalAmount)
         if(paymentMethod=== "COD"){
-            finalAmount=finalAmount+25;
+            finalAmount=amount+25;
         }
         if(paymentMethod === "UPI"){
             const options = {
