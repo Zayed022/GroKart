@@ -2,6 +2,9 @@ import React from 'react'
 import { useState } from 'react'
 import {useNavigate} from "react-router-dom"
 import axios from "axios"
+import { Link } from 'react-router-dom'
+
+
 const Register = ()=>{
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -24,7 +27,7 @@ const Register = ()=>{
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
           <div className="bg-white p-6 rounded-lg shadow-md w-96">
-            <h2 className="text-2xl font-bold mb-4">Register</h2>
+            <h2 className="text-2xl font-bold mb-4 flex justify-center items-center">Register</h2>
             {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleRegister}>
               <input type="text" className="w-full p-2 border rounded mb-2" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -33,6 +36,7 @@ const Register = ()=>{
               <input type="password" className="w-full p-2 border rounded mb-2" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
               <button type="submit" className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Register</button>
             </form>
+            <p className=" flex justify-center items-center mt-3">Already Logged In? <Link to ="/login" className="text-blue-700"> LogIn</Link></p>
           </div>
         </div>
       );

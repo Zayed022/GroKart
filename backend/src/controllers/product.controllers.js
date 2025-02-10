@@ -2,7 +2,7 @@ import { Product } from "../models/product.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const addProduct = async(req,res)=>{
-    const {name, description, price , category, stock} = req.body
+    const {name, description, price , category, stock, subCategory, miniCategory} = req.body
     if(!(name || description || price || category || stock)){
         return res.status(401).json({message:"All fields are required"})
     }
@@ -28,6 +28,8 @@ const addProduct = async(req,res)=>{
         price,
         stock,
         category,
+        subCategory,
+        miniCategory,
         image:image.url,
 
     })
@@ -151,10 +153,50 @@ const getProducts = async(req,res)=>{
 
 }
 
+const getProductsByCategory = async(req,res)=>{
+    const category = req.params.category;
+    if(!category){
+        return res.status(401).json({message:"Category is required"})
+    };
+    const product = await Product.find({category});
+    if(product.length==0){
+        return res.status(402).json({message:"No product not in this category"})
+    }
+    return res.status(201).json({message:"Products fetched",product})
+};
+
+const getProductsBySubCatgeory = async(req,res)=>{
+    const {subCategory} = req.params;
+    if(!subCategory){
+        return res.status(401).json({message:"Sub-category is required"})
+    }
+    const product = await Product.find({subCategory})
+    if(product.length==0){
+        return res.status(201).json({message:"Product not found"})
+    }
+    return res.status(201).json({message:"Products fetched"})
+}
+
+const getProductsByMiniCategory = async(req,res)=>{
+    const {miniCategory} = req.params;
+    if(!miniCategory){
+        return res.status(401).json({message:"Category is required"})
+    }
+    const product = await Product.find({miniCategory})
+    if(product.length==0){
+        return res.status(402).json({message:"Product not found"})
+    }
+    return res.status(201).json({message:"Products fetched successfully"})
+}
+
 export {addProduct,
     getAllProducts,
     getProductById,
     updateProductDetails,
     deleteProduct,
-    getProducts
+    getProducts,
+    getProductsByCategory,
+    getProductsBySubCatgeory,
+    getProductsByMiniCategory,
+
 }
