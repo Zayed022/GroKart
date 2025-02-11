@@ -8,7 +8,10 @@ import { addProduct,
     getProducts, 
     updateProductDetails, 
     getProductsBySubCatgeory,
-    getProductsByMiniCategory} from "../controllers/product.controllers.js";
+    getProductsByMiniCategory,
+    getAllCategories,
+    getAllSubCategories,
+    getAllMiniCategories} from "../controllers/product.controllers.js";
 
 const router = Router()
 
@@ -30,5 +33,8 @@ router.route("/:").get(getProducts)
 router.route("/category/:category").get(getProductsByCategory)
 router.route("/subCategory/:").get(getProductsBySubCatgeory)
 router.route("/minicategory/:").get(getProductsByMiniCategory)
+router.route("/get-all-categories").get(getAllCategories)
+router.route("/get-all-sub-categories").get(getAllSubCategories)
+router.route("/get-all-mini-categories").get(getAllMiniCategories)
 
 export default router

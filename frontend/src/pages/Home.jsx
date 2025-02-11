@@ -6,6 +6,10 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Hero from "../components/Hero";
 import Categories from "../components/Category";
 
+
+import Categorycards from "../components/categoryCards";
+import Homecategory from "../components/Homecategory";
+
 const Home = () => {
   return (
     <>
@@ -41,7 +45,10 @@ const Home = () => {
         </div>
       </section>
       */}
+      <Homecategory/>
       <Categories/>
+      <Categorycards/>
+      <subCategory/>
     
     </>
   );

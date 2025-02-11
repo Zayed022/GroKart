@@ -23,6 +23,7 @@ function CategoryPage() {
               key={product._id}
               className="bg-white shadow-md p-4 rounded-lg w-40"
             >
+              <img src={product.image} alt={product.name} className="w-full h-32 object-cover rounded" />
                 
               <p className="font-bold">{product.name}</p>
               <p>₹{product.price}</p>

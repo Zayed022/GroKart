@@ -189,6 +189,35 @@ const getProductsByMiniCategory = async(req,res)=>{
     return res.status(201).json({message:"Products fetched successfully"})
 }
 
+const getAllCategories = async(req,res)=>{
+    try {
+        const categories = await Product.distinct("category");
+        if(!categories || categories.length === 0){
+            return res.status(401).json({message:"No category found"})
+        }
+        return res.status(201).json({message:"All categories fetched successfully",categories})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message:"Internal server error"})
+    }
+}
+
+const getAllSubCategories = async (req,res)=>{
+    const subCategories = await Product.distinct("subCategory")
+    if(!subCategories || subCategories.length === 0){
+        return res.status(401).json({message:"No Sub-Categories found"})
+    }
+    return res.status(201).json({message:"Sub-Categories fetched",subCategories})
+}
+
+const getAllMiniCategories = async (req,res) =>{
+    const miniCategories = await Product.distinct("miniCategory");
+    if(!miniCategories || miniCategories.length === 0){
+        return res.status(401).json({message:"No mini-category found"})
+    }
+    return res.status(201).json({message:"Mini-Categories fetched successfully",miniCategories})
+}
+
 export {addProduct,
     getAllProducts,
     getProductById,
@@ -198,5 +227,8 @@ export {addProduct,
     getProductsByCategory,
     getProductsBySubCatgeory,
     getProductsByMiniCategory,
+    getAllCategories,
+    getAllSubCategories,
+    getAllMiniCategories
 
 }
