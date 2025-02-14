@@ -5,6 +5,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Hero from "../components/Hero";
 import Subcategorycards from "../components/Subcategorycards";
+import Items from "../components/Items";
 
 
 const Home = () => {
@@ -45,6 +46,7 @@ const Home = () => {
       
       
       <Subcategorycards/>
+      <Items/>
      
     
     </>

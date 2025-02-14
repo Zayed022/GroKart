@@ -5,7 +5,7 @@ import Login from './pages/auth/Login'
 import Home from './pages/Home'
 import CategoryPage from './pages/categoryPage'
 import Subcategorypage from './pages/Subcategory/Subcategorypage'
-
+import Items from "./components/Items"
 
 
 function App() {
@@ -17,6 +17,8 @@ function App() {
         <Route path="/" element={<Home/>} />
         <Route path="/category/:categoryName" element={<CategoryPage />} />
         <Route path = "/subCategory/:subCategory" element = {<Subcategorypage/>}/>
+        <Route path = "/all-products" element={<Items/>}/>
+        
       </Routes>
     
   )

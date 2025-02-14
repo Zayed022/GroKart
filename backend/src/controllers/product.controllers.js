@@ -154,7 +154,7 @@ const getProducts = async(req,res)=>{
 }
 
 const getProductsByCategory = async(req,res)=>{
-    const category = req.params.category;
+    const category = req.params;
     if(!category){
         return res.status(401).json({message:"Category is required"})
     };
