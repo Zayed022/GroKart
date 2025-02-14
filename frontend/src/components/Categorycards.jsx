@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from "axios"
-import Subcategorycards from './Subcategorycards';
+
 
 function Categorycards() {
   const [categories, setCategories] = useState([]);
@@ -25,7 +25,7 @@ function Categorycards() {
         {categories.map((category, index) => (
         <li key={index}>{category}</li>
         ))}
-        <Subcategorycards/>
+        
       </ul>
       
       

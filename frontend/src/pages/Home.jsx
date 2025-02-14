@@ -4,11 +4,8 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Hero from "../components/Hero";
-import Categories from "../components/Category";
+import Subcategorycards from "../components/Subcategorycards";
 
-
-import Categorycards from "../components/categoryCards";
-import Homecategory from "../components/Homecategory";
 
 const Home = () => {
   return (
@@ -45,10 +42,10 @@ const Home = () => {
         </div>
       </section>
       */}
-      <Homecategory/>
-      <Categories/>
-      <Categorycards/>
-      <subCategory/>
+      
+      
+      <Subcategorycards/>
+     
     
     </>
   );

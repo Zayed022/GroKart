@@ -11,7 +11,8 @@ import { addProduct,
     getProductsByMiniCategory,
     getAllCategories,
     getAllSubCategories,
-    getAllMiniCategories} from "../controllers/product.controllers.js";
+    getAllMiniCategories,
+    getCategoriesWithSubCategories} from "../controllers/product.controllers.js";
 
 const router = Router()
 
@@ -31,10 +32,11 @@ router.route("/update-products").get(updateProductDetails)
 router.route("/delete-product").delete(deleteProduct)
 router.route("/:").get(getProducts)
 router.route("/category/:category").get(getProductsByCategory)
-router.route("/subCategory/:").get(getProductsBySubCatgeory)
+router.route("/subCategory/:subCategory").get(getProductsBySubCatgeory)
 router.route("/minicategory/:").get(getProductsByMiniCategory)
 router.route("/get-all-categories").get(getAllCategories)
 router.route("/get-all-sub-categories").get(getAllSubCategories)
 router.route("/get-all-mini-categories").get(getAllMiniCategories)
+router.route("/get-categories-with-subcategories").get(getCategoriesWithSubCategories)
 
 export default router

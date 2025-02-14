@@ -170,11 +170,11 @@ const getProductsBySubCatgeory = async(req,res)=>{
     if(!subCategory){
         return res.status(401).json({message:"Sub-category is required"})
     }
-    const product = await Product.find({subCategory})
-    if(product.length==0){
+    const products = await Product.find({subCategory})
+    if(products.length==0){
         return res.status(201).json({message:"Product not found"})
     }
-    return res.status(201).json({message:"Products fetched"})
+    return res.status(201).json({message:"Products fetched",products})
 }
 
 const getProductsByMiniCategory = async(req,res)=>{
@@ -218,6 +218,27 @@ const getAllMiniCategories = async (req,res) =>{
     return res.status(201).json({message:"Mini-Categories fetched successfully",miniCategories})
 }
 
+const getCategoriesWithSubCategories = async(req,res)=>{
+    try {
+        const categories = await Product.distinct("category");
+        const categoryData = await Promise.all(
+            categories.map(async(category)=>{
+                const subcategories = await Product.distinct("subCategory",{category});
+                return {
+                    category,
+                    subcategories
+                }
+            })
+        );
+        return res.status(200).json({success: true, data:categoryData})
+    } catch (error) {
+        console.error("Error fetching categories with subcategories", error);
+        return res.status(500).json({success: false, message:"Server error"});
+    }
+};
+
+
+
 export {addProduct,
     getAllProducts,
     getProductById,
@@ -229,6 +250,7 @@ export {addProduct,
     getProductsByMiniCategory,
     getAllCategories,
     getAllSubCategories,
-    getAllMiniCategories
+    getAllMiniCategories,
+    getCategoriesWithSubCategories
 
 }
