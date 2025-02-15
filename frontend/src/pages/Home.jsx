@@ -6,6 +6,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Hero from "../components/Hero";
 import Subcategorycards from "../components/Subcategorycards";
 import Items from "../components/Items";
+import CsCards from "../components/CsCards";
 
 
 const Home = () => {
@@ -45,8 +46,8 @@ const Home = () => {
       */}
       
       
-      <Subcategorycards/>
-      <Items/>
+      
+      <CsCards/>
      
     
     </>

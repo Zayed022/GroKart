@@ -33,6 +33,9 @@ app.use("/api/v1/delivery",deliveryPartnerRoute);
 import offerRoute from './routes/offer.routes.js'
 app.use("/api/v1/offer",offerRoute);
 
+import categoryRoute from './routes/category.routes.js'
+app.use("/api/v1/category",categoryRoute);
+
 
 
 export {app}
