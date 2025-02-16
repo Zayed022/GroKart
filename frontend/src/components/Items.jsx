@@ -1,35 +1,41 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function Items() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState({}); // Store quantity for each product
+  const [cart, setCart] = useState({}); // Stores quantity for each product
 
-    const addToCart = (id) => {
-        setCart((prev) => ({
-            ...prev,
-            [id]: 1, // First time adding sets quantity to 1
-        }));
-    };
+  // Add to Cart Function
+  const addToCart = (id) => {
+    setCart((prev) => ({
+      ...prev,
+      [id]: 1, // Set quantity to 1 when first added
+    }));
+  };
 
-    const increaseQuantity = (id) => {
-        setCart((prev) => ({
-            ...prev,
-            [id]: (prev[id] || 0) + 1, // Increment quantity
-        }));
-    };
+  // Increase Quantity
+  const increaseQuantity = (id) => {
+    setCart((prev) => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1, // Increment quantity
+    }));
+  };
 
-    const decreaseQuantity = (id) => {
-        setCart((prev) => {
-            const updatedCart = { ...prev };
-            if (updatedCart[id] > 1) {
-                updatedCart[id] -= 1; // Decrease quantity
-            } else {
-                delete updatedCart[id]; // Remove from cart if quantity is 0
-            }
-            return updatedCart;
-        });
-    };
+  // Decrease Quantity or Remove Item
+  const decreaseQuantity = (id) => {
+    setCart((prev) => {
+      const updatedCart = { ...prev };
+      if (updatedCart[id] > 1) {
+        updatedCart[id] -= 1; // Reduce quantity
+      } else {
+        delete updatedCart[id]; // Remove from cart if quantity is 0
+      }
+      return updatedCart;
+    });
+  };
+
+  // Fetch Products from Backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -67,11 +73,13 @@ function Items() {
                 )}
 
                 {/* Product Image */}
-                <img
-                  src={product.image || "https://via.placeholder.com/300"}
-                  alt={product.name}
-                  className="w-full h-40 object-cover"
-                />
+                <Link to={`/products/${product._id}`}>
+                  <img
+                    src={product.image || "https://via.placeholder.com/300"}
+                    alt={product.name}
+                    className="w-full h-40 object-cover"
+                  />
+                </Link>
 
                 {/* Product Details */}
                 <div className="p-4">
@@ -94,18 +102,31 @@ function Items() {
 
                   {/* Add to Cart Button */}
                   <div className="mt-4">
-                        {cart[product.id] ? (
-                            <div className="flex items-center justify-center border border-pink-500 rounded-lg">
-                                <button onClick={() => decreaseQuantity(product.id)} className="px-3 py-2 text-pink-500 font-bold">−</button>
-                                <span className="px-4">{cart[product.id]}</span>
-                                <button onClick={() => increaseQuantity(product.id)} className="px-3 py-2 text-pink-500 font-bold">+</button>
-                            </div>
-                        ) : (
-                            <button onClick={() => addToCart(product.id)} className="px-6 py-2 text-white bg-pink-500 rounded-lg">
-                                Add to Cart
-                            </button>
-                        )}
-                    </div>
+                    {cart[product._id] ? (
+                      <div className="flex items-center justify-center border border-pink-500 rounded-lg w-full">
+                        <button
+                          onClick={() => decreaseQuantity(product._id)}
+                          className="px-3 py-2 text-pink-500 font-bold"
+                        >
+                          −
+                        </button>
+                        <span className="px-4">{cart[product._id]}</span>
+                        <button
+                          onClick={() => increaseQuantity(product._id)}
+                          className="px-3 py-2 text-pink-500 font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => addToCart(product._id)}
+                        className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
+                      >
+                        Add to Cart
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))

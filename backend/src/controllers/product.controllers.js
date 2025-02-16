@@ -56,12 +56,12 @@ const getAllProducts = async (req,res) =>{
 
 const getProductById= async(req,res)=>{
     try{
-        const { productId } = req.body; 
+        const { productId } = req.params; 
         const product = await Product.findById(productId);
         if(!product){
             return res.status(404).json({error:"Product not found"});
         }
-        res.status(200).json(product);
+        res.status(200).json({message:"Product fetched successfully",product});
     }
     catch(error){
         res.status(500).json({error:"An error occured while fetching the product."})

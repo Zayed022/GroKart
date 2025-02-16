@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import CategoryPage from './pages/categoryPage'
 import Subcategorypage from './pages/Subcategory/Subcategorypage'
 import Items from "./components/Items"
+import ProductDetails from './components/ProductDetails'
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/category/:categoryName" element={<CategoryPage />} />
         <Route path = "/subCategory/:subCategory" element = {<Subcategorypage/>}/>
         <Route path = "/all-products" element={<Items/>}/>
+        <Route path = "/products/:productId" element = {<ProductDetails/>}/>
         
       </Routes>
     
