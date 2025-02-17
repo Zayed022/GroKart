@@ -7,6 +7,7 @@ import Hero from "../components/Hero";
 import Subcategorycards from "../components/Subcategorycards";
 import Items from "../components/Items";
 import CsCards from "../components/CsCards";
+import Sidebar from "../components/Sidebar";
 
 
 const Home = () => {
@@ -48,6 +49,7 @@ const Home = () => {
       
       <Items/>
       <CsCards/>
+      
      
     
     </>

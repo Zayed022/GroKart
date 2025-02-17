@@ -12,6 +12,7 @@ const categorySchema = new Schema({
     image:{
         type:String,
     },
+    
 },{timestamps:true});
 
 export const Category = mongoose.model("Category",categorySchema)
