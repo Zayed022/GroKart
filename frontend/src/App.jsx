@@ -21,8 +21,7 @@ function App() {
         <Route path = "/subCategory/:subCategory" element = {<Subcategorypage/>}/>
         <Route path = "/all-products" element={<Items/>}/>
         <Route path = "/products/:productId" element = {<ProductDetails/>}/>
-        <Route path="/" element={<ProductList />} />
-                <Route path="/cart" element={<CartPage userId="yourUserIdHere" />} />
+        
         
       </Routes>
       </CartProvider>

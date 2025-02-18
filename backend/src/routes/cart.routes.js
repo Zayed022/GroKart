@@ -7,8 +7,8 @@ import {
 
 const router = Router();
 
-router.route("/add-to-cart").post(addToCart)
-router.route("/:").get(getCart)
-router.route("/remove").post(removeFromCart)
+router.route("/add/:userId/:productId/:quantity").post(addToCart)
+router.route("/:userId").get(getCart)
+router.route("/remove/:userId/:productId").post(removeFromCart) 
 
 export default router

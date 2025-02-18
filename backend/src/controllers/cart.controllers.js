@@ -1,38 +1,46 @@
 import { Cart } from "../models/cart.models.js";
 import  {Product} from "../models/product.models.js"
-const addToCart = async(req,res)=>{
-    try{
-        const {userId, productId, quantity} = req.body;
-        if (!Number.isInteger(quantity) || quantity <= 0) {
+const addToCart = async (req, res) => {
+    try {
+        const { userId, productId, quantity } = req.params;
+
+        if (!Number(quantity) || quantity <= 0) {
             return res.status(400).json({ error: "Quantity must be a positive integer" });
         }
+
         const product = await Product.findById(productId);
-        if(!product){
-            return res.status(404).json({error:"Product not found"})
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
         }
 
-        let cart = await Cart.findOne({user:userId});
-        if(!cart){
-            cart = new Cart({user: userId, items:[],totalPrice:0});
+        let cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            cart = new Cart({ user: userId, items: [], totalPrice: 0 });
         }
-        const existingItem = cart.items.find(item => item.product.toString()===productId);
-        if(existingItem){
-            existingItem.quantity+= quantity;
+
+        // Check if product already exists in cart
+        const existingItem = cart.items.find(item => item.product.toString() === productId);
+        if (existingItem) {
+            existingItem.quantity += Number(quantity);
+        } else {
+            cart.items.push({ product: productId, quantity });
         }
-        else{
-            cart.items.push({product:productId,quantity});
+
+        // Correct total price calculation
+        let totalPrice = 0;
+        for (let item of cart.items) {
+            const itemProduct = await Product.findById(item.product);
+            totalPrice += Number(item.quantity) * (itemProduct ? itemProduct.price : 0);
         }
-        cart.totalPrice = cart.items.reduce((total, item) => {
-            const itemProduct = product._id.equals(item.product) ? product : cart.items.find(i => i.product.toString() === item.product.toString())?.product;
-            return total + item.quantity * (itemProduct ? itemProduct.price : 0);
-        }, 0);
+        cart.totalPrice = totalPrice;
+
         await cart.save();
-        res.status(200).json({message:"Item added to cart ",cart})
+        res.status(200).json({ message: "Item added to cart", cart });
+    } catch (error) {
+        console.error("Error in addToCart:", error);
+        res.status(500).json({ error: "Error adding items to cart" });
     }
-    catch(error){
-        res.status(500).json({error:"Error adding items to cart"})
-    }
-}
+};
 
 const getCart = async(req,res)=>{
     try{
@@ -51,7 +59,7 @@ const getCart = async(req,res)=>{
 
 const removeFromCart = async(req,res)=>{
     try{
-        const {userId, productId} = req.body;
+        const {userId, productId} = req.params;
 
         let cart = await Cart.findOne({user:userId}).populate("items.product");
         if(!cart){
