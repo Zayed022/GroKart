@@ -4,7 +4,15 @@ import { Link } from "react-router-dom";
 function Items() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState({}); // Stores quantity for each product
+  const [cart, setCart] = useState(() => {
+    // Load cart from localStorage when component mounts
+    return JSON.parse(localStorage.getItem("cart")) || {};
+  });
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   // Add to Cart Function
   const addToCart = (id) => {
@@ -40,11 +48,14 @@ function Items() {
     const fetchProducts = async () => {
       try {
         const response = await fetch("/api/v1/products/get-product");
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
         const data = await response.json();
         setProducts(data);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching products:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -119,12 +130,14 @@ function Items() {
                         </button>
                       </div>
                     ) : (
+                      <Link to ="/cart">
                       <button
-                        onClick={() => addToCart(product._id)}
+                        onClick={() => addToCart(userId, price, product._id,quantity)}
                         className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
                       >
                         Add to Cart
                       </button>
+                      </Link>
                     )}
                   </div>
                 </div>

@@ -6,7 +6,6 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import Hero from "../components/Hero";
 import Items from "../components/Items";
 import CsCards from "../components/CsCards";
-import CartSidebar from "../components/CartSidebar"; // Import Cart Sidebar
 
 const Home = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -21,12 +20,12 @@ const Home = () => {
                 <CustomizedInputBase className="md: width-200 ml-5" />
                 <div className="flex justify-center items-center mr-12 mt-0.5">
                     {/* Clicking Cart Icon Toggles Sidebar */}
-                    <ShoppingCartIcon
-                        className="mr-10 ml-10 mt-0.5 cursor-pointer"
-                        onClick={() => setIsCartOpen(true)}
-                    />
+                    <Link to="/cart">
+                        <ShoppingCartIcon className="mr-5 ml-4"/>
+                    </Link>
+                    
                     <Link to="/login">
-                        <AccountCircleIcon className="mr-5" />
+                        <AccountCircleIcon className="mr-4" />
                     </Link>
                 </div>
             </nav>
@@ -37,7 +36,7 @@ const Home = () => {
             <CsCards />
 
             {/* Floating Cart Sidebar */}
-            <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+            
         </>
     );
 };

@@ -1,25 +1,67 @@
-// src/components/ProductCard.jsx
-import { useCart } from '../context/CartContext';
+import React, { useState } from "react";
+import axios from "axios";
 
-export const ProductCard = ({ product }) => {
-  const { addToCart, loading } = useCart();
+const ProductCard = ({ product, userId }) => {
+    const [quantity, setQuantity] = useState(0);
 
-  return (
-    <div className="card bg-white shadow-md rounded-lg p-4">
-      <img 
-        src={product.image} 
-        alt={product.name}
-        className="w-full h-48 object-cover mb-4"
-      />
-      <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-      <p className="text-gray-600 mb-2">₹{product.price}</p>
-      <button
-        onClick={() => addToCart(product._id)}
-        disabled={loading}
-        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
-      >
-        {loading ? 'Adding...' : 'Add to Cart'}
-      </button>
-    </div>
-  );
+    const handleAddToCart = async () => {
+        try {
+            const response = await axios.post(
+                `/api/v1/cart/add/${userId}/${product._id}/1`
+            );
+            console.log(response.data);
+            setQuantity(1); // Change button to quantity selector
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+        }
+    };
+
+    const handleIncrease = async () => {
+        try {
+            const newQuantity = quantity + 1;
+            await axios.post(`/api/v1/cart/add/${userId}/${product._id}/1`);
+            setQuantity(newQuantity);
+        } catch (error) {
+            console.error("Error increasing quantity:", error);
+        }
+    };
+
+    const handleDecrease = async () => {
+        if (quantity === 1) {
+            // Remove from cart if quantity is 1
+            try {
+                await axios.post(`/api/v1/cart/remove/${userId}/${product._id}`);
+                setQuantity(0);
+            } catch (error) {
+                console.error("Error removing from cart:", error);
+            }
+        } else {
+            try {
+                await axios.post(`/api/v1/cart/add/${userId}/${product._id}/-1`);
+                setQuantity(quantity - 1);
+            } catch (error) {
+                console.error("Error decreasing quantity:", error);
+            }
+        }
+    };
+
+    return (
+        <div className="product-card">
+            <h3>{product.name}</h3>
+            <p>₹{product.price}</p>
+            {quantity === 0 ? (
+                <button onClick={handleAddToCart} className="add-to-cart">
+                    Add to Cart
+                </button>
+            ) : (
+                <div className="quantity-controls">
+                    <button onClick={handleDecrease}>-</button>
+                    <span>{quantity}</span>
+                    <button onClick={handleIncrease}>+</button>
+                </div>
+            )}
+        </div>
+    );
 };
+
+export default ProductCard;

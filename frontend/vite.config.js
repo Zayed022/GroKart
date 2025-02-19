@@ -8,5 +8,6 @@ export default defineConfig({
       '/api':"http://localhost:2020",
     },
   },
+  
   plugins: [react()],
 })
