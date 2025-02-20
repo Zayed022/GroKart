@@ -6,35 +6,45 @@ export default function CartComp() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Get userId from localStorage (or context if using)
-  const userId = localStorage.getItem("userId"); // Ensure userId is correctly stored
-
   useEffect(() => {
-    
     const userId = localStorage.getItem("userId");
-  
+    const token = localStorage.getItem("token"); // Ensure token is retrieved
+
     if (!userId || userId === "null") {
       console.error("User ID is missing! Cannot fetch cart.");
-      return;  // Stop execution
+      setLoading(false);
+      return;
     }
-  
+
     const fetchCart = async () => {
       console.log(`Fetching cart for user ID: ${userId}`);
       try {
-        const response = await fetch(`http://localhost:2020/api/v1/cart/get-cart/${userId}`);
-        if (!response.ok) throw new Error("Failed to fetch cart");
-  
+        const response = await fetch(`/api/v1/cart/get-cart/${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Add token
+          },
+          credentials: "include", // Ensure cookies are sent if needed
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch cart: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
+        console.log("Cart Data:", data);
         setCart(data.items || []);
       } catch (error) {
         console.error("Error fetching cart:", error);
         setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
-  
+
     fetchCart();
   }, []);
-  
 
   const updateQuantity = (id, delta) => {
     setCart((prevCart) =>
@@ -48,8 +58,9 @@ export default function CartComp() {
     setCart(cart.filter((item) => item.id !== id));
   };
 
-  const totalSavings = cart.reduce((acc, item) => acc + (item.originalPrice - item.price) * item.quantity, 0);
-  const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalSavings = cart.reduce((acc, item) => acc + ((item.originalPrice || 0) - (item.price || 0)) * (item.quantity || 1), 0);
+  const totalPrice = cart.reduce((acc, item) => acc + (item.price || 0) * (item.quantity || 1), 0);
+  
 
   if (loading) return <p>Loading cart...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -64,7 +75,7 @@ export default function CartComp() {
             <div className="flex justify-between items-center w-full">
               <div>
                 <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-500">₹{item.price.toFixed(2)}</p>
+                <p className="text-sm text-gray-500">₹{item.price}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <button onClick={() => updateQuantity(item.id, -1)}>
@@ -83,7 +94,7 @@ export default function CartComp() {
         ))}
       </div>
       <div className="mt-4 border-t pt-4">
-        <p className="text-sm">Total: <span className="font-bold">₹{totalPrice.toFixed(2)}</span></p>
+      <p className="text-sm">Total: <span className="font-bold">₹{(totalPrice || 0).toFixed(2)}</span></p>
         <button className="w-full mt-2 bg-red-500 text-white">Add Address to Proceed</button>
       </div>
     </div>

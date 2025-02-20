@@ -15,11 +15,40 @@ function Items() {
   }, [cart]);
 
   // Add to Cart Function
-  const addToCart = (id) => {
-    setCart((prev) => ({
-      ...prev,
-      [id]: 1, // Set quantity to 1 when first added
-    }));
+  const userId = localStorage.getItem("userId"); // Ensure userId is retrieved correctly
+
+  const addToCart = async (productId) => {
+    if (!userId) {
+      alert("Please log in to add items to your cart.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/v1/cart/add/${userId}/${productId}/1`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add item to cart");
+      }
+
+      // Update local state after successful backend update
+      setCart((prev) => ({
+        ...prev,
+        [productId]: 1, // Set quantity to 1
+      }));
+
+      console.log("Item added to cart successfully.");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Failed to add item to cart. Please try again.");
+    }
   };
 
   // Increase Quantity
@@ -130,13 +159,13 @@ function Items() {
                         </button>
                       </div>
                     ) : (
-                      <Link to ="/cart">
-                      <button
-                        onClick={() => addToCart(userId, price, product._id,quantity)}
-                        className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
-                      >
-                        Add to Cart
-                      </button>
+                      <Link to={`/cart/${encodeURIComponent(userId)}`}>
+                        <button
+                          onClick={() => addToCart(product._id)}
+                          className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
+                        >
+                          Add to Cart
+                        </button>
                       </Link>
                     )}
                   </div>
