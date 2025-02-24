@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { CartContext } from "../context/Cart.jsx";
+import Cart from "./Cart.jsx";
 
 function Items() {
   const [products, setProducts] = useState([]);
+  const [showModal, setshowModal] = useState(false)
   const [loading, setLoading] = useState(true);
+  const {cartItems, addToCart} = useContext(CartContext)
+
+  const toggle = () =>{
+    setshowModal(!showModal);
+  };
   const [cart, setCart] = useState(() => {
     // Load cart from localStorage when component mounts
     return JSON.parse(localStorage.getItem("cart")) || {};
@@ -16,7 +24,7 @@ function Items() {
 
   // Add to Cart Function
   const userId = localStorage.getItem("userId"); // Ensure userId is retrieved correctly
-
+  {/*
   const addToCart = async (productId) => {
     if (!userId) {
       alert("Please log in to add items to your cart.");
@@ -50,6 +58,7 @@ function Items() {
       alert("Failed to add item to cart. Please try again.");
     }
   };
+  */}
 
   // Increase Quantity
   const increaseQuantity = (id) => {
@@ -81,7 +90,8 @@ function Items() {
           throw new Error("Failed to fetch products");
         }
         const data = await response.json();
-        setProducts(data);
+        
+        if (Array.isArray(data)) setProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -159,14 +169,18 @@ function Items() {
                         </button>
                       </div>
                     ) : (
-                      <Link to={`/cart/${encodeURIComponent(userId)}`}>
+                      
                         <button
-                          onClick={() => addToCart(product._id)}
+                          
                           className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
+                          onClick={() => {
+                            addToCart(product)
+                          }
+                          }
                         >
                           Add to Cart
                         </button>
-                      </Link>
+                      
                     )}
                   </div>
                 </div>
@@ -177,6 +191,7 @@ function Items() {
           )}
         </div>
       )}
+      <Cart showModal={showModal} toggle={toggle} />
     </div>
   );
 }
