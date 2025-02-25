@@ -8,7 +8,7 @@ import Subcategorypage from "./pages/Subcategory/Subcategorypage";
 import Items from "./components/Items";
 import ProductDetails from "./components/ProductDetails";
 import ProductCard from "./components/ProductCard";
-import CartComp from "./components/CartComp";
+
 import Cart from "./components/Cart";
 import CartDisplay from "./components/CartDIsplay";
 

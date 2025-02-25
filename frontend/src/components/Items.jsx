@@ -61,25 +61,37 @@ function Items() {
   */}
 
   // Increase Quantity
-  const increaseQuantity = (id) => {
-    setCart((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1, // Increment quantity
-    }));
-  };
+  // Increase Quantity
+// Increase Quantity
+const increaseQuantity = (product) => {
+  const updatedCart = { ...cart };
+  updatedCart[product._id] = (updatedCart[product._id] || 0) + 1;
 
-  // Decrease Quantity or Remove Item
-  const decreaseQuantity = (id) => {
-    setCart((prev) => {
-      const updatedCart = { ...prev };
-      if (updatedCart[id] > 1) {
-        updatedCart[id] -= 1; // Reduce quantity
-      } else {
-        delete updatedCart[id]; // Remove from cart if quantity is 0
-      }
-      return updatedCart;
-    });
-  };
+  setCart(updatedCart);
+  localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+  // Call context function to sync with global cart
+  addToCart(product, updatedCart[product._id]); 
+};
+
+// Decrease Quantity or Remove Item
+const decreaseQuantity = (product) => {
+  const updatedCart = { ...cart };
+
+  if (updatedCart[product._id] > 1) {
+    updatedCart[product._id] -= 1; // Decrease quantity
+  } else {
+    delete updatedCart[product._id]; // Remove from cart if quantity reaches 0
+  }
+
+  setCart(updatedCart);
+  localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+  // Sync with global cart
+  addToCart(product, updatedCart[product._id] || 0);
+};
+
+  
 
   // Fetch Products from Backend
   useEffect(() => {
@@ -155,14 +167,14 @@ function Items() {
                     {cart[product._id] ? (
                       <div className="flex items-center justify-center border border-pink-500 rounded-lg w-full">
                         <button
-                          onClick={() => decreaseQuantity(product._id)}
+                          onClick={() => decreaseQuantity(product)}
                           className="px-3 py-2 text-pink-500 font-bold"
                         >
                           −
                         </button>
                         <span className="px-4">{cart[product._id]}</span>
                         <button
-                          onClick={() => increaseQuantity(product._id)}
+                          onClick={() => increaseQuantity(product)}
                           className="px-3 py-2 text-pink-500 font-bold"
                         >
                           +
@@ -170,16 +182,19 @@ function Items() {
                       </div>
                     ) : (
                       
-                        <button
-                          
-                          className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
-                          onClick={() => {
-                            addToCart(product)
-                          }
-                          }
-                        >
-                          Add to Cart
-                        </button>
+                      <button
+                      className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
+                      onClick={() => {
+                        addToCart(product); // Add item to context/cart
+                        setCart((prev) => ({
+                          ...prev,
+                          [product._id]: 1, // Set quantity to 1
+                        })); // Force state update
+                      }}
+                    >
+                      Add to Cart
+                    </button>
+                    
                       
                     )}
                   </div>

@@ -34,9 +34,9 @@ const Home = () => {
         <CustomizedInputBase className="md: width-200 ml-5" />
         <div className="flex justify-center items-center mr-12 mt-0.5">
           {/* Clicking Cart Icon Toggles Sidebar */}
-          
+          <Link to = "/cart">
             <ShoppingCartIcon className="mr-5 ml-4" />
-          
+          </Link>
 
           <Link to="/login">
             <AccountCircleIcon className="mr-4" />

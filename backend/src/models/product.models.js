@@ -9,6 +9,12 @@ const productSchema = new Schema({
         type:Number,
         required:true,
     },
+    description:{
+        type:String,
+    },
+    weight:{
+        type:String,
+    },
     category:{
         type:String,
         required:true,

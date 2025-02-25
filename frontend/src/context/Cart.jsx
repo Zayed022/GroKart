@@ -24,24 +24,30 @@ export const CartProvider = ({ children }) => {
       }
     });
   };
+  const updateCartItemQuantity = (itemId, newQuantity) => {
+    setCartItems((prevCart) =>
+      prevCart.map((item) =>
+        item._id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
 
   const removeFromCart = (item) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((cartItem) => cartItem._id === item._id);
-
-      if (!existingItem) return prevItems; // Prevent errors if item not found
-
-      if (existingItem.quantity === 1) {
-        return prevItems.filter((cartItem) => cartItem._id !== item._id);
-      } else {
-        return prevItems.map((cartItem) =>
-          cartItem._id === item._id
-            ? { ...cartItem, quantity: cartItem.quantity - 1 }
-            : cartItem
-        );
-      }
-    });
+    setCartItems((prevItems) =>
+      prevItems.reduce((acc, cartItem) => {
+        if (cartItem._id === item._id) {
+          if (cartItem.quantity > 1) {
+            acc.push({ ...cartItem, quantity: cartItem.quantity - 1 });
+          }
+        } else {
+          acc.push(cartItem);
+        }
+        return acc;
+      }, [])
+    );
   };
+  
+  
 
   const clearCart = () => {
     setCartItems([]);
@@ -64,6 +70,8 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         clearCart,
         getCartTotal,
+        updateCartItemQuantity
+        
       }}
     >
       {children}
