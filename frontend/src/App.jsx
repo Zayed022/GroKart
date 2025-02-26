@@ -11,6 +11,7 @@ import ProductCard from "./components/ProductCard";
 
 import Cart from "./components/Cart";
 import CartDisplay from "./components/CartDIsplay";
+import Checkout from "./components/Checkout";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
       <Route path="/all-products" element={<Items />} />
       <Route path="/products/:productId" element={<ProductDetails />} />
       <Route path="/cart" element={<CartDisplay />} />
+      <Route path = "/checkout" element = {<Checkout/>}/>
       
       
       
