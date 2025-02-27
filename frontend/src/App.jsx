@@ -12,6 +12,7 @@ import ProductCard from "./components/ProductCard";
 import Cart from "./components/Cart";
 import CartDisplay from "./components/CartDIsplay";
 import Checkout from "./components/Checkout";
+import Payment from "./components/Payment";
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
       <Route path="/products/:productId" element={<ProductDetails />} />
       <Route path="/cart" element={<CartDisplay />} />
       <Route path = "/checkout" element = {<Checkout/>}/>
+      <Route path = "/payment" element = {<Payment/>}/>
       
       
       

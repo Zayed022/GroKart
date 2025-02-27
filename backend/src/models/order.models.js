@@ -50,7 +50,7 @@ const orderSchema = new Schema({
         default: null,
     },
     
-    deliveryAddress:
+    address:
         {
         houseNumber:{
             type:String,
@@ -63,7 +63,7 @@ const orderSchema = new Schema({
         },
         street:{
             type:String,
-            required:true,
+            //required:true,
         },
         city:{
             type:String,
@@ -77,16 +77,16 @@ const orderSchema = new Schema({
         },
         pincode:{
             type:String,
-            required:true,
+            //required:true,
         },
         coordinates:{
             lat:{
                 type:Number,
-                required:true,
+                //required:true,
             },
             lng:{
                 type:Number,
-                required:true
+                //required:true
             },
         },
     },

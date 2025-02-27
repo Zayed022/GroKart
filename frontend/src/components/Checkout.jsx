@@ -1,15 +1,23 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { CartContext } from "../context/Cart";
 
 const Checkout = () => {
   const location = useLocation();
-  const { address } = location.state || {};
+  const { address } = location.state || { address: "No address provided" };
   const { cartItems, getCartTotal } = useContext(CartContext);
 
   useEffect(() => {
     console.log("Checkout Page State:", location.state);
   }, [location.state]);
+
+  const navigate = useNavigate();
+
+  const handleProceedToPayment = () => {
+    navigate("/payment", {
+      state: { cartItems, totalAmount: getCartTotal(), address },
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 p-4">
@@ -20,8 +28,12 @@ const Checkout = () => {
 
         {/* Address Section */}
         <div className="mb-6">
-          <h3 className="text-lg font-medium text-gray-700">Shipping Address</h3>
-          <p className="text-gray-600 mt-1">{address || "No address provided"}</p>
+          <h3 className="text-lg font-medium text-gray-700">
+            Shipping Address
+          </h3>
+          <p className="text-gray-600 mt-1">
+            {address || "No address provided"}
+          </p>
         </div>
 
         {/* Order Summary */}
@@ -53,14 +65,20 @@ const Checkout = () => {
 
         {/* Total Price */}
         <div className="flex justify-between items-center border-t pt-4">
-          <span className="text-lg font-semibold text-gray-700">Total Price:</span>
-          <span className="text-xl font-bold text-green-600">₹{getCartTotal()}</span>
+          <span className="text-lg font-semibold text-gray-700">
+            Total Price:
+          </span>
+          <span className="text-xl font-bold text-green-600">
+            ₹{getCartTotal()}
+          </span>
         </div>
 
         {/* Checkout Button */}
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mt-6 shadow-md transition-all">
-          Proceed to Payment
-        </button>
+        
+          <button  onClick={handleProceedToPayment} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mt-6 shadow-md transition-all">
+            Proceed to Payment
+          </button>
+        
       </div>
     </div>
   );

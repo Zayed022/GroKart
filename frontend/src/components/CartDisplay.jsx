@@ -23,7 +23,7 @@ const CartDisplay = ({ onClose }) => {
   }, [cartItems]);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyD8emJacgqNyL-uXDQG-eucnn2LuxNuzsY", // 🔴 Replace with your actual API Key
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY, // 🔴 Replace with your actual API Key
   });
 
   const getUserLocation = () => {
