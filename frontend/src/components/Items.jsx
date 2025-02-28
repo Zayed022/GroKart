@@ -2,13 +2,16 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CartContext } from "../context/Cart.jsx";
 import Cart from "./Cart.jsx";
+import Search from "./Search.jsx";
 
 function Items() {
   const [products, setProducts] = useState([]);
   const [showModal, setshowModal] = useState(false)
   const [loading, setLoading] = useState(true);
   const {cartItems, addToCart} = useContext(CartContext)
-
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const toggle = () =>{
     setshowModal(!showModal);
   };
@@ -114,15 +117,30 @@ const decreaseQuantity = (product) => {
     fetchProducts();
   }, []);
 
+  const handleSearch = (query) => {
+    setSearchTerm(query);
+    if (query.trim() === "") {
+      setFilteredProducts(products);
+    } else {
+      const filteredProducts2 = products.filter((product) =>
+        product.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredProducts(filteredProducts2);
+    }
+  };
+  
+
   return (
     <div className="p-6">
+       <Search onSearch={handleSearch} />
+       <p>Search Query: {searchTerm}</p>
       <h2 className="text-2xl font-semibold text-center">Shop by Category</h2>
       {loading ? (
         <p className="text-center text-gray-600">Loading products...</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-          {products.length > 0 ? (
-            products.map((product) => (
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
               <div
                 key={product._id}
                 className="relative bg-white shadow-lg rounded-lg overflow-hidden border"
@@ -211,4 +229,4 @@ const decreaseQuantity = (product) => {
   );
 }
 
-export default Items;
+export default Items;  

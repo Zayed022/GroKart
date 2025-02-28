@@ -57,6 +57,10 @@ export const CartProvider = ({ children }) => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
+  const getTotalQuantity = () => {
+    return cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  };
+
   // Store cart items in localStorage when cart updates
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
@@ -70,7 +74,8 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         clearCart,
         getCartTotal,
-        updateCartItemQuantity
+        updateCartItemQuantity,
+        getTotalQuantity
         
       }}
     >

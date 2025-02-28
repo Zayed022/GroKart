@@ -7,12 +7,10 @@ import CategoryPage from "./pages/categoryPage";
 import Subcategorypage from "./pages/Subcategory/Subcategorypage";
 import Items from "./components/Items";
 import ProductDetails from "./components/ProductDetails";
-import ProductCard from "./components/ProductCard";
-
-import Cart from "./components/Cart";
 import CartDisplay from "./components/CartDIsplay";
 import Checkout from "./components/Checkout";
 import Payment from "./components/Payment";
+import OrderSuccess from "./components/OrderSuccess";
 
 
 function App() {
@@ -28,6 +26,8 @@ function App() {
       <Route path="/cart" element={<CartDisplay />} />
       <Route path = "/checkout" element = {<Checkout/>}/>
       <Route path = "/payment" element = {<Payment/>}/>
+      <Route path = "/order-success" element = {<OrderSuccess/>}/>
+      
       
       
       

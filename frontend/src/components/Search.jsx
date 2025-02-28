@@ -1,28 +1,24 @@
-import * as React from 'react';
-import Paper from '@mui/material/Paper';
-import InputBase from '@mui/material/InputBase';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import DirectionsIcon from '@mui/icons-material/Directions';
+import React from "react";
 
-export default function CustomizedInputBase() {
+function Search({ onSearch }) {
+  console.log("onSearch prop received:", onSearch); // Debugging
+
+  const handleChange = (event) => {
+    if (typeof onSearch === "function") {
+      onSearch(event.target.value);
+    } else {
+      console.error("onSearch is not a function. Received:", onSearch);
+    }
+  };
+
   return (
-    <Paper
-      component="form"
-      sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 800 }}
-    >
-      
-      <InputBase
-        sx={{ ml: 1, flex: 1 }}
-        placeholder="Search Items"
-        inputProps={{ 'aria-label': 'search google maps' }}
-      />
-      <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-        <SearchIcon />
-      </IconButton>
-      
-    </Paper>
+    <input
+      type="text"
+      placeholder="Search products..."
+      onChange={handleChange}
+      className="border p-2 rounded w-full"
+    />
   );
 }
+
+export default Search;

@@ -3,7 +3,7 @@ import { CartContext } from "../context/Cart";
 import { FaArrowLeft } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const CartDisplay = ({ onClose }) => {
   const { cartItems , updateCartItemQuantity, removeFromCart, getCartTotal} = useContext(CartContext);
@@ -92,15 +92,20 @@ const CartDisplay = ({ onClose }) => {
     <div className="fixed right-0 top-0 w-96 h-full bg-white shadow-lg z-50 p-6 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <FaArrowLeft
+        <Link to = "/">
+        <FaArrowLeft 
           className="cursor-pointer text-xl text-gray-600 hover:text-black"
           onClick={onClose}
         />
+        </Link>
         <h2 className="text-lg font-semibold">Your Cart</h2>
+        
         <IoMdClose
           className="cursor-pointer text-xl text-gray-600 hover:text-black"
           onClick={onClose}
+
         />
+        
       </div>
 
       {/* Cart Items */}
