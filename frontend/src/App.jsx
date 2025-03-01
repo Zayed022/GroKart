@@ -11,6 +11,7 @@ import CartDisplay from "./components/CartDIsplay";
 import Checkout from "./components/Checkout";
 import Payment from "./components/Payment";
 import OrderSuccess from "./components/OrderSuccess";
+import { Sidebar } from "lucide-react";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
       <Route path = "/checkout" element = {<Checkout/>}/>
       <Route path = "/payment" element = {<Payment/>}/>
       <Route path = "/order-success" element = {<OrderSuccess/>}/>
+      <Route path = "/mini" element = {<Sidebar/>}/>
       
       
       

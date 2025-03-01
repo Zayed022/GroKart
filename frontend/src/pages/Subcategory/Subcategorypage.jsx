@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { CartContext } from "../../context/Cart";
 
 function SubcategoryPage() {
   const { subCategory } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState({});
+  const [showModal, setshowModal] = useState(false)
+  const {cartItems, addToCart} = useContext(CartContext)
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -28,31 +33,49 @@ function SubcategoryPage() {
     fetchProducts();
   }, [subCategory]);
 
-  const addToCart = (id) => {
-    setCart((prev) => ({
-      ...prev,
-      [id]: 1,
-    }));
-  };
+  
 
-  const increaseQuantity = (id) => {
-    setCart((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
-  };
-
-  const decreaseQuantity = (id) => {
-    setCart((prev) => {
-      const updatedCart = { ...prev };
-      if (updatedCart[id] > 1) {
-        updatedCart[id] -= 1;
-      } else {
-        delete updatedCart[id];
-      }
-      return updatedCart;
+  const [cart, setCart] = useState(() => {
+      // Load cart from localStorage when component mounts
+      return JSON.parse(localStorage.getItem("cart")) || {};
     });
+  
+    // Save cart to localStorage whenever it changes
+    useEffect(() => {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }, [cart]);
+  
+    // Add to Cart Function
+    const userId = localStorage.getItem("userId"); // Ensure userId is retrieved correctly
+    
+  const increaseQuantity = (product) => {
+    const updatedCart = { ...cart };
+    updatedCart[product._id] = (updatedCart[product._id] || 0) + 1;
+  
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  
+    // Call context function to sync with global cart
+    addToCart(product, updatedCart[product._id]); 
   };
+  
+  // Decrease Quantity or Remove Item
+  const decreaseQuantity = (product) => {
+    const updatedCart = { ...cart };
+  
+    if (updatedCart[product._id] > 1) {
+      updatedCart[product._id] -= 1; // Decrease quantity
+    } else {
+      delete updatedCart[product._id]; // Remove from cart if quantity reaches 0
+    }
+  
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  
+    // Sync with global cart
+    addToCart(product, updatedCart[product._id] || 0);
+  };
+  
 
   return (
     <div className="p-8">
@@ -78,32 +101,41 @@ function SubcategoryPage() {
                 <p className="text-gray-600">₹{product.price}</p>
 
                 {/* Add to Cart Button / Quantity Meter */}
-                <div className="mt-2">
-                  {cart[product._id] ? (
-                    <div className="flex items-center justify-center border border-pink-500 rounded-lg">
+                <div className="mt-4">
+                    {cart[product._id] ? (
+                      <div className="flex items-center justify-center border border-pink-500 rounded-lg w-full">
+                        <button
+                          onClick={() => decreaseQuantity(product)}
+                          className="px-3 py-2 text-pink-500 font-bold"
+                        >
+                          −
+                        </button>
+                        <span className="px-4">{cart[product._id]}</span>
+                        <button
+                          onClick={() => increaseQuantity(product)}
+                          className="px-3 py-2 text-pink-500 font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
+                    ) : (
+                      
                       <button
-                        onClick={() => decreaseQuantity(product._id)}
-                        className="px-3 py-2 text-pink-500 font-bold"
-                      >
-                        −
-                      </button>
-                      <span className="px-4">{cart[product._id]}</span>
-                      <button
-                        onClick={() => increaseQuantity(product._id)}
-                        className="px-3 py-2 text-pink-500 font-bold"
-                      >
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => addToCart(product._id)}
-                      className="w-full bg-pink-500 text-white p-2 rounded-lg hover:bg-pink-600"
+                      className="px-6 py-2 text-white bg-pink-500 rounded-lg w-full"
+                      onClick={() => {
+                        addToCart(product); // Add item to context/cart
+                        setCart((prev) => ({
+                          ...prev,
+                          [product._id]: 1, // Set quantity to 1
+                        })); // Force state update
+                      }}
                     >
                       Add to Cart
                     </button>
-                  )}
-                </div>
+                    
+                      
+                    )}
+                  </div>
               </div>
             ))
           ) : (

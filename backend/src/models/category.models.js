@@ -9,6 +9,10 @@ const categorySchema = new Schema({
         type:String,
         required:true,
     },
+    minicategory:{
+        type:String,
+        //required:true,
+    },
     image:{
         type:String,
     },

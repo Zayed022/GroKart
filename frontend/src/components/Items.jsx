@@ -27,45 +27,7 @@ function Items() {
 
   // Add to Cart Function
   const userId = localStorage.getItem("userId"); // Ensure userId is retrieved correctly
-  {/*
-  const addToCart = async (productId) => {
-    if (!userId) {
-      alert("Please log in to add items to your cart.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `/api/v1/cart/add/${userId}/${productId}/1`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to add item to cart");
-      }
-
-      // Update local state after successful backend update
-      setCart((prev) => ({
-        ...prev,
-        [productId]: 1, // Set quantity to 1
-      }));
-
-      console.log("Item added to cart successfully.");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Failed to add item to cart. Please try again.");
-    }
-  };
-  */}
-
-  // Increase Quantity
-  // Increase Quantity
-// Increase Quantity
+  
 const increaseQuantity = (product) => {
   const updatedCart = { ...cart };
   updatedCart[product._id] = (updatedCart[product._id] || 0) + 1;

@@ -1,18 +1,45 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { CartContext } from "../context/Cart";
 
 const ProductDetails = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
-  const increaseQuantity = () => {
-    setQuantity((prev) => prev + 1);
+  const { cartItems, addToCart } = useContext(CartContext);
+  const [cart, setCart] = useState(() => {
+    return JSON.parse(localStorage.getItem("cart")) || {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  const userId = localStorage.getItem("userId"); // Ensure userId is retrieved correctly
+
+  const increaseQuantity = (product) => {
+    const updatedCart = { ...cart };
+    updatedCart[product._id] = (updatedCart[product._id] || 0) + 1;
+
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    addToCart(product, updatedCart[product._id]);
   };
 
-  // Handle quantity decrease (minimum 1)
-  const decreaseQuantity = () => {
-    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const decreaseQuantity = (product) => {
+    const updatedCart = { ...cart };
+
+    if (updatedCart[product._id] > 1) {
+      updatedCart[product._id] -= 1;
+    } else {
+      delete updatedCart[product._id];
+    }
+
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    addToCart(product, updatedCart[product._id] || 0);
   };
 
   useEffect(() => {
@@ -38,11 +65,8 @@ const ProductDetails = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      {/* Bigger Container */}
       <div className="w-full max-w-4xl bg-white p-8 rounded-xl shadow-lg">
-        {/* Product Content */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-10">
-          {/* Left: Bigger Product Image */}
           <div className="w-full md:w-1/2 flex justify-center">
             <img
               src={product.image || "/placeholder.jpg"}
@@ -51,34 +75,44 @@ const ProductDetails = () => {
             />
           </div>
 
-          {/* Right: Bigger Product Details */}
           <div className="w-full md:w-1/2 text-center md:text-left">
             <h2 className="text-3xl font-bold">{product.name}</h2>
             <p className="text-green-600 text-xl font-bold">₹{product.price}</p>
 
-            {/* Quantity Selector - Bigger Buttons */}
-            <div className="flex items-center justify-center md:justify-start gap-6 my-5">
-              <button
-                onClick={decreaseQuantity}
-                className="bg-gray-300 px-3 py-2 text-lg rounded hover:bg-gray-400"
-              >
-                -
-              </button>
-              <span className="text-xl">{quantity}</span>
-              <button
-                onClick={increaseQuantity}
-                className="bg-gray-300 px-3 py-2 text-lg rounded hover:bg-gray-400"
-              >
-                +
-              </button>
+            <div className="mt-4">
+              {cart[product._id] ? (
+                <div className="flex items-center justify-center border border-green-500 rounded-lg w-full">
+                  <button
+                    onClick={() => decreaseQuantity(product)}
+                    className="px-3 py-2 text-green-500 font-bold"
+                  >
+                    −
+                  </button>
+                  <span className="px-4">{cart[product._id]}</span>
+                  <button
+                    onClick={() => increaseQuantity(product)}
+                    className="px-3 py-2 text-green-500 font-bold"
+                  >
+                    +
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="px-6 py-2 text-white bg-green-500 rounded-lg w-full"
+                  onClick={() => {
+                    addToCart(product, 1);
+                    setCart((prev) => ({
+                      ...prev,
+                      [product._id]: 1,
+                    }));
+                  }}
+                >
+                  Add to Cart
+                </button>
+              )}
             </div>
 
-            {/* Bigger Add to Cart Button */}
-            <button className="bg-green-500 text-white px-8 py-3 text-lg rounded-lg">
-              Add to Cart
-            </button>
-
-            {/* Bigger Coupons & Offers Section */}
+            {/* Coupons & Offers Section */}
             <div className="mt-6 p-5 bg-gray-100 rounded-lg text-lg">
               <h3 className="text-xl font-semibold">Coupons & Offers</h3>
               <ul className="text-gray-700">
