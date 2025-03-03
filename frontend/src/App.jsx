@@ -7,7 +7,7 @@ import CategoryPage from "./pages/categoryPage";
 import Subcategorypage from "./pages/Subcategory/Subcategorypage";
 import Items from "./components/Items";
 import ProductDetails from "./components/ProductDetails";
-import CartDisplay from "./components/CartDIsplay";
+import CartDisplay from "./components/CartDisplay";
 import Checkout from "./components/Checkout";
 import Payment from "./components/Payment";
 import OrderSuccess from "./components/OrderSuccess";
