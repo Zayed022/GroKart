@@ -1,6 +1,6 @@
 import { User } from "../models/user.models.js";
 
-import jwt from "jsonwebtoken"
+
 
 
 const generateAccessAndRefreshTokens = async(userId)=>{
