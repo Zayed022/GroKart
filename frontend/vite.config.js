@@ -5,7 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server:{
     proxy:{
-      '/api':"https://grokart-2.onrender.com",
+      '/api': {
+        target: 'https://grokart-2.onrender.com',
+        changeOrigin: true,
+        secure: false,
+      }
     },
   },
   

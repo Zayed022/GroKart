@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; // Import Link for navigation
 
@@ -8,7 +9,8 @@ function CsCards() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("/api/v1/category/get-all-categories");
+        const response = await fetch('/api/v1/category/get-all-categories')
+
         const data = await response.json();
 
         // Group subcategories under their category
