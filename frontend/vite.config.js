@@ -6,7 +6,7 @@ export default defineConfig({
   server:{
     proxy:{
       '/api': {
-        target: 'https://grokart-2.onrender.com',
+        target: "https://grokart-2.onrender.com",
         changeOrigin: true,
         secure: false,
       }
