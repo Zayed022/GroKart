@@ -9,7 +9,7 @@ function CsCards() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/v1/category/get-all-categories')
+        const response = await fetch('https://grokart-2.onrender.com/api/v1/category/get-all-categories')
 
         const data = await response.json();
 
