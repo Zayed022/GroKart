@@ -62,7 +62,7 @@ const decreaseQuantity = (product) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("/api/v1/products/get-product");
+        const response = await fetch("https://grokart-2.onrender.com/api/v1/products/get-product");
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }

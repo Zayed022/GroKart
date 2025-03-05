@@ -12,7 +12,7 @@ export default function ProductList() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`/api/v1/products/?search=${search}`);
+      const response = await axios.get(`https://grokart-2.onrender.com/api/v1/products/?search=${search}`);
       setProducts(response.data.products);
     } catch (error) {
       console.error('Error fetching products:', error);

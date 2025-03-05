@@ -8,7 +8,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchMiniCategories = async () => {
       try {
-        const { data } = await axios.get("/api/v1/products/get-all-mini-categories");
+        const { data } = await axios.get("https://grokart-2.onrender.com/api/v1/products/get-all-mini-categories");
         setMiniCategories(data.miniCategories);
       } catch (error) {
         console.error("Error fetching miniCategories:", error);

@@ -15,7 +15,7 @@ const Register = ()=>{
     const handleRegister = async(e)=>{
         e.preventDefault();
         try {
-            const {data} = await axios.post("/api/v1/users/register",{name,email,phone,password}, {withCredentials:true});
+            const {data} = await axios.post("https://grokart-2.onrender.com/api/v1/users/register",{name,email,phone,password}, {withCredentials:true});
             if (data.success){
                 navigate("/login");
             }

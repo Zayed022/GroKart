@@ -45,7 +45,7 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/v1/products/${productId}`);
+        const response = await fetch(`https://grokart-2.onrender.com/api/v1/products/${productId}`);
         const data = await response.json();
         if (data.product) {
           setProduct(data.product);

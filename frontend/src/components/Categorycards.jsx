@@ -7,7 +7,7 @@ function Categorycards() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("/api/v1/products/get-all-categories");
+        const res = await fetch("https://grokart-2.onrender.com/api/v1/products/get-all-categories");
         const data = await res.json();
         setCategories(data.categories || []);
       } catch (error) {

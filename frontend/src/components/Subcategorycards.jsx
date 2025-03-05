@@ -7,7 +7,7 @@ function Subcategorycards() {
     useEffect(()=>{
         const fetchCategories = async()=>{
             try {
-                const response = await fetch("/api/v1/products/get-categories-with-subcategories");
+                const response = await fetch("https://grokart-2.onrender.com/api/v1/products/get-categories-with-subcategories");
                 const data = await response.json();
                 if(data.success){
                     setCategories(data.data);

@@ -7,7 +7,7 @@ const ProductCard = ({ product, userId }) => {
     const handleAddToCart = async () => {
         try {
             const response = await axios.post(
-                `/api/v1/cart/add/${userId}/${product._id}/1`
+                `https://grokart-2.onrender.com/api/v1/cart/add/${userId}/${product._id}/1`
             );
             console.log(response.data);
             setQuantity(1); // Change button to quantity selector

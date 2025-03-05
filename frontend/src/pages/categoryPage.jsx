@@ -8,7 +8,7 @@ function CategoryPage() {
   const [cart, setCart] = useState({});
 
   useEffect(() => {
-    fetch(`/api/v1/products/category/${encodeURIComponent(categoryName)}`)
+    fetch(`https://grokart-2.onrender.com/api/v1/products/category/${encodeURIComponent(categoryName)}`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.product);
