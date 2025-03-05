@@ -46,7 +46,7 @@ const Payment = () => {
             order_id: orderData.razorpayOrderId,
             handler: async function (response) {
                 try {
-                    const verifyRes = await axios.post("/api/v1/payment/verify", {
+                    const verifyRes = await axios.post("https://grokart-2.onrender.com/api/v1/payment/verify", {
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
                         razorpay_signature: response.razorpay_signature,
@@ -54,7 +54,7 @@ const Payment = () => {
                     });
 
                     if (verifyRes.data.success) {
-                        await axios.post("/api/v1/order/place-order", {
+                        await axios.post("https://grokart-2.onrender.com/api/v1/order/place-order", {
                             userId,
                             items: cartItems,
                             totalAmount: finalAmount,
