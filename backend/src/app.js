@@ -3,7 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 const app= express()
 app.use(cors({
-    origin:["https://gro-kart.vercel.app", "http://localhost:5173/"],
+    origin:["https://gro-kart.vercel.app", "http://localhost:5173"],
     credentials:true
 }))
 

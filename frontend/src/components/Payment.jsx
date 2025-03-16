@@ -41,7 +41,7 @@ const Payment = () => {
             key: import.meta.env.VITE_RAZORPAY_KEY_ID,
             amount: orderData.amount,
             currency: "INR",
-            name: "Your Store Name",
+            //name: "Your Store Name",
             description: `Order ${orderData.id}`,
             order_id: orderData.razorpayOrderId,
             handler: async function (response) {
@@ -52,6 +52,11 @@ const Payment = () => {
                         razorpay_signature: response.razorpay_signature,
                         orderId: orderData._id
                     });
+                    const formattedItems = cartItems.map(item => ({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price: item.price,
+                    }));
 
                     if (verifyRes.data.success) {
                         await axios.post("https://grokart-2.onrender.com/api/v1/order/place-order", {
@@ -59,7 +64,8 @@ const Payment = () => {
                             items: cartItems,
                             totalAmount: finalAmount,
                             paymentId: response.razorpay_payment_id,
-                            deliveryAddress: address
+                            deliveryAddress: address,
+                            paymentMethod: "UPI"
                         });
                         clearCart();
                         navigate("/order-success", { state: { order: orderData } });
