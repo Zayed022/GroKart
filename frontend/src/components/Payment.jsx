@@ -46,7 +46,7 @@ const Payment = () => {
             order_id: orderData.razorpayOrderId,
             handler: async function (response) {
                 try {
-                    const verifyRes = await axios.post("https://grokart-2.onrender.com/api/v1/payment/verify", {
+                    const verifyRes = await axios.post("https://grokart-2.onrender.com/api/v1/order/verify", {
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
                         razorpay_signature: response.razorpay_signature,
