@@ -52,7 +52,7 @@ const Home = () => {
 
       {/* Content */}
       <Hero />
-      <Items/>
+      
       <CsCards />
     </>
   );

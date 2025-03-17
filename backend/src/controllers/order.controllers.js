@@ -24,10 +24,18 @@ const razorpay = new Razorpay({
 
 const createOrder = async (req, res) => {
     try {
-        const { userId, cartItems, totalAmount, paymentMethod, address, couponCode = null, email } = req.body;
+        const { 
+            userId, 
+            cartItems, 
+            totalAmount, 
+            paymentMethod, 
+            address, 
+            couponCode = null, 
+            email 
+        } = req.body;
 
         // Enhanced validation
-        const requiredFields = ['userId', 'cartItems', 'totalAmount', 'paymentMethod', 'address'];
+        const requiredFields = [ 'totalAmount',  'address'];
         const missingFields = requiredFields.filter(field => !req.body[field]);
         
         if (missingFields.length > 0) {
@@ -148,6 +156,7 @@ const placeOrder = async (req,res)=>{
         res.status(201).json({success:true, message:"Order placed successfully", order :newOrder})
     }
     catch(error){
+        console.log(error)
         res.status(500).json({error:"Error placing order"})
     }
 }

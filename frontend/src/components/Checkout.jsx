@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../context/Cart";
 
 const Checkout = () => {
@@ -7,15 +7,18 @@ const Checkout = () => {
   const { address } = location.state || { address: "No address provided" };
   const { cartItems, getCartTotal } = useContext(CartContext);
 
-  useEffect(() => {
-    console.log("Checkout Page State:", location.state);
-  }, [location.state]);
-
   const navigate = useNavigate();
+
+  const deliveryCharge = 15;
+  const handlingFee = 9;
+
+  // Calculate item total and grand total
+  const itemTotal = getCartTotal();
+  const grandTotal = itemTotal + deliveryCharge + handlingFee;
 
   const handleProceedToPayment = () => {
     navigate("/payment", {
-      state: { cartItems, totalAmount: getCartTotal(), address },
+      state: { cartItems, itemTotal, deliveryCharge, handlingFee, grandTotal, address },
     });
   };
 
@@ -28,12 +31,8 @@ const Checkout = () => {
 
         {/* Address Section */}
         <div className="mb-6">
-          <h3 className="text-lg font-medium text-gray-700">
-            Shipping Address
-          </h3>
-          <p className="text-gray-600 mt-1">
-            {address || "No address provided"}
-          </p>
+          <h3 className="text-lg font-medium text-gray-700">Shipping Address</h3>
+          <p className="text-gray-600 mt-1">{address}</p>
         </div>
 
         {/* Order Summary */}
@@ -48,9 +47,7 @@ const Checkout = () => {
                 >
                   <div>
                     <p className="text-gray-800 font-medium">{item.name}</p>
-                    <p className="text-gray-500">
-                      ₹{item.price} × {item.quantity}
-                    </p>
+                    <p className="text-gray-500">₹{item.price} × {item.quantity}</p>
                   </div>
                   <span className="text-gray-900 font-semibold">
                     ₹{item.price * item.quantity}
@@ -63,22 +60,33 @@ const Checkout = () => {
           )}
         </div>
 
-        {/* Total Price */}
-        <div className="flex justify-between items-center border-t pt-4">
-          <span className="text-lg font-semibold text-gray-700">
-            Total Price:
-          </span>
-          <span className="text-xl font-bold text-green-600">
-            ₹{getCartTotal()}
-          </span>
+        {/* Price Breakdown */}
+        <div className="space-y-3 border-t pt-4">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-700">Item Total:</span>
+            <span className="text-lg text-gray-900">₹{itemTotal}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-700">Delivery Charge:</span>
+            <span className="text-lg text-gray-900">₹{deliveryCharge}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-700">Handling Fee:</span>
+            <span className="text-lg text-gray-900">₹{handlingFee}</span>
+          </div>
+          <div className="flex justify-between items-center border-t pt-4">
+            <span className="text-xl font-bold text-gray-700">Total Price:</span>
+            <span className="text-2xl font-bold text-green-600">₹{grandTotal}</span>
+          </div>
         </div>
 
         {/* Checkout Button */}
-        
-          <button  onClick={handleProceedToPayment} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mt-6 shadow-md transition-all">
-            Proceed to Payment
-          </button>
-        
+        <button
+          onClick={handleProceedToPayment}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mt-6 shadow-md transition-all"
+        >
+          Proceed to Payment
+        </button>
       </div>
     </div>
   );

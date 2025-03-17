@@ -8,7 +8,7 @@ const Payment = () => {
   const navigate = useNavigate();
   const storedUserId = localStorage.getItem("userId");
   const storedEmail = localStorage.getItem("email"); // Get email from storage
-  const { address, totalAmount, couponCode } = location.state || {};
+  const { address, totalAmount, couponCode, grandTotal,deliveryCharge=15, handlingFee=9 } = location.state || {};
   const userId = storedUserId || location.state?.userId;
   const { cartItems, clearCart } = useContext(CartContext);
   const [paymentMethod, setPaymentMethod] = useState("UPI");
@@ -27,8 +27,8 @@ const Payment = () => {
   };
 
   useEffect(() => {
-    setFinalAmount(paymentMethod === "COD" ? totalAmount + 25 : totalAmount);
-  }, [paymentMethod, totalAmount]);
+    setFinalAmount(paymentMethod === "COD" ? grandTotal + 25 : grandTotal);
+  }, [paymentMethod, grandTotal]);
 
   const initiateRazorpay = async (orderData) => {
     const res = await loadScript(
@@ -43,7 +43,7 @@ const Payment = () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: orderData.amount,
       currency: "INR",
-      //name: "Your Store Name",
+      name: "Grokart",
       description: `Order ${orderData.id}`,
       order_id: orderData.razorpayOrderId,
       handler: async function (response) {
@@ -64,12 +64,16 @@ const Payment = () => {
           }));
 
           if (verifyRes.data.success) {
+            if(!(userId || items || totalAmount || paymentId || deliveryAddress)){
+              console.log("Missing required fields")
+          }
             await axios.post(
               "https://grokart-2.onrender.com/api/v1/order/place-order",
               {
-                userId,
+                storedUserId,
+                storedEmail,
                 items: cartItems,
-                totalAmount: finalAmount,
+                totalAmount: grandTotal,
                 paymentId: response.razorpay_payment_id,
                 deliveryAddress: address,
                 paymentMethod: "UPI",
@@ -113,13 +117,14 @@ const Payment = () => {
     setIsLoading(true);
     try {
       const orderPayload = {
-        userId,
+        storedUserId,
         cartItems,
-        totalAmount,
+        grandTotal,
         paymentMethod,
         address,
-        couponCode,
-        email: storedEmail,
+        storedEmail
+        
+        
       };
 
       const response = await axios.post(
