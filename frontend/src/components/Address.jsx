@@ -23,10 +23,22 @@ const AddressDetails = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Retrieve cart data from location.state or fallback to an empty array
+    const cartItems = location.state?.cartItems || [];
+
     navigate("/checkout", {
       state: {
-        ...location.state,
-        addressDetails,
+        cartItems, // Pass existing cart items
+        addressDetails: {
+          houseNumber: addressDetails.houseNumber,
+          floor: addressDetails.floor,
+          building: addressDetails.building,
+          landmark: addressDetails.landmark,
+          city: "Bhiwandi",
+          state: "Maharashtra",
+          pincode: "421302",
+        },
       },
     });
   };
@@ -37,57 +49,23 @@ const AddressDetails = () => {
         <h2 className="text-2xl font-bold mb-6">Add Address Details</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold mb-1">
-              House Number
-            </label>
-            <input
-              type="text"
-              name="houseNumber"
-              value={addressDetails.houseNumber}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold mb-1">Floor</label>
-            <input
-              type="text"
-              name="floor"
-              value={addressDetails.floor}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold mb-1">
-              Building Name
-            </label>
-            <input
-              type="text"
-              name="buildingName"
-              value={addressDetails.buildingName}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold mb-1">Landmark</label>
-            <input
-              type="text"
-              name="landmark"
-              value={addressDetails.landmark}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
+          {["houseNumber", "floor", "building", "landmark"].map((field) => (
+            <div key={field}>
+              <label className="block text-sm font-semibold mb-1">
+                {field === "houseNumber"
+                  ? "House Number"
+                  : field.charAt(0).toUpperCase() + field.slice(1)}
+              </label>
+              <input
+                type="text"
+                name={field}
+                value={addressDetails[field]}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+          ))}
 
           <button
             type="submit"

@@ -64,7 +64,7 @@ const CartDisplay = ({ onClose }) => {
       setConfirmedLocation(address);
       alert(`Location Confirmed: ${address}`);
       setShowMap(false);
-      navigate("/address", {
+      navigate("/checkout", {
         state: {
           address,
           location: userLocation,

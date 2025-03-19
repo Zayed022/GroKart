@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { Cart } from "./cart.models.js";
 
 const orderSchema = new Schema(
   {
@@ -22,14 +23,18 @@ const orderSchema = new Schema(
       },
     ],
 
-    itemTotal: { type: Number, required: true }, // Sum of item prices
-    handlingCharge: { type: Number, default: 0 }, // Fixed handling fee
-    deliveryFee: { type: Number, default: 0 }, // Delivery charges
-    discount: { type: Number, default: 0 },
+     // Sum of item prices
+    
+    
     totalAmount: {
       type: Number,
-      required: true,
+      //required: true,
     },
+    
+    email:{
+      type:String,
+    },
+   
     paymentMethod: {
       type: String,
       enum: ["UPI", "COD"],
@@ -73,24 +78,29 @@ const orderSchema = new Schema(
       building: {
         type: String,
       },
-      street: {
+      landmark: {
         type: String,
         //required:true,
       },
+      street:{
+        type: String,
+        required: true,
+      },
       city: {
         type: String,
-        enum: ["Bhiwandi"],
+        
         default: "Bhiwandi",
       },
       state: {
         type: String,
-        enum: ["Maharashtra"],
+        
         default: "Maharashtra",
       },
       pincode: {
         type: String,
         //required:true,
       },
+      
       coordinates: {
         lat: {
           type: Number,
@@ -101,6 +111,7 @@ const orderSchema = new Schema(
           //required:true
         },
       },
+      
     },
   },
 
