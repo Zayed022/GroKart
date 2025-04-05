@@ -68,51 +68,10 @@ const orderSchema = new Schema(
       default: null,
     },
 
-    address: {
-      houseNumber: {
-        type: String,
-      },
-      floor: {
-        type: String,
-      },
-      building: {
-        type: String,
-      },
-      landmark: {
-        type: String,
-        //required:true,
-      },
-      street:{
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-        
-        default: "Bhiwandi",
-      },
-      state: {
-        type: String,
-        
-        default: "Maharashtra",
-      },
-      pincode: {
-        type: String,
-        //required:true,
-      },
-      
-      coordinates: {
-        lat: {
-          type: Number,
-          //required:true,
-        },
-        lng: {
-          type: Number,
-          //required:true
-        },
-      },
-      
-    },
+    address:{
+      type:String,
+      required:true,
+    }
   },
 
   { timestamps: true }

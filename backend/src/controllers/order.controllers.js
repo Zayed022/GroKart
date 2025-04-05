@@ -160,13 +160,7 @@ const createOrder = async (req, res) => {
                 totalAmount: finalAmount,
                  discountAmount: discount,
                  offerApplied: offerDetails,
-                 address: {
-                    street: address.street,
-                    city: address.city,
-                    state: address.state,
-                    pincode: address.pincode,
-                    coordinates: address.coordinates
-                },
+                 address: address,
                 paymentStatus: "Pending",
                 status: "Placed",
                 email // Ensure email is required
@@ -189,6 +183,39 @@ const createOrder = async (req, res) => {
                 order: newOrder,
                 
             });
+        }
+        else if(paymentMethod==="UPI"){
+          const razorpayOrder = await razorpay.orders.create({
+            amount: finalAmount*100,
+            currency:"INR",
+            payment_capture:1
+          })
+          const newOrder = new Order({
+            user: userId,
+            cartItems: cartItems.map(item => ({
+              product: item.productId,
+              quantity: item.quantity,
+              price:item.price
+            })),
+            totalAmount:finalAmount,
+            discountAmount:discount,
+            offerApplied:offerDetails,
+            address:address,
+            paymentStatus:"Pending",
+            razorpayOrderId:razorpayOrder.id,
+
+          })
+          await newOrder.save();
+          return res.status(200).json({
+            success: true,
+            message: "Razorpay Order created",
+            order: newOrder,
+            razorpayOrder,
+            key: process.env.RAZORPAY_KEY_ID
+          });
+        }
+        else{
+          return res.status(400).json({error:"Invalid payment method"})
         }
     } catch (error) {
         console.error("Order Creation Error:", {
@@ -215,8 +242,12 @@ const createOrder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature,orderId } =
       req.body;
+
+      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature || !orderId) {
+        return res.status(400).json({ error: "Missing required fields for verification" });
+      }
 
     const generated_signature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -226,6 +257,21 @@ const verifyPayment = async (req, res) => {
     if (generated_signature !== razorpay_signature) {
       return res.status(400).json({ error: "payment verification failed" });
     }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        paymentStatus:"Paid",
+        status:"Placed",
+        razorpayPaymentId : razorpay_payment_id,
+        razorpaySignature: razorpay_signature,
+      },
+      {new:true}
+    );
+    if(!updatedOrder){
+      return res.status(404).json({error:"Order not found"})
+    }
+    
     res
       .status(200)
       .json({ success: true, message: "Payment verified successfully" });
