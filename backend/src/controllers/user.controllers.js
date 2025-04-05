@@ -20,31 +20,44 @@ const generateAccessAndRefreshTokens = async(userId)=>{
 }
 
 
-const registerUser = async(req,res)=>{
-    const {name, email ,password, phone} = req.body;
-    if(!(name || email || password || phone)){
-        throw new ApiError(404,"All fields are required")
+const registerUser = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+
+    if (!(name && email && password && phone)) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
     }
+
     const userExists = await User.findOne({
-        $or:[{email},{phone}]
-    })
-    if(userExists){
-        throw new ApiError(409,"User with phone or email already exists")
+      $or: [{ email }, { phone }]
+    });
+
+    if (userExists) {
+      return res.status(409).json({ success: false, message: "User with phone or email already exists" });
     }
-    const user = await User.create({
-        name,
-        email,
-        password,
-        phone,
-    })
+
+    const user = await User.create({ name, email, password, phone });
+
     const createdUser = await User.findById(user._id).select("-password -refreshToken");
-    if(!createdUser){
-        throw new ApiError(500,"Something went wrong while registering user")
+    if (!createdUser) {
+      return res.status(500).json({ success: false, message: "Error creating user" });
     }
-    return res.status(201).json(
-        new ApiResponse(200,createdUser,"user registered successfully")
-    )
-}
+
+    return res.status(201).json({
+      success: true,
+      data: createdUser,
+      message: "User registered successfully",
+    });
+
+  } catch (err) {
+    console.error("Register Error:", err);
+    res.status(500).json({
+      success: false,
+      message: err.message || "Internal Server Error",
+    });
+  }
+};
+
 
 const loginUser = async (req, res) => {
     const { email, phone, password } = req.body;
