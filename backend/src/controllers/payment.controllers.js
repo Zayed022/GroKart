@@ -17,7 +17,7 @@ import { createOrder,
       }
       
       const orderData = {
-        customerId: req.user._id, // Assuming you have authentication middleware
+        customerId: req.user.id, // Assuming you have authentication middleware
         paymentMethod,
         items,
         currency: currency || 'INR',

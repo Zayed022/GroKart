@@ -330,45 +330,45 @@ export default Payment;
 
 // File: PaymentComponent.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-//import './PaymentComponent.css';
+import { CartContext } from "../context/Cart";
 
-const Payment = ({ 
-  amount, 
-  productName, 
-  customerEmail, 
+const Payment = ({
+  amount,
+  productName,
+  customerEmail,
   customerPhone,
   address,
   items
 }) => {
+  const { clearCart } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [priceDetails, setPriceDetails] = useState(null);
   const [orderId, setOrderId] = useState(null);
-  
-  const COD_CHARGE = 20; // This should match the backend value
-  
-  // Calculate price details based on selected payment method
+
+  const COD_CHARGE = 20;
+
   useEffect(() => {
     const subtotal = amount;
     const codCharge = paymentMethod === 'cod' ? COD_CHARGE : 0;
     const total = subtotal + codCharge;
-    
+
     setPriceDetails({
       subtotal,
       codCharge,
       total
     });
   }, [amount, paymentMethod]);
-  
+
   const createOrder = async () => {
     try {
       setLoading(true);
       setPaymentError(null);
-      
+
       const orderResponse = await axios.post('https://grokart-2.onrender.com/api/v1/payment/create-order', {
         paymentMethod,
         items,
@@ -379,9 +379,9 @@ const Payment = ({
           customerEmail
         }
       });
-      
+
       const { data } = orderResponse;
-      
+
       if (data.success) {
         if (paymentMethod === 'razorpay') {
           return {
@@ -390,7 +390,6 @@ const Payment = ({
             amount: data.order.amount
           };
         } else {
-          // For COD, just store the order ID and return
           setOrderId(data.order.orderId);
           return { codOrder: true, orderId: data.order.orderId };
         }
@@ -407,19 +406,17 @@ const Payment = ({
   const handlePayment = async () => {
     try {
       const orderData = await createOrder();
-      
       if (!orderData) return;
-      
-      // If COD, just show success message
+
       if (orderData.codOrder) {
         setPaymentSuccess(true);
         setLoading(false);
+        clearCart();
         return;
       }
-      
-      // For Razorpay, open the payment modal
+
       const options = {
-        key: 'rzp_test_0dlBqxH635NvB4', // Replace with your key ID
+        key: 'rzp_test_0dlBqxH635NvB4',
         amount: orderData.amount,
         currency: 'INR',
         name: 'Quick Commerce',
@@ -431,14 +428,15 @@ const Payment = ({
         },
         handler: async function (response) {
           try {
-            // Verify payment
             const verifyResponse = await axios.post('https://grokart-2.onrender.com/api/v1/payment/verify-payment', {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature
             });
-            
+
             setPaymentSuccess(true);
+            setOrderId(orderData.orderId);
+            clearCart();
           } catch (error) {
             console.error('Payment verification failed:', error);
             setPaymentError('Payment verification failed. Please try again.');
@@ -450,7 +448,7 @@ const Payment = ({
           color: '#3399cc'
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setLoading(false);
           }
         }
@@ -469,44 +467,33 @@ const Payment = ({
     <div className="payment-method-container">
       <h3>Select Payment Method</h3>
       <div className="payment-methods">
-        <div className="payment-method-option">
+        <label>
           <input
             type="radio"
-            id="razorpay"
             name="paymentMethod"
             value="razorpay"
             checked={paymentMethod === 'razorpay'}
             onChange={() => setPaymentMethod('razorpay')}
           />
-          <label htmlFor="razorpay">
-            <span className="payment-method-name">UPI / Cards / Netbanking</span>
-            <span className="payment-method-info">Pay online using Razorpay</span>
-          </label>
-        </div>
-        
-        <div className="payment-method-option">
+          UPI / Cards / Netbanking
+        </label>
+        <label>
           <input
             type="radio"
-            id="cod"
             name="paymentMethod"
             value="cod"
             checked={paymentMethod === 'cod'}
             onChange={() => setPaymentMethod('cod')}
           />
-          <label htmlFor="cod">
-            <span className="payment-method-name">Cash on Delivery</span>
-            <span className="payment-method-info">
-              Pay when you receive your order (Additional ₹{COD_CHARGE} charge)
-            </span>
-          </label>
-        </div>
+          Cash on Delivery (₹{COD_CHARGE} extra)
+        </label>
       </div>
     </div>
   );
 
   const renderPriceDetails = () => {
     if (!priceDetails) return null;
-    
+
     return (
       <div className="price-details">
         <h3>Price Details</h3>
@@ -515,43 +502,64 @@ const Payment = ({
           <span>₹{priceDetails.subtotal}</span>
         </div>
         {paymentMethod === 'cod' && (
-          <div className="price-row cod-charge">
-            <span>Cash on Delivery Charge</span>
+          <div className="price-row">
+            <span>COD Charge</span>
             <span>₹{priceDetails.codCharge}</span>
           </div>
         )}
         <div className="price-row total">
-          <span>Total</span>
-          <span>₹{priceDetails.total}</span>
+          <strong>Total</strong>
+          <strong>₹{priceDetails.total}</strong>
         </div>
       </div>
     );
   };
 
+  const renderItemsList = () => (
+    <div className="items-summary">
+      <h3>Items in Your Order</h3>
+      <ul>
+        {items.map((item, idx) => (
+          <li key={idx} className="item-row">
+            <div>{item.name} × {item.quantity}</div>
+            <div>₹{item.price * item.quantity}</div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const renderOrderDetails = () => (
+    <div className="order-details">
+      <h3>Order Details</h3>
+      <p><strong>Customer Email:</strong> {customerEmail}</p>
+      <p><strong>Phone:</strong> {customerPhone}</p>
+      <p><strong>Address:</strong> {address}</p>
+    </div>
+  );
+
   return (
     <div className="payment-container">
       <h2>Order Summary</h2>
-      <div className="order-details">
-        <p>Product: {productName}</p>
-        <p>Amount: ₹{amount}</p>
-      </div>
-      
+      {renderItemsList()}
+      {renderOrderDetails()}
+
       {paymentSuccess ? (
         <div className="payment-success">
           <h3>Order Placed Successfully!</h3>
           {paymentMethod === 'razorpay' ? (
             <p>Thank you for your purchase. Payment has been received.</p>
           ) : (
-            <p>Thank you for your order. Please keep ₹{priceDetails?.total || amount + COD_CHARGE} ready for delivery.</p>
+            <p>Thank you for your order. Please keep ₹{priceDetails?.total} ready at delivery.</p>
           )}
-          <p>Order ID: {orderId}</p>
+          <p><strong>Order ID:</strong> {orderId}</p>
         </div>
       ) : (
         <>
           {renderPaymentMethodSelection()}
           {renderPriceDetails()}
-          
-          <button 
+
+          <button
             className="pay-button"
             onClick={handlePayment}
             disabled={loading}
@@ -560,7 +568,7 @@ const Payment = ({
           </button>
         </>
       )}
-      
+
       {paymentError && (
         <div className="payment-error">
           <p>{paymentError}</p>
@@ -571,3 +579,7 @@ const Payment = ({
 };
 
 export default Payment;
+
+
+
+
