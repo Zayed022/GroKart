@@ -3,7 +3,14 @@ import { Cart } from "./cart.models.js";
 
 const orderSchema = new Schema(
   {
-    user: {
+    orderId:{
+      type: String,
+      required:true,
+      unique:true,
+    },
+
+
+    customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -15,12 +22,20 @@ const orderSchema = new Schema(
           ref: "Product",
           required: true,
         },
+        name:{
+          type:String,
+          required: true,
+        },
         quantity: {
           type: Number,
           required: true,
           min: 1,
         },
-      },
+        price: {
+          type: Number,
+          required: true,
+        }
+      }
     ],
 
      // Sum of item prices
@@ -28,22 +43,40 @@ const orderSchema = new Schema(
     
     totalAmount: {
       type: Number,
-      //required: true,
+      required: true,
+    },
+
+    currency :{
+      type: String,
+      default: 'INR',
     },
     
-    email:{
-      type:String,
+    
+    razorpayOrderId: {
+      type: String,
+      
+    },
+    razorpayPaymentId: {
+      type: String,
+    },
+    razorpaySignature: {
+      type: String,
     },
    
     paymentMethod: {
       type: String,
-      enum: ["UPI", "COD"],
-      //required:true,
+      enum: ['razorpay','cod'],
+      required:true,
     },
     paymentStatus: {
       type: String,
       enum: ["Pending", "Paid"],
       default: "Pending",
+    },
+
+    codCharge:{
+      type: Number,
+      default: 0,
     },
     status: {
       type: String,
@@ -57,20 +90,35 @@ const orderSchema = new Schema(
       ],
       default: "Pending",
     },
-    paymentId: {
+    paymentStatus: {
       type: String,
-      //required:true,
+      enum: ['pending', 'paid', 'failed', 'refunded', 'partially_refunded'],
+      default: 'pending'
     },
+    receipt:{
+      type: String,
+    },
+    
+    
 
-    deliveryPerson: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
+    
 
     address:{
       type:String,
       required:true,
+    },
+
+    notes: {
+      type: Object,
+      default: {}
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
     }
   },
 

@@ -17,6 +17,9 @@ const Register = ()=>{
         try {
             const {data} = await axios.post("https://grokart-2.onrender.com/api/v1/users/register",{name,email,phone,password}, {withCredentials:true});
             if (data.success){
+               // Store user data in localStorage
+               
+
                 navigate("/login");
             }
         } catch (error) {

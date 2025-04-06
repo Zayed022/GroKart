@@ -32,6 +32,9 @@ app.use("/api/v1/cart",cartRoute);
 import orderRoute from './routes/order.routes.js'
 app.use("/api/v1/order",orderRoute);
 
+import paymentRoute from './routes/payment.routes.js'
+app.use("/api/v1/payment",paymentRoute);
+
 import adminRoute from './routes/admin.routes.js'
 app.use("/api/v1/admin",adminRoute);
 

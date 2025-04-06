@@ -17,7 +17,7 @@ const Payment = () => {
 
     // Get order data from location state
     const { address, totalAmount, couponCode } = location.state || {};
-    const [paymentMethod, setPaymentMethod] = useState("RAZORPAY");
+    const [paymentMethod, setPaymentMethod] = useState("UPI");
     const [finalAmount, setFinalAmount] = useState(totalAmount || 0);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -25,7 +25,7 @@ const Payment = () => {
     // Validate data on component mount
     useEffect(() => {
         if (!storedEmail) {
-            setError("Email not found. Please login again.");
+            setError("User email not found. Please login again.");
             return;
         }
 
@@ -69,7 +69,7 @@ const Payment = () => {
             handler: async function (response) {
                 try {
                     const verifyRes = await axios.post(
-                        `${import.meta.env.VITE_API_BASE_URL}/api/v1/payment/verify`,
+                        "https://grokart-2.onrender.com/api/v1/payment/verify",
                         {
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_order_id: response.razorpay_order_id,
@@ -141,26 +141,20 @@ const Payment = () => {
             const orderPayload = {
                 userId: storedUserId,
                 cartItems: cartItems.map(item => ({
-                    productId: item.productId,
+                    productId: item.productId|| item._id,
                     quantity: item.quantity,
-                    price: item.price
+                    
                 })),
                 totalAmount: finalAmount,
                 paymentMethod,
-                address: {
-                    street: address.street || address.addressLine1,
-                    city: address.city,
-                    state: address.state,
-                    pincode: address.pincode || address.zipCode,
-                    coordinates: address.coordinates || [0, 0]
-                },
+                address:address,
                 email: storedEmail,
                 couponCode: couponCode || null
             };
 
             // Create order in backend
             const response = await axios.post(
-                `${import.meta.env.VITE_API_BASE_URL}/api/v1/order/create-order`,
+                "https://grokart-2.onrender.com/api/v1/order/create-order",
                 orderPayload,
                 {
                     headers: {
