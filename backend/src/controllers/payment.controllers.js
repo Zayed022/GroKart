@@ -7,7 +7,7 @@ import { createOrder,
 
  const createNewOrder = async (req, res) => {
     try {
-      const { paymentMethod, items, currency, shippingAddress, notes } = req.body;
+      const { paymentMethod, items, currency, address, notes } = req.body;
       
       if (!['razorpay', 'cod'].includes(paymentMethod)) {
         return res.status(400).json({
@@ -21,7 +21,7 @@ import { createOrder,
         paymentMethod,
         items,
         currency: currency || 'INR',
-        shippingAddress,
+        address,
         notes: notes || {}
       };
       

@@ -81,11 +81,11 @@ const paymentSchema = new Schema({
       updatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
     
-    
-
-});
+   
+}, { timestamps: true }
+);
 
 paymentSchema.pre('save', function(next) {
     this.updatedAt = Date.now();

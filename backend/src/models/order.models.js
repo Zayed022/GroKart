@@ -1,20 +1,19 @@
 import mongoose, { Schema } from "mongoose";
-import { Cart } from "./cart.models.js";
 
 const orderSchema = new Schema(
   {
-    orderId:{
+    orderId: {
       type: String,
-      required:true,
-      unique:true,
+      required: true,
+      unique: true,
     },
-
 
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+
     items: [
       {
         productId: {
@@ -22,8 +21,8 @@ const orderSchema = new Schema(
           ref: "Product",
           required: true,
         },
-        name:{
-          type:String,
+        name: {
+          type: String,
           required: true,
         },
         quantity: {
@@ -34,50 +33,43 @@ const orderSchema = new Schema(
         price: {
           type: Number,
           required: true,
-        }
-      }
+        },
+      },
     ],
 
-     // Sum of item prices
-    
-    
     totalAmount: {
       type: Number,
       required: true,
     },
 
-    currency :{
+    currency: {
       type: String,
-      default: 'INR',
-    },
-    
-    
-    razorpayOrderId: {
-      type: String,
-      
-    },
-    razorpayPaymentId: {
-      type: String,
-    },
-    razorpaySignature: {
-      type: String,
-    },
-   
-    paymentMethod: {
-      type: String,
-      enum: ['razorpay','cod'],
-      required:true,
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["Pending", "Paid"],
-      default: "Pending",
+      default: "INR",
     },
 
-    codCharge:{
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String,
+
+    receipt: String,
+
+    paymentMethod: {
+      type: String,
+      enum: ["razorpay", "cod"],
+      required: true,
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed", "refunded", "partially_refunded"],
+      default: "pending",
+    },
+
+    codCharge: {
       type: Number,
       default: 0,
     },
+
     status: {
       type: String,
       enum: [
@@ -90,38 +82,17 @@ const orderSchema = new Schema(
       ],
       default: "Pending",
     },
-    paymentStatus: {
-      type: String,
-      enum: ['pending', 'paid', 'failed', 'refunded', 'partially_refunded'],
-      default: 'pending'
-    },
-    receipt:{
-      type: String,
-    },
-    
-    
 
-    
-
-    address:{
-      type:String,
-      required:true,
+    address: {
+      type: String,
+      required: true,
     },
 
     notes: {
       type: Object,
-      default: {}
+      default: {},
     },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now
-    }
   },
-
   { timestamps: true }
 );
 

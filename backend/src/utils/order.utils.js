@@ -1,4 +1,5 @@
 import { Order } from "../models/order.models.js";
+import { Payment } from "../models/payment.models.js";
 import Razorpay from "razorpay";
 
 const razorpay = new Razorpay({
@@ -43,7 +44,7 @@ const createOrder = async (orderData) => {
         paymentMethod: orderData.paymentMethod,
         customerId: orderData.customerId,
         items: orderData.items,
-        shippingAddress: orderData.shippingAddress,
+        address: orderData.address,
         receipt: orderId,
         notes: orderData.notes || {},
         status: orderData.paymentMethod === 'cod' ? 'processing' : 'created',
@@ -137,7 +138,7 @@ const createOrder = async (orderData) => {
       await order.save();
       
       // Create payment record for COD
-      const Payment = require('../models/Payment');
+      
       const payment = new Payment({
         orderId: order._id,
         amount: order.amount + order.codCharge,
