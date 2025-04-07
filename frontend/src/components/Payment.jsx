@@ -329,6 +329,7 @@ export default Payment;
 */}
 
 // File: PaymentComponent.jsx
+/*
 
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
@@ -342,8 +343,9 @@ const Payment = ({
   address,
   items
 }) => {
-  const { clearCart } = useContext(CartContext);
+  const { cartItems,clearCart } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
+  const [finalAmount, setFinalAmount] = useState(totalAmount || 0);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
@@ -353,16 +355,14 @@ const Payment = ({
   const COD_CHARGE = 20;
 
   useEffect(() => {
-    const subtotal = amount;
-    const codCharge = paymentMethod === 'cod' ? COD_CHARGE : 0;
-    const total = subtotal + codCharge;
+    setFinalAmount(paymentMethod === "COD" ? (totalAmount || 0) + 25 : totalAmount || 0);
 
     setPriceDetails({
       subtotal,
       codCharge,
       total
     });
-  }, [amount, paymentMethod]);
+  }, [amount, paymentMethod,totalAmount]);
 
   const createOrder = async () => {
     try {
@@ -519,7 +519,7 @@ const Payment = ({
     <div className="items-summary">
       <h3>Items in Your Order</h3>
       <ul>
-        {items.map((item, idx) => (
+        {items && items.map((item, idx) => (
           <li key={idx} className="item-row">
             <div>{item.name} × {item.quantity}</div>
             <div>₹{item.price * item.quantity}</div>
@@ -579,6 +579,183 @@ const Payment = ({
 };
 
 export default Payment;
+*/
+
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+
+const Payment = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { cartItems = [], address = "" } = location.state || {};
+
+  const [paymentMethod, setPaymentMethod] = useState("cod"); // default
+  const [loading, setLoading] = useState(false);
+
+  const totalItemPrice = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+  const deliveryCharge = 15;
+  const handlingFee = 9;
+  const codCharge = paymentMethod === "cod" ? 20 : 0;
+
+  const totalPrice = totalItemPrice + deliveryCharge + handlingFee + codCharge;
+
+  const handlePayment = async () => {
+    setLoading(true);
+
+    try {
+      const orderData = {
+        items: cartItems,
+        address,
+        paymentMethod,
+        totalAmount: totalPrice,
+        codCharge,
+      };
+
+      const res = await axios.post("https://grokart-2.onrender.com/api/v1/order/create-order", orderData, {
+        withCredentials: true,
+      });
+
+      if (paymentMethod === "cod") {
+        toast.success("Order placed successfully (COD)");
+        navigate("/order-success");
+      } else {
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: res.data.order.amount,
+          currency: "INR",
+          name: "QuickMart",
+          description: "Order Payment",
+          order_id: res.data.order.id,
+          handler: async function (response) {
+            const verifyRes = await axios.post(
+              "https://grokart-2.onrender.com/api/v1/order/verify-payment",
+              {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                orderId: res.data.orderCreated.orderId,
+              },
+              { withCredentials: true }
+            );
+
+            if (verifyRes.data.success) {
+              toast.success("Payment Successful!");
+              navigate("/order-success");
+            }
+          },
+          prefill: {
+            name: "",
+            email: "",
+            contact: "",
+          },
+          theme: {
+            color: "#3399cc",
+          },
+        };
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Payment Failed or Order Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-xl mx-auto bg-white shadow-xl rounded-2xl p-6 mt-6">
+      <h2 className="text-2xl font-semibold mb-4">Checkout</h2>
+
+      <div className="mb-3">
+        <h3 className="text-md font-medium">Address</h3>
+        <p className="text-gray-700">{address}</p>
+      </div>
+
+      <div className="mb-4">
+        <h3 className="text-md font-medium mb-1">Choose Payment Method</h3>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              value="upi"
+              checked={paymentMethod === "upi"}
+              onChange={() => setPaymentMethod("upi")}
+            />
+            UPI
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              value="cod"
+              checked={paymentMethod === "cod"}
+              onChange={() => setPaymentMethod("cod")}
+            />
+            Cash on Delivery
+          </label>
+        </div>
+      </div>
+
+      <div className="mb-3">
+        <h3 className="text-md font-medium">Order Summary</h3>
+        {cartItems.map((item, index) => (
+          <div key={index} className="flex justify-between text-sm">
+            <span>
+              {item.name} <span className="text-gray-500">× {item.quantity}</span>
+            </span>
+            <span>₹{item.price * item.quantity}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-sm text-gray-800">
+        <div className="flex justify-between">
+          <span>Item Total:</span>
+          <span>₹{totalItemPrice}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Delivery Charge:</span>
+          <span>₹{deliveryCharge}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Handling Fee:</span>
+          <span>₹{handlingFee}</span>
+        </div>
+        {paymentMethod === "cod" && (
+          <div className="flex justify-between text-red-500">
+            <span>COD Charge:</span>
+            <span>₹{codCharge}</span>
+          </div>
+        )}
+        <div className="flex justify-between font-semibold text-green-700 mt-2">
+          <span>Total Price:</span>
+          <span>₹{totalPrice}</span>
+        </div>
+      </div>
+
+      <button
+        className="w-full bg-blue-600 text-white py-2 rounded-md mt-4 hover:bg-blue-700"
+        onClick={handlePayment}
+        disabled={loading}
+      >
+        {loading ? "Processing..." : "Proceed to Payment"}
+      </button>
+    </div>
+  );
+};
+
+export default Payment;
+
+
+
+
 
 
 

@@ -125,112 +125,64 @@ const createOrder = async (req, res) => {
   };
   */
 
-  
+  const COD_CHARGE = 20;
   const createOrder = async (req, res) => {
     try {
-      const { userId, cartItems, totalAmount, paymentMethod, address, email } = req.body;
+      const { items, address, paymentMethod, couponCode } = req.body;
+      const userId = req.user._id;
   
-      // Check for required fields
-      const requiredFields = ['userId', 'cartItems', 'totalAmount', 'paymentMethod', 'address', 'email'];
-      const missingFields = requiredFields.filter(field => !req.body[field]);
-  
-      if (missingFields.length > 0) {
-        return res.status(400).json({
-          error: `Missing required fields: ${missingFields.join(', ')}`,
-          received: req.body,
-        });
+      if (!items || !items.length || !address || !paymentMethod) {
+        return res.status(400).json({ success: false, message: "Missing fields" });
       }
   
-      if (!Array.isArray(cartItems) || cartItems.length === 0) {
-        return res.status(400).json({ error: "Cart must include at least one item." });
-      }
+      // Calculate total from items
+      const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const codCharge = paymentMethod === "cod" ? COD_CHARGE : 0;
+      const totalAmount = subtotal + codCharge;
   
-      if (mongoose.connection.readyState !== 1) {
-        return res.status(500).json({ error: "Database connection unavailable" });
-      }
+      // Generate custom order ID and receipt
+      const orderId = `ORD_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      let razorpayOrder = null;
   
-      const orderItems = cartItems.map(item => ({
-        productId: item.productId || item._id,
-        quantity: item.quantity,
-      }));
-  
-      // Handle Cash on Delivery
-      if (paymentMethod === "COD") {
-        const codOrder = new Order({
-          user: userId,
-          items: orderItems,
-          totalAmount,
-          address,
-          email,
-          paymentMethod: "COD",
-          paymentStatus: "Pending",
-          status: "Placed", // status default is "Pending", but we're marking it as placed here
-        });
-  
-        const validationError = codOrder.validateSync();
-        if (validationError) {
-          return res.status(400).json({
-            error: "Validation failed",
-            details: validationError.errors,
-          });
-        }
-  
-        await codOrder.save();
-  
-        return res.status(201).json({
-          success: true,
-          message: "Cash on Delivery order placed successfully.",
-          order: codOrder,
-        });
-      }
-  
-      // Handle UPI via Razorpay
-      else if (paymentMethod === "UPI") {
-        const razorpayOrder = await razorpay.orders.create({
-          amount: totalAmount * 100, // Razorpay uses paise
+      if (paymentMethod === "razorpay") {
+        // Create Razorpay order
+        razorpayOrder = await razorpay.orders.create({
+          amount: totalAmount * 100, // paise
           currency: "INR",
-          payment_capture: 1,
-        });
-  
-        const upiOrder = new Order({
-          user: userId,
-          items: orderItems,
-          totalAmount,
-          address,
-          email,
-          paymentMethod: "UPI",
-          paymentStatus: "Pending",
-          razorpayOrderId: razorpayOrder.id,
-          status: "Pending",
-        });
-  
-        await upiOrder.save();
-  
-        return res.status(200).json({
-          success: true,
-          message: "Razorpay order created successfully.",
-          order: upiOrder,
-          razorpayOrder,
-          key: process.env.RAZORPAY_KEY_ID,
+          receipt: orderId,
+          notes: {
+            userId: userId.toString(),
+            couponCode: couponCode || "none",
+          },
         });
       }
   
-      // Invalid payment method
-      else {
-        return res.status(400).json({ error: "Invalid payment method" });
-      }
-  
-    } catch (error) {
-      console.error("Order Creation Error:", {
-        error: error.message,
-        stack: error.stack,
-        body: req.body,
+      const order = await Order.create({
+        orderId,
+        customerId: userId,
+        items,
+        totalAmount,
+        currency: "INR",
+        razorpayOrderId: razorpayOrder?.id || null,
+        receipt: orderId,
+        paymentMethod: paymentMethod.toLowerCase(),
+        codCharge,
+        paymentStatus: "pending",
+        status: paymentMethod === "cod" ? "Processing" : "Pending",
+        address: typeof address === "string" ? address : JSON.stringify(address),
+        notes: { couponCode: couponCode || null },
       });
   
+      res.status(201).json({
+        success: true,
+        order,
+        razorpayOrder,
+      });
+    } catch (error) {
+      console.error("Error creating order:", error);
       res.status(500).json({
-        message: "Error creating order",
-        error: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        success: false,
+        message: "Order creation failed",
       });
     }
   };
