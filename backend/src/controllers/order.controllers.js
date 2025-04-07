@@ -129,7 +129,7 @@ const createOrder = async (req, res) => {
   const createOrder = async (req, res) => {
     try {
       const { items, address, paymentMethod, couponCode } = req.body;
-      const userId = req.user._id;
+      const userId = req.user?._id;
   
       if (!items || !items.length || !address || !paymentMethod) {
         return res.status(400).json({ success: false, message: "Missing fields" });
