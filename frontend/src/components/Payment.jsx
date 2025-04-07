@@ -589,6 +589,7 @@ import { toast } from "react-hot-toast";
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const token = localStorage.getItem("accessToken");
 
   const { cartItems = [], address = "" } = location.state || {};
 
@@ -619,6 +620,9 @@ const Payment = () => {
 
       const res = await axios.post("https://grokart-2.onrender.com/api/v1/order/create-order", orderData, {
         withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (paymentMethod === "cod") {
@@ -641,7 +645,11 @@ const Payment = () => {
                 razorpaySignature: response.razorpay_signature,
                 orderId: res.data.orderCreated.orderId,
               },
-              { withCredentials: true }
+              { withCredentials: true,
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+               }
             );
 
             if (verifyRes.data.success) {
