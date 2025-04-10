@@ -683,40 +683,61 @@ const Payment = () => {
   };
   */}
 
-  const handlePayment = async() =>{
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+  
+  const handlePayment = async () => {
+    const res = await loadRazorpayScript();
+  
+    if (!res) {
+      alert("Razorpay SDK failed to load. Please check your internet connection.");
+      return;
+    }
+  
     try {
-      const response = await axios.post("https://grokart-2.onrender.com/api/v1/order/create-order",{
+      const response = await axios.post("https://grokart-2.onrender.com/api/v1/order/create-order", {
         amount: totalPrice,
-        currency:'INR',
+        currency: "INR",
       });
-      const {id: order_id, amount, currency} = response.data;
-
+  
+      const { id: order_id, amount, currency } = response.data;
+  
       const options = {
-        key : import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: amount,
-        currency: currency,
-        name: 'Grokart',
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount,
+        currency,
+        name: "Grokart",
         description: "A payment description to GroKart: 15 minutes Delivery App",
-        order_id: order_id,
-        handler: (response)=>{
-          alert(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
+        order_id,
+        handler: (response) => {
+          alert(`✅ Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
+          // Optionally hit backend to verify payment here
         },
-        prefil:{
-          name:"Zayed Ansari",
-          email:"zayedans022@gmail.com",
-          contact:"7498881947",
+        prefill: {
+          name: "Zayed Ansari",
+          email: "zayedans022@gmail.com",
+          contact: "7498881947",
         },
         theme: {
           color: "#3399cc",
-      },
-
+        },
       };
+  
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
     } catch (error) {
-      console.log("Payment initiation failed:", error);
+      console.error("Payment initiation failed:", error);
+      alert("❌ Failed to initiate payment. Please try again.");
     }
-  }
+  };
+  
 
   return (
     
