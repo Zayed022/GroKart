@@ -725,6 +725,12 @@ const Payment = () => {
           email: "zayedans022@gmail.com",
           contact: "7498881947",
         },
+        method: {
+          upi: true,
+          card: true,
+          netbanking: true,
+          wallet: true,
+        },
         theme: {
           color: "#3399cc",
         },
