@@ -8,6 +8,7 @@ import {
     assignDeliveryPartner,
     getDeliveryRoute,
     getAssignedOrders,
+    handleCODPayment,
     
 } from "../controllers/order.controllers.js"
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -16,6 +17,7 @@ const router = Router();
 
 //router.route("/create-order").post(createOrder);
 router.post("/create-order",createOrder)
+router.post("/create-cod-order",handleCODPayment)
 router.route("/verify").post(verifyPayment);
 router.route("/place-order").post(placeOrder)
 router.route("/status").get(getOrderStatus)

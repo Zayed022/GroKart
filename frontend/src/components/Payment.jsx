@@ -607,7 +607,7 @@ const Payment = () => {
   const codCharge = paymentMethod === "cod" ? 20 : 0;
 
   const totalPrice = totalItemPrice + deliveryCharge + handlingFee + codCharge;
-
+  
   {/*
   const handlePayment = async () => {
     setLoading(true);
@@ -715,6 +715,7 @@ const Payment = () => {
         currency,
         name: "Grokart",
         description: "A payment description to GroKart: 15 minutes Delivery App",
+        image: "https://your-domain.com/logo.png", 
         order_id,
         handler: (response) => {
           alert(`✅ Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
@@ -743,6 +744,30 @@ const Payment = () => {
       alert("❌ Failed to initiate payment. Please try again.");
     }
   };
+
+  /*
+  const handleCODPayment = async()=>{
+    const COD_CHARGE = 25;
+    const totalAmount = totalPrice + COD_CHARGE;
+
+    const response = await axios.post("https://grokart-2.onrender.com/api/v1/order/create-cod-order", {
+      amount: totalAmount,
+      currency: "INR",
+    });
+
+    const { id: order_id, amount, currency } = response.data;
+    const options = {
+      paymentMode: "Cash on Delivery",
+      baseAmount: totalItemPrice,
+      codCharge: COD_CHARGE,
+      totalAmount: totalAmount,
+      status: "Pending Payment",
+      message: `COD selected. Please collect ₹${totalAmount} upon delivery.`,
+    }
+    return options;
+  }
+*/
+
   
 
   return (
@@ -816,14 +841,11 @@ const Payment = () => {
         </div>
       </div>
 
-      <button
-        className="w-full bg-blue-600 text-white py-2 rounded-md mt-4 hover:bg-blue-700"
-        onClick={handlePayment}
-        disabled={loading}
-      >
-        {loading ? "Processing..." : "Proceed to Payment"}
-      </button>
-      <button onClick={handlePayment}>Pay Now</button>
+      
+      <button 
+      className="w-full bg-blue-600 text-white py-2 rounded-md mt-4 hover:bg-blue-700"
+      onClick={handlePayment}>Pay Now</button>
+      
     </div>
     
     

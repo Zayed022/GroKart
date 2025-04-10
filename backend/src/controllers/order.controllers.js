@@ -207,6 +207,23 @@ const createOrder = async (req, res) => {
     }
   }
 
+  export const handleCODPayment = async(req,res) =>{
+    const {amount, currency} = req.body;
+
+    const paymentDetails = {
+    paymentMode: "Cash on Delivery",
+    baseAmount: orderAmount,
+    codCharge: COD_CHARGE,
+    totalAmount: finalAmount,
+    status: "Pending Payment",
+    message: `COD selected. Please collect ₹${amount} upon delivery.`,
+    };
+
+    return res.status(200).json(paymentDetails)
+
+
+  }
+
 
 
 
