@@ -13,12 +13,12 @@ const Checkout = () => {
   const handlingFee = 9;
 
   // Calculate item total and grand total
-  //const itemTotal = getCartTotal();
-  //const grandTotal = itemTotal + deliveryCharge + handlingFee;
+  const itemTotal = getCartTotal();
+  const grandTotal = itemTotal + deliveryCharge + handlingFee;
 
   const handleProceedToPayment = () => {
     navigate("/payment", {
-      state: { cartItems, totalAmount: getCartTotal(), address },
+      state: { cartItems, totalAmount: grandTotal, address,location },
     });
   };
 
@@ -76,7 +76,7 @@ const Checkout = () => {
           </div>
           <div className="flex justify-between items-center border-t pt-4">
             <span className="text-xl font-bold text-gray-700">Total Price:</span>
-            <span className="text-2xl font-bold text-green-600">₹{getCartTotal()}</span>
+            <span className="text-2xl font-bold text-green-600">₹{grandTotal}</span>
           </div>
         </div>
 

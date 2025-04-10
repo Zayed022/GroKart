@@ -13,7 +13,7 @@ import axios from "axios";
 import { sendOrderNotification } from "../utils/emailService.js";
 dotenv.config();
 
-const razorpay = new Razorpay({
+const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
@@ -126,6 +126,7 @@ const createOrder = async (req, res) => {
   */
 
   const COD_CHARGE = 20;
+  /*
   const createOrder = async (req, res) => {
     try {
       const { items, address, paymentMethod, couponCode } = req.body;
@@ -186,6 +187,25 @@ const createOrder = async (req, res) => {
       });
     }
   };
+  */
+
+  const createOrder = async(req,res)=>{
+    const {amount, currency} = req.body;
+    if(!(amount || currency)){
+      return res.status(401).json({error:"Missing amount and currency"})
+    };
+    try {
+      const options = {
+        amount : amount *100,
+        currency: currency || 'INR',
+      };
+      const order = await razorpayInstance.orders.create(options);
+      res.status(200).json(order);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({error:"Error creating Razorpay order"})
+    }
+  }
 
 
 

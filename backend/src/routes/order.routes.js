@@ -15,7 +15,7 @@ import { verifyJWT } from "../middlewares/auth.middlewares.js";
 const router = Router();
 
 //router.route("/create-order").post(createOrder);
-router.post("/create-order",verifyJWT,createOrder)
+router.post("/create-order",createOrder)
 router.route("/verify").post(verifyPayment);
 router.route("/place-order").post(placeOrder)
 router.route("/status").get(getOrderStatus)

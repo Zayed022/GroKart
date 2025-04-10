@@ -581,17 +581,19 @@ const Payment = ({
 export default Payment;
 */
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { CartContext } from "../context/Cart";
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const token = localStorage.getItem("accessToken");
-
-  const { cartItems = [], address = "" } = location.state || {};
+  const { address } = location.state || { address: "No address provided" };
+  const { cartItems, getCartTotal } = useContext(CartContext);
+  const storedUserId = localStorage.getItem("userId");
 
   const [paymentMethod, setPaymentMethod] = useState("cod"); // default
   const [loading, setLoading] = useState(false);
@@ -606,6 +608,7 @@ const Payment = () => {
 
   const totalPrice = totalItemPrice + deliveryCharge + handlingFee + codCharge;
 
+  {/*
   const handlePayment = async () => {
     setLoading(true);
 
@@ -616,6 +619,7 @@ const Payment = () => {
         paymentMethod,
         totalAmount: totalPrice,
         codCharge,
+        couponCode : null
       };
 
       const res = await axios.post("https://grokart-2.onrender.com/api/v1/order/create-order", orderData, {
@@ -677,8 +681,45 @@ const Payment = () => {
       setLoading(false);
     }
   };
+  */}
+
+  const handlePayment = async() =>{
+    try {
+      const response = await axios.post("https://grokart-2.onrender.com/api/v1/order/create-order",{
+        amount: totalPrice,
+        currency:'INR',
+      });
+      const {id: order_id, amount, currency} = response.data;
+
+      const options = {
+        key : import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: amount,
+        currency: currency,
+        name: 'Grokart',
+        description: "A payment description to GroKart: 15 minutes Delivery App",
+        order_id: order_id,
+        handler: (response)=>{
+          alert(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
+        },
+        prefil:{
+          name:"Zayed Ansari",
+          email:"zayedans022@gmail.com",
+          contact:"7498881947",
+        },
+        theme: {
+          color: "#3399cc",
+      },
+
+      };
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.log("Payment initiation failed:", error);
+    }
+  }
 
   return (
+    
     <div className="max-w-xl mx-auto bg-white shadow-xl rounded-2xl p-6 mt-6">
       <h2 className="text-2xl font-semibold mb-4">Checkout</h2>
 
@@ -755,7 +796,10 @@ const Payment = () => {
       >
         {loading ? "Processing..." : "Proceed to Payment"}
       </button>
+      <button onClick={handlePayment}>Pay Now</button>
     </div>
+    
+    
   );
 };
 
