@@ -207,22 +207,36 @@ const createOrder = async (req, res) => {
     }
   }
 
-  export const handleCODPayment = async(req,res) =>{
-    const {amount, currency} = req.body;
+ // Constants
+ // You can adjust this as needed
+
+export const handleCODPayment = async (req, res) => {
+  try {
+    const { amount, currency } = req.body;
+
+    if (!amount || !currency) {
+      return res.status(400).json({ message: "Amount and currency are required." });
+    }
+
+    const orderAmount = amount;
+    const finalAmount = orderAmount + COD_CHARGE;
 
     const paymentDetails = {
-    paymentMode: "Cash on Delivery",
-    baseAmount: orderAmount,
-    codCharge: COD_CHARGE,
-    totalAmount: finalAmount,
-    status: "Pending Payment",
-    message: `COD selected. Please collect ₹${amount} upon delivery.`,
+      paymentMode: "Cash on Delivery",
+      baseAmount: orderAmount,
+      codCharge: COD_CHARGE,
+      totalAmount: finalAmount,
+      status: "Pending Payment",
+      message: `COD selected. Please collect ₹${finalAmount} upon delivery.`,
     };
 
-    return res.status(200).json(paymentDetails)
-
-
+    return res.status(200).json(paymentDetails);
+  } catch (error) {
+    console.error("Error in COD payment:", error);
+    return res.status(500).json({ message: "Something went wrong while processing COD." });
   }
+};
+
 
 
 

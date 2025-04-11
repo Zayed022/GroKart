@@ -745,8 +745,9 @@ const Payment = () => {
     }
   };
 
-  /*
-  const handleCODPayment = async()=>{
+  
+  const handleCODPayment = async () => {
+  try {
     const COD_CHARGE = 25;
     const totalAmount = totalPrice + COD_CHARGE;
 
@@ -755,18 +756,25 @@ const Payment = () => {
       currency: "INR",
     });
 
-    const { id: order_id, amount, currency } = response.data;
-    const options = {
+    const { baseAmount, codCharge, totalAmount: finalAmount, status, message } = response.data;
+
+    // You can now show this info on the screen or redirect to Order Summary
+    const paymentDetails = {
       paymentMode: "Cash on Delivery",
-      baseAmount: totalItemPrice,
-      codCharge: COD_CHARGE,
-      totalAmount: totalAmount,
-      status: "Pending Payment",
-      message: `COD selected. Please collect ₹${totalAmount} upon delivery.`,
-    }
-    return options;
+      baseAmount,
+      codCharge,
+      totalAmount: finalAmount,
+      status,
+      message,
+    };
+
+    return paymentDetails;
+  } catch (error) {
+    console.error("COD Payment Failed:", error);
+    Alert.alert("Error", "Unable to place COD order. Please try again.");
   }
-*/
+};
+
 
   
 
@@ -845,6 +853,10 @@ const Payment = () => {
       <button 
       className="w-full bg-blue-600 text-white py-2 rounded-md mt-4 hover:bg-blue-700"
       onClick={handlePayment}>Pay Now</button>
+
+<button 
+      className="w-full bg-blue-600 text-white py-2 rounded-md mt-4 hover:bg-blue-700"
+      onClick={handleCODPayment}>Pay Now COD</button>
       
     </div>
     
