@@ -4,7 +4,7 @@ import { CartContext } from "../context/Cart";
 
 const Checkout = () => {
   const location = useLocation();
-  const { address } = location.state || { address: "No address provided" };
+  const { address ,addressDetails} = location.state || { address: "No address provided" };
   const { cartItems, getCartTotal } = useContext(CartContext);
 
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Checkout = () => {
 
   const handleProceedToPayment = () => {
     navigate("/payment", {
-      state: { cartItems, totalAmount: grandTotal, address,location },
+      state: { cartItems, totalAmount: grandTotal, address,location, addressDetails },
     });
   };
 

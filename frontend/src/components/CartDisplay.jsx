@@ -61,10 +61,15 @@ const CartDisplay = ({ onClose }) => {
   const handleConfirmLocation = async () => {
     if (userLocation) {
       const address = await getAddressFromLatLng(userLocation.lat, userLocation.lng);
+      if (!address.toLowerCase().includes("bhiwandi")) {
+        alert("Sorry, we are currently not available in your area.");
+        setShowMap(false);
+        return;
+      }
       setConfirmedLocation(address);
       alert(`Location Confirmed: ${address}`);
       setShowMap(false);
-      navigate("/checkout", {
+      navigate("/address", {
         state: {
           address,
           location: userLocation,

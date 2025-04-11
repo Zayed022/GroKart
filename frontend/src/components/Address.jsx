@@ -1,11 +1,14 @@
 // src/pages/AddressDetails.jsx
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { CartContext } from "../context/Cart";
 
 const AddressDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { address } = location.state || { address: "No address provided" };
+  const { cartItems, getCartTotal } = useContext(CartContext);
 
   const [addressDetails, setAddressDetails] = useState({
     houseNumber: "",
@@ -29,7 +32,10 @@ const AddressDetails = () => {
 
     navigate("/checkout", {
       state: {
-        cartItems, // Pass existing cart items
+        cartItems,
+        address,
+        cartItems,
+         // Pass existing cart items
         addressDetails: {
           houseNumber: addressDetails.houseNumber,
           floor: addressDetails.floor,

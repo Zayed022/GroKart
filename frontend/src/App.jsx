@@ -13,6 +13,8 @@ import Payment from "./components/Payment";
 import OrderSuccess from "./components/OrderSuccess";
 import { Sidebar } from "lucide-react";
 import Address from "./components/Address";
+import PaymentSuccess from "./components/PaymentSuccess";
+import PaymentSuccessOnline from "./components/PaymentOnlineSuccess";
 
 
 function App() {
@@ -30,6 +32,8 @@ function App() {
       <Route path = "/checkout" element = {<Checkout/>}/>
       <Route path = "/payment" element = {<Payment/>}/>
       <Route path = "/order-success" element = {<OrderSuccess/>}/>
+      <Route path = "/payment-success" element = {<PaymentSuccess/>}/>
+      <Route path = "/payment-success-online" element = {<PaymentSuccessOnline/>}/>
       <Route path = "/mini" element = {<Sidebar/>}/>
       
       
