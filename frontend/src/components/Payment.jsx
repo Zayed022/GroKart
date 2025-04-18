@@ -56,12 +56,19 @@ const Payment = () => {
   
     try {
       console.log("Token being sent:", token);
+      console.log("Cart Items being sent:", cartItems);
+
 
       const response = await axios.post(
         "https://grokart-2.onrender.com/api/v1/order/create-order",
         {
           customerId: user._id, // assuming user info is available
-          items: cartItems,
+          items: cartItems.map((item) => ({
+            productId: item._id,
+            quantity: item.quantity,
+            name: item.name,
+            price: item.price,
+          })),
           totalAmount: totalPrice,
           address,
           addressDetails,
@@ -89,15 +96,15 @@ const Payment = () => {
         description: "15-minute delivery payment",
         order_id,
         handler: async (response) => {
+          console.log("Razorpay response:", response);
           try {
-            // 1️⃣ Verify payment
             await axios.post(
-              "https://grokart-2.onrender.com/api/v1/order/verify-payment",
+              "https://grokart-2.onrender.com/api/v1/order/verify",
               {
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature,
-                orderId: order._id, // MongoDB order id
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderId: order._id, // 👈 pass order._id to identify which order to update
               },
               {
                 headers: {
@@ -105,16 +112,17 @@ const Payment = () => {
                 },
               }
             );
-  
-            toast.success("✅ Payment Successful!");
+        
             navigate("/payment-success-online", {
               state: { order, address, addressDetails },
             });
           } catch (error) {
-            console.error("Payment verification failed:", error);
+            console.log("Payment verification failed:", error);
             toast.error("❌ Payment verification failed. Please contact support.");
           }
         },
+        
+        
         prefill: {
           name: user.name,
           email: user.email,
@@ -123,12 +131,13 @@ const Payment = () => {
         theme: {
           color: "#6366f1",
         },
+        redirect: false,
       };
   
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
-      console.error("Online payment failed:", error);
+      console.log("Online payment failed:", error);
       toast.error("❌ Online payment failed. Try again.");
     }
   };
@@ -136,11 +145,24 @@ const Payment = () => {
 
   const handleCODPayment = async () => {
     try {
+      const token = localStorage.getItem("token"); // or from context/store
+      
+  
       const response = await axios.post(
         "https://grokart-2.onrender.com/api/v1/order/create-cod-order",
         {
-          amount: totalPrice,
-          currency: "INR",
+          customerId: user._id, // assuming user info is available
+          items: cartItems.map((item) => ({
+            productId: item._id,
+            quantity: item.quantity,
+            name: item.name,
+            price: item.price,
+          })),      // should be an array of productId, name, quantity, price
+          totalAmount: totalPrice,
+          address,
+          addressDetails,
+          notes: {},              // if you're using any notes
+          paymentMethod: "cod",  // required in backend
         },
         {
           headers: {
@@ -148,12 +170,14 @@ const Payment = () => {
           },
         }
       );
-
+  
       const paymentDetails = response.data;
-
+  
+      toast.success("✅ COD Order Placed!");
       navigate("/payment-success", {
-        state: { paymentDetails, address , addressDetails},
+        state: { paymentDetails, address, addressDetails },
       });
+  
     } catch (error) {
       console.error("COD order failed:", error);
       toast.error("❌ COD order failed. Try again.");

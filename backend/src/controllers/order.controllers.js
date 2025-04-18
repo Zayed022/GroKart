@@ -258,27 +258,54 @@ const createOrder = async (req, res) => {
  // Constants
  // You can adjust this as needed
 
-export const handleCODPayment = async (req, res) => {
+ export const handleCODPayment = async (req, res) => {
   try {
-    const { amount, currency } = req.body;
+    const { 
+      customerId,
+      items,
+      totalAmount,
+      address,
+      addressDetails,
+      notes,
+      paymentMethod,
+    } = req.body;
 
-    if (!amount || !currency) {
-      return res.status(400).json({ message: "Amount and currency are required." });
+    // Validate required fields
+    if (
+      !customerId ||
+      !items?.length ||
+      !totalAmount ||
+      !address ||
+      !paymentMethod
+    ) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const orderAmount = amount;
-    const finalAmount = orderAmount + COD_CHARGE;
+    // Calculate final amount
+    const finalAmount = totalAmount + COD_CHARGE;
 
-    const paymentDetails = {
-      paymentMode: "Cash on Delivery",
-      baseAmount: orderAmount,
-      codCharge: COD_CHARGE,
+    // Create and save order
+    const order = await Order.create({
+      customerId,
+      items,
       totalAmount: finalAmount,
-      status: "Pending Payment",
-      message: `COD selected. Please collect ₹${finalAmount} upon delivery.`,
-    };
+      address,
+      addressDetails,
+      notes,
+      codCharge: COD_CHARGE,
+      paymentMethod: "cod",
+      paymentStatus: "pending",
+      isPaid: false,
+      status: "Placed", // Can be updated to "Processing" later
+    });
 
-    return res.status(200).json(paymentDetails);
+    // Send success response
+    return res.status(201).json({
+      success: true,
+      message: `Order placed successfully. Please collect ₹${finalAmount} upon delivery.`,
+      order,
+    });
+
   } catch (error) {
     console.error("Error in COD payment:", error);
     return res.status(500).json({ message: "Something went wrong while processing COD." });
@@ -299,12 +326,11 @@ export const handleCODPayment = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature,orderId } =
-      req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
 
-      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature || !orderId) {
-        return res.status(400).json({ error: "Missing required fields for verification" });
-      }
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature || !orderId) {
+      return res.status(400).json({ error: "Missing required fields for verification" });
+    }
 
     const generated_signature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -312,30 +338,30 @@ const verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (generated_signature !== razorpay_signature) {
-      return res.status(400).json({ error: "payment verification failed" });
+      return res.status(400).json({ error: "Payment verification failed" });
     }
 
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       {
-        paymentStatus:"Paid",
-        status:"Placed",
-        razorpayPaymentId : razorpay_payment_id,
+        paymentStatus: "Paid",
+        status: "Placed",
+        razorpayPaymentId: razorpay_payment_id,
         razorpaySignature: razorpay_signature,
       },
-      {new:true}
+      { new: true }
     );
-    if(!updatedOrder){
-      return res.status(404).json({error:"Order not found"})
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found" });
     }
-    
-    res
-      .status(200)
-      .json({ success: true, message: "Payment verified successfully" });
+
+    res.status(200).json({ success: true, message: "Payment verified successfully" });
   } catch (error) {
     res.status(500).json({ error: "Error verifying payment" });
   }
 };
+
 
 const placeOrder = async (req, res) => {
   try {
