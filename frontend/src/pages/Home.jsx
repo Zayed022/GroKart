@@ -16,7 +16,7 @@ const Home = () => {
   return (
     <>
       {/* Responsive Navbar */}
-      <nav className="bg-pink-100 text-gray-800 shadow-sm px-6 py-3 sticky top-0 z-50">
+      <nav className="bg-violet-100 text-gray-800 shadow-sm px-6 py-3 sticky top-0 z-50">
   <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
 
     {/* Logo */}

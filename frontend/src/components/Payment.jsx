@@ -7,7 +7,10 @@ import { toast } from "react-hot-toast";
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("token"); // ✅ Correct key
+
+  const user = JSON.parse(localStorage.getItem("user")); // or wherever you're storing user info
+
   const { cartItems } = useContext(CartContext);
   const { address, addressDetails } = location.state || { address: "No address provided" };
 
@@ -36,19 +39,37 @@ const Payment = () => {
   };
 
   const handleUPIPayment = async () => {
-    const res = await loadRazorpayScript();
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
 
+  if (!user || !user._id || !token) {
+    toast.error("User not found. Please log in again.");
+    navigate("/login");
+    return;
+  }
+    const res = await loadRazorpayScript();
+  
     if (!res) {
       alert("Failed to load Razorpay SDK. Check your connection.");
       return;
     }
-
+  
     try {
+      console.log("Token being sent:", token);
+
       const response = await axios.post(
         "https://grokart-2.onrender.com/api/v1/order/create-order",
         {
-          amount: totalPrice,
-          currency: "INR",
+          customerId: user._id, // assuming user info is available
+          items: cartItems,
+          totalAmount: totalPrice,
+          address,
+          addressDetails,
+          notes: {
+            deliveryInstruction: "Call before arriving", // or make dynamic
+          },
+          codCharge: 0,
+          paymentMethod: "razorpay",
         },
         {
           headers: {
@@ -56,9 +77,10 @@ const Payment = () => {
           },
         }
       );
-      const order = response.data
-      const { id: order_id, amount, currency } = response.data;
-
+  
+      const { razorpayOrder, order } = response.data;
+      const { id: order_id, amount, currency } = razorpayOrder;
+  
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount,
@@ -66,22 +88,43 @@ const Payment = () => {
         name: "Grokart",
         description: "15-minute delivery payment",
         order_id,
-        handler: (response) => {
-          toast.success("✅ Payment Successful!");
-          navigate("/payment-success-online", {
-            state: { order, address, addressDetails },
-          });
+        handler: async (response) => {
+          try {
+            // 1️⃣ Verify payment
+            await axios.post(
+              "https://grokart-2.onrender.com/api/v1/order/verify-payment",
+              {
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpaySignature: response.razorpay_signature,
+                orderId: order._id, // MongoDB order id
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+  
+            toast.success("✅ Payment Successful!");
+            navigate("/payment-success-online", {
+              state: { order, address, addressDetails },
+            });
+          } catch (error) {
+            console.error("Payment verification failed:", error);
+            toast.error("❌ Payment verification failed. Please contact support.");
+          }
         },
         prefill: {
-          name: "Zayed Ansari",
-          email: "zayedans022@gmail.com",
-          contact: "7498881947",
+          name: user.name,
+          email: user.email,
+          contact: user.phone,
         },
         theme: {
           color: "#6366f1",
         },
       };
-
+  
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
@@ -89,6 +132,7 @@ const Payment = () => {
       toast.error("❌ Online payment failed. Try again.");
     }
   };
+  
 
   const handleCODPayment = async () => {
     try {

@@ -2,11 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 const orderSchema = new Schema(
   {
-    orderId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    
 
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -45,6 +41,10 @@ const orderSchema = new Schema(
     currency: {
       type: String,
       default: "INR",
+    },
+    isPaid:{
+      type: Boolean,
+      default: false,
     },
 
     razorpayOrderId: String,
@@ -86,6 +86,10 @@ const orderSchema = new Schema(
     address: {
       type: String,
       required: true,
+    },
+    addressDetails:{
+      type: Object,
+      default: {},
     },
 
     notes: {

@@ -30,6 +30,8 @@ const Login = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user._id); 
         localStorage.setItem("email", data.user.email); 
+        localStorage.setItem("user", JSON.stringify(data.user));  // ✅ Store full user
+
         console.log("Token Stored Successfully:", localStorage.getItem("token"));
         navigate("/");  // Redirect to home page
       } else {

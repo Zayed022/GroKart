@@ -190,22 +190,70 @@ const createOrder = async (req, res) => {
   */
 
   const createOrder = async(req,res)=>{
-    const {amount, currency} = req.body;
-    if(!(amount || currency)){
-      return res.status(401).json({error:"Missing amount and currency"})
-    };
-    try {
+
+    try{
+    const {customerId,
+       items,
+       totalAmount,
+       address,
+       addressDetails,
+       notes,
+       codCharge,
+       paymentMethod,
+
+      
+      } = req.body;
+      if (
+        !customerId ||
+        !items?.length ||
+        !totalAmount ||
+        !address ||
+        !paymentMethod
+      ) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+
+    let razorpayOrder = null;
+
+    if (paymentMethod === "razorpay") {
       const options = {
-        amount : amount *100,
-        currency: currency || 'INR',
+        amount: (totalAmount + (codCharge || 0)) * 100, // amount in paise
+        currency: "INR",
+        receipt: `receipt_order_${Date.now()}`,
       };
-      const order = await razorpayInstance.orders.create(options);
-      res.status(200).json(order);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({error:"Error creating Razorpay order"})
+      razorpayOrder = await razorpayInstance.orders.create(options);
     }
+
+    // Save order in DB
+    const newOrder = new Order({
+      customerId,
+      items,
+      totalAmount,
+      address,
+      addressDetails,
+      notes,
+      codCharge,
+      paymentMethod,
+      receipt: razorpayOrder?.receipt || `receipt_cod_${Date.now()}`,
+      razorpayOrderId: razorpayOrder?.id || null,
+      currency: "INR",
+      status: "Placed",
+    });
+
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json({
+      message: "Order created",
+      order: savedOrder,
+      razorpayOrder,
+    });
+  } catch (error) {
+    console.error("Error in createOrder:", error);
+    res.status(500).json({ error: "Failed to create order" });
   }
+};
+  
 
  // Constants
  // You can adjust this as needed
