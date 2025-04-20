@@ -34,7 +34,7 @@ const AddressDetails = () => {
       state: {
         cartItems,
         address,
-        cartItems,
+        
          // Pass existing cart items
         addressDetails: {
           houseNumber: addressDetails.houseNumber,

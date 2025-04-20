@@ -54,14 +54,19 @@ const addProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
+    console.log("Trying to fetch all products...");
+
     const products = await Product.find();
+
+    console.log("Fetched products:", products); // See what we get
+
     res.status(200).json(products);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "An error occured while fetching products." });
+    console.log("Error fetching products:", error.message); // better logging
+    res.status(500).json({ message: "An error occurred while fetching products." });
   }
 };
+
 
 const getProductById = async (req, res) => {
   try {
@@ -189,15 +194,31 @@ const getProductsBySubCatgeory = async (req, res) => {
 
 const getProductsByMiniCategory = async (req, res) => {
   const { miniCategory } = req.params;
+  console.log("Requested miniCategory:", miniCategory);
+
   if (!miniCategory) {
-    return res.status(401).json({ message: "Category is required" });
+    return res.status(400).json({ message: "Mini category is required" });
   }
-  const product = await Product.find({ miniCategory });
-  if (product.length == 0) {
-    return res.status(402).json({ message: "Product not found" });
+
+  try {
+    const products = await Product.find({
+      miniCategory: { $regex: new RegExp(`^${miniCategory}$`, "i") }
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found in this mini category" });
+    }
+
+    return res.status(200).json({ message: "Products fetched successfully", products });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
   }
-  return res.status(201).json({ message: "Products fetched successfully" });
 };
+
+
+
+
 
 const getAllCategories = async (req, res) => {
   try {

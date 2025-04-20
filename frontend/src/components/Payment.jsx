@@ -172,6 +172,8 @@ const Payment = () => {
       );
   
       const paymentDetails = response.data;
+      console.log("Payment Response:", response.data);
+
   
       toast.success("✅ COD Order Placed!");
       navigate("/payment-success", {

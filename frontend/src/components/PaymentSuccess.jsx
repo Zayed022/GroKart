@@ -21,13 +21,13 @@ const PaymentSuccess = () => {
         </h2>
 
         <div className="space-y-4 text-base text-gray-700">
-          <DetailRow label="Payment Mode" value={paymentDetails.paymentMode} />
-          <DetailRow label="Base Amount" value={`₹${paymentDetails.baseAmount}`} />
-          <DetailRow label="COD Charge" value={`₹${paymentDetails.codCharge}`} />
-          <DetailRow label="Total Amount" value={`₹${paymentDetails.totalAmount}`} />
+          <DetailRow label="Payment Mode" value={paymentDetails.order.paymentMethod} />
+          <DetailRow label="Base Amount" value={`₹${paymentDetails.order.baseAmount}`} />
+          <DetailRow label="COD Charge" value={`₹${paymentDetails.order.codCharge}`} />
+          <DetailRow label="Total Amount" value={`₹${paymentDetails.order.totalAmount - 20}`} /> {/* ✅ FIXED */}
           <DetailRow label="Status" value={paymentDetails.status} />
           <DetailRow label="Address" value={address || "N/A"} />
-          <DetailRow label="Note" value={paymentDetails.message} />
+          <DetailRow label="Note" value={paymentDetails.order.notes || "N/A"} />
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ const categorySchema = new Schema({
     },
     minicategory:{
         type:String,
-        //required:true,
+        required:true,
     },
     image:{
         type:String,

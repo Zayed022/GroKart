@@ -1,5 +1,5 @@
 import { User } from "../models/user.models.js";
-
+import OAuth2Client from "google-auth-library"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -112,6 +112,64 @@ const logoutUser = async(req,res)=>{
   res.clearCookie("refreshToken");
   return res.status(200).json({message:"Logged out successfully"});
 }
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const googleLogin = async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ message: "No token provided" });
+  }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        avatar: picture,
+        password: "GOOGLE_AUTH", // won't be used
+        isGoogleUser: true,
+      });
+    }
+
+    // Generate tokens
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+    // Fetch safe user details
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    };
+
+    res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json({
+        message: "Google login successful",
+        user: loggedInUser,
+        token: accessToken,
+      });
+
+  } catch (error) {
+    console.error("Google login error:", error);
+    res.status(500).json({ message: "Google login failed" });
+  }
+};
 /*
 const getUserProfile = async(req,res)=>{
   try{
