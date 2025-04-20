@@ -1,5 +1,5 @@
 import { User } from "../models/user.models.js";
-import OAuth2Client from "google-auth-library"
+import {OAuth2Client} from "google-auth-library"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
