@@ -173,11 +173,20 @@ const getProductsByCategory = async (req, res) => {
   if (!category) {
     return res.status(401).json({ message: "Category is required" });
   }
-  const product = await Product.find({ category });
-  if (product.length == 0) {
-    return res.status(402).json({ message: "No product not in this category" });
+  try {
+    const products = await Product.find({
+      category: { $regex: new RegExp(`^${ category }$`, "i") }
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found in this category" });
+    }
+
+    return res.status(200).json({ message: "Products fetched successfully", products });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error" });
   }
-  return res.status(201).json({ message: "Products fetched", product });
 };
 
 const getProductsBySubCatgeory = async (req, res) => {

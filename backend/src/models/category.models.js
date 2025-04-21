@@ -1,5 +1,7 @@
 import mongoose,{Schema} from "mongoose"
 
+
+
 const categorySchema = new Schema({
     category:{
         type:String,
@@ -20,3 +22,30 @@ const categorySchema = new Schema({
 },{timestamps:true});
 
 export const Category = mongoose.model("Category",categorySchema)
+
+/*
+
+//import mongoose from "mongoose";
+
+const miniCategorySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  image: { type: String }, // image for miniCategory
+});
+
+const subCategorySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  image: { type: String }, // image for subCategory
+  miniCategories: [miniCategorySchema],
+});
+
+const categorySchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true }, // category name (no image)
+    subCategories: [subCategorySchema],
+  },
+  { timestamps: true }
+);
+
+export const Category = mongoose.model("Category", categorySchema);
+
+*/

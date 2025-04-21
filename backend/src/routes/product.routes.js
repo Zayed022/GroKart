@@ -28,7 +28,7 @@ router.route("/add-product").post(
 
 router.route("/get-product").get(getAllProducts)
 router.route("/:productId").get(getProductById)
-router.route("/update-products").get(updateProductDetails)
+router.route("/update-products").post(updateProductDetails)
 router.route("/delete-product").delete(deleteProduct)
 router.route("/").get(getProducts)
 router.route("/category/:category").get(getProductsByCategory)
@@ -36,7 +36,7 @@ router.route("/subCategory/:subCategory").get(getProductsBySubCatgeory)
 router.route("/minicategory/:").get(getProductsByMiniCategory)
 router.route("/get-all-categories").get(getAllCategories)
 router.route("/get-all-sub-categories").get(getAllSubCategories)
-router.get('/miniCategory/:miniCategory', getProductsByMiniCategory);
+router.get('/minicategory/:miniCategory', getProductsByMiniCategory);
 router.route("/get-categories-with-subcategories").get(getCategoriesWithSubCategories)
 
 export default router

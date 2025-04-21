@@ -7,6 +7,8 @@ import Hero from "../components/Hero";
 import Items from "../components/Items";
 import CsCards from "../components/CsCards";
 import { CartContext } from "../context/Cart";
+import MinicategoryPage from "../components/MiniCategory";
+import MiniCards from "../components/MiniCards";
 
 
 const Home = () => {
@@ -56,6 +58,7 @@ const Home = () => {
       <Hero />
       
       <CsCards />
+      <MiniCards/>
     </>
   );
 };

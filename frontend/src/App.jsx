@@ -15,6 +15,7 @@ import { Sidebar } from "lucide-react";
 import Address from "./components/Address";
 import PaymentSuccess from "./components/PaymentSuccess";
 import PaymentSuccessOnline from "./components/PaymentOnlineSuccess";
+import MinicategoryPage from "./components/MiniCategory";
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/category/:categoryName" element={<CategoryPage />} />
       <Route path="/subCategory/:subCategory" element={<Subcategorypage />} />
+      <Route path="/minicategory/:miniCategory" element={<MinicategoryPage />} />
       <Route path="/all-products" element={<Items />} />
       <Route path="/products/:productId" element={<ProductDetails />} />
       <Route path="/cart" element={<CartDisplay />} />
