@@ -28,19 +28,16 @@ function MiniCards() {
     <>
       <h2 className="text-2xl font-semibold text-center">Shop by Mini Category</h2>
       <div className="p-6">
-        {subCategories.map((categoryBlock) => (
+        {subCategories?.map((categoryBlock) => (
           <div key={categoryBlock._id}>
-            {categoryBlock.subcategories.map((sub) => (
+            {categoryBlock?.subcategories?.map((sub) => (
               <div key={sub.name} className="mb-8">
-                {/* Subcategory Heading */}
                 <h2 className="text-3xl font-bold mb-4">{sub.name}</h2>
-
-                {/* MiniCategory Cards */}
                 <div className="flex gap-8 overflow-x-auto scrollbar-hide">
-                  {sub.minicategories.map((mini, idx) => (
+                  {sub?.minicategories?.map((mini, idx) => (
                     <Link
                       key={`${sub.name}-${idx}`}
-                      to={`/miniCategory/${encodeURIComponent(mini.name)}`}
+                      to={`/minicategory/${encodeURIComponent(mini.name)}`}
                       className="w-44 flex-shrink-0 text-center"
                     >
                       <img
@@ -59,6 +56,7 @@ function MiniCards() {
       </div>
     </>
   );
+  
 }
 
 export default MiniCards;

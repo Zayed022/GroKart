@@ -14,14 +14,17 @@ const addProduct = async (req, res) => {
   if (!(name || description || price || category || stock)) {
     return res.status(401).json({ message: "All fields are required" });
   }
+  /*
   const productExists = await Product.findOne({
     $or: [{ name }, { description }],
   });
+  
   if (productExists) {
     return res
       .status(404)
       .json({ message: "Product with name or description already exists" });
   }
+      */
   const imageLocalPath = req.files?.image[0]?.path;
   console.log(imageLocalPath);
   if (!imageLocalPath) {

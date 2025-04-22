@@ -58,7 +58,7 @@ const Home = () => {
       <Hero />
       
       <CsCards />
-      <MiniCards/>
+      
     </>
   );
 };
