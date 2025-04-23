@@ -16,10 +16,20 @@ import Address from "./components/Address";
 import PaymentSuccess from "./components/PaymentSuccess";
 import PaymentSuccessOnline from "./components/PaymentOnlineSuccess";
 import MinicategoryPage from "./components/MiniCategory";
+import { Toaster } from "react-hot-toast";
 
 
 function App() {
   return (
+    <>
+    <Toaster position="top-right" 
+    toastOptions={{
+      ariaProps: {
+        role: 'status',
+        'aria-live': 'polite'
+      }
+    }}
+    reverseOrder={false} />
     <Routes>
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
@@ -45,6 +55,7 @@ function App() {
 
       
     </Routes>
+    </>
   );
 }
 

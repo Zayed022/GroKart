@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CartContext } from "../../context/Cart";
+import toast from "react-hot-toast";
 
 function SubcategoryPage() {
   const { subCategory } = useParams();
@@ -98,14 +99,19 @@ function SubcategoryPage() {
 
     */}
                 {/* Product Image */}
+                {product.image && (
+                <Link to = {`/products/${product._id}`}>
                 <img
+                  loading="lazy"
                   src={product.image}
                   alt={product.name}
                   className="w-full h-40 object-contain mb-3"
                 />
+                </Link>
+            )}
 
                 {/* Product Name */}
-                <p className="text-base font-medium leading-tight h-[2.75rem] overflow-hidden text-ellipsis">
+                <p className="text-base font-medium leading-tight h-[2.75rem] overflow-hidden text-ellipsis line-clamp-2">
                   {product.name}
                 </p>
 
@@ -147,6 +153,7 @@ function SubcategoryPage() {
                         ...prev,
                         [product._id]: 1,
                       }));
+                      toast.success(`${product.name} added to cart`);
                     }}
                   >
                     Add to Cart

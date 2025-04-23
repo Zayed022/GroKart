@@ -9,6 +9,7 @@ import CsCards from "../components/CsCards";
 import { CartContext } from "../context/Cart";
 import MinicategoryPage from "../components/MiniCategory";
 import MiniCards from "../components/MiniCards";
+import Footer from "../components/Footer";
 
 
 const Home = () => {
@@ -58,6 +59,7 @@ const Home = () => {
       <Hero />
       
       <CsCards />
+      <Footer/>
       
     </>
   );
