@@ -312,6 +312,7 @@ const createOrder = async (req, res) => {
       success: true,
       message: `Order placed successfully. Please collect ₹${finalAmount} upon delivery.`,
       order,
+      
     });
 
   } catch (error) {

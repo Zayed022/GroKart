@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CartContext } from "../../context/Cart";
 import toast from "react-hot-toast";
+import Navbar from "../../components/Navbar";
 
 function SubcategoryPage() {
   const { subCategory } = useParams();
@@ -77,6 +78,8 @@ function SubcategoryPage() {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="p-8">
       <h2 className="text-2xl font-semibold text-center">
         Products in {subCategory}
@@ -169,6 +172,7 @@ function SubcategoryPage() {
         </div>
       )}
     </div>
+    </>
   );
 }
 
