@@ -41,7 +41,7 @@ const Register = () => {
             ⚡ 15-Min Delivery on All Orders
           </h1>
           <img
-            src="./public/Delivery.svg" // replace with your image path
+            src="/Delivery.svg" // replace with your image path
             alt="Illustration"
             className="w-2/3 h-30"
           />

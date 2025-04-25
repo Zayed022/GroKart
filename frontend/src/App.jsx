@@ -17,6 +17,7 @@ import PaymentSuccess from "./components/PaymentSuccess";
 import PaymentSuccessOnline from "./components/PaymentOnlineSuccess";
 import MinicategoryPage from "./components/MiniCategory";
 import { Toaster } from "react-hot-toast";
+import MyOrders from "./components/MyOrders";
 
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
       <Route path = "/order-success" element = {<OrderSuccess/>}/>
       <Route path = "/payment-success" element = {<PaymentSuccess/>}/>
       <Route path = "/payment-success-online" element = {<PaymentSuccessOnline/>}/>
+      <Route path = "/order-history" element = {<MyOrders/>}/>
       <Route path = "/mini" element = {<Sidebar/>}/>
       
       

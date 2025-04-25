@@ -56,7 +56,7 @@ import {
                 <FaEnvelope className="text-red-500" /> support@grokart.in
               </p>
               <p className="flex items-center gap-2">
-                <FaPhoneAlt className="text-red-500" /> +91 99999 99999
+                <FaPhoneAlt className="text-red-500" /> +91 7498881947
               </p>
               <div className="flex items-center gap-4 mt-4">
                 <a href="#" className="hover:text-white"><FaFacebookF /></a>

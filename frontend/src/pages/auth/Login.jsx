@@ -91,7 +91,7 @@ const Login = () => {
             ))}
           </Swiper>
           <img
-            src="./public/Groceries.svg"
+            src="/Groceries.svg"
             alt="Delivery Illustration"
             className="w-2/3 h-1/2 mt-6 drop-shadow-lg"
           />

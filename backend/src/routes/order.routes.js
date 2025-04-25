@@ -9,6 +9,7 @@ import {
     getDeliveryRoute,
     getAssignedOrders,
     handleCODPayment,
+    getMyOrders,
     
 } from "../controllers/order.controllers.js"
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -25,5 +26,6 @@ router.route("/:orderId/status").put(updateOrderStatus)
 router.route("/assign-partner").post(assignDeliveryPartner)
 router.route("/get-route").get(getDeliveryRoute)
 router.route("/get-assigned-orders").get(getAssignedOrders)
+router.get("/my-orders",verifyJWT,getMyOrders)
 
 export default router

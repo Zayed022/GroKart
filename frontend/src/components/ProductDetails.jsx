@@ -1,12 +1,13 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { CartContext } from "../context/Cart";
+import Navbar from "./Navbar";
 
 const ProductDetails = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { cartItems, addToCart } = useContext(CartContext);
+  const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
   const [cart, setCart] = useState(() => {
     return JSON.parse(localStorage.getItem("cart")) || {};
   });
@@ -29,17 +30,17 @@ const ProductDetails = () => {
 
   const decreaseQuantity = (product) => {
     const updatedCart = { ...cart };
-
+  
     if (updatedCart[product._id] > 1) {
-      updatedCart[product._id] -= 1;
+      updatedCart[product._id] -= 1; // Decrease quantity
+      removeFromCart(product, updatedCart[product._id]); // Sync with global cart only if still in cart
     } else {
       delete updatedCart[product._id];
+      removeFromCart(product, updatedCart[product._id]); // Remove from cart if quantity reaches 0
     }
-
+  
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-
-    addToCart(product, updatedCart[product._id] || 0);
   };
 
   useEffect(() => {
@@ -64,6 +65,8 @@ const ProductDetails = () => {
   if (!product) return <p>Product not found.</p>;
 
   return (
+    <>
+    <Navbar/>
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="w-full max-w-4xl bg-white p-8 rounded-xl shadow-lg">
         <div className="flex flex-col md:flex-row items-center justify-center gap-10">
@@ -125,6 +128,7 @@ const ProductDetails = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

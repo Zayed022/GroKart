@@ -9,7 +9,7 @@ function SubcategoryPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setshowModal] = useState(false);
-  const { cartItems, addToCart } = useContext(CartContext);
+  const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -63,19 +63,19 @@ function SubcategoryPage() {
   // Decrease Quantity or Remove Item
   const decreaseQuantity = (product) => {
     const updatedCart = { ...cart };
-
+  
     if (updatedCart[product._id] > 1) {
       updatedCart[product._id] -= 1; // Decrease quantity
+      removeFromCart(product, updatedCart[product._id]); // Sync with global cart only if still in cart
     } else {
-      delete updatedCart[product._id]; // Remove from cart if quantity reaches 0
+      delete updatedCart[product._id];
+      removeFromCart(product, updatedCart[product._id]); // Remove from cart if quantity reaches 0
     }
-
+  
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-
-    // Sync with global cart
-    addToCart(product, updatedCart[product._id] || 0);
   };
+  
 
   return (
     <>
@@ -133,6 +133,7 @@ function SubcategoryPage() {
                 {/* Add to Cart Button */}
                 {cart[product._id] ? (
                   <div className="flex items-center justify-between border border-pink-500 rounded-full px-3 py-1">
+                    
                     <button
                       onClick={() => decreaseQuantity(product)}
                       className="text-xl font-bold text-pink-600"

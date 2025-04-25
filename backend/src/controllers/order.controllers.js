@@ -573,6 +573,23 @@ const getAssignedOrders = async (req, res) => {
   }
 };
 
+const getMyOrders = async (req, res) => {
+  const userId = req.user._id;
+
+  if (!userId) {
+    throw new ApiError(401, "User ID not found in request");
+  }
+
+  const orders = await Order.find({ customerId: userId }).sort({ createdAt: -1 });
+
+  res.status(200).json({
+    success: true,
+    message: "Fetched user orders successfully",
+    data: orders,
+  });
+};
+
+
 export {
   createOrder,
   verifyPayment,
@@ -583,4 +600,5 @@ export {
   getDeliveryRoute,
   applyDiscount,
   getAssignedOrders,
+  getMyOrders
 };
