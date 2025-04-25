@@ -2,6 +2,8 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+
 import { CartContext } from "../context/Cart";
 
 function Navbar() {
@@ -46,6 +48,14 @@ function Navbar() {
                 {totalQuantity}
               </span>
             )}
+          </Link>
+
+          <Link
+            to="/order-history"
+            className="hover:scale-105 transition-transform duration-200"
+            aria-label="View past orders"
+          >
+            <ListAltIcon className="w-7 h-7 text-gray-800" />
           </Link>
 
           <Link

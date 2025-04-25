@@ -11,7 +11,7 @@ const Payment = () => {
 
   const user = JSON.parse(localStorage.getItem("user")); // or wherever you're storing user info
 
-  const { cartItems } = useContext(CartContext);
+  const { cartItems, clearCart } = useContext(CartContext);
   const { address, addressDetails } = location.state || { address: "No address provided" };
 
   const [paymentMethod, setPaymentMethod] = useState("upi");
@@ -112,6 +112,8 @@ const Payment = () => {
                 },
               }
             );
+
+            clearCart();
         
             navigate("/payment-success-online", {
               state: { order, address, addressDetails },
@@ -170,6 +172,9 @@ const Payment = () => {
           },
         }
       );
+
+      clearCart();
+
   
       const paymentDetails = response.data;
       console.log("Payment Response:", response.data);
@@ -181,7 +186,7 @@ const Payment = () => {
       });
   
     } catch (error) {
-      console.error("COD order failed:", error);
+      console.log("COD order failed:", error);
       toast.error("❌ COD order failed. Try again.");
     }
   };

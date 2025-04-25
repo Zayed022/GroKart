@@ -8,8 +8,8 @@ const MyOrders = () => {
   // Fetch user orders from backend
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("https://grokart-2.onrender.com/api/v1/orders/my-orders", { withCredentials: true });
-      setOrders(res.data?.orders || []);
+      const res = await axios.get("https://grokart-2.onrender.com/api/v1/order/my-orders", { withCredentials: true });
+      setOrders(res.data?.data || []);
     } catch (err) {
       console.error("Error fetching orders:", err);
     } finally {

@@ -37,6 +37,7 @@ const PaymentSuccessOnline = () => {
               <li>🏢 Floor: {addressDetails.floor}</li>
               <li>🏘️ Building: {addressDetails.building}</li>
               <li>📍 Landmark: {addressDetails.landmark}</li>
+              <li>📍 Recepient Phone Number: {addressDetails.recepientPhoneNumber}</li>
             </ul>
           </div>
         )}
