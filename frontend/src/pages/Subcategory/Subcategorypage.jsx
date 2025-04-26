@@ -86,7 +86,39 @@ function SubcategoryPage() {
       </h2>
 
       {loading ? (
-        <p className="text-center text-gray-600 mt-4">Loading products...</p>
+        <>
+        if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="flex w-96 flex-col gap-6 justify-center p-6 shadow-lg rounded-2xl bg-white">
+        
+        {/* Image shimmer */}
+        <div className="relative overflow-hidden bg-gray-200 rounded-lg h-48 w-full">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+        </div>
+  
+        {/* Title shimmer */}
+        <div className="relative overflow-hidden bg-gray-200 rounded h-6 w-40">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+
+        </div>
+  
+        {/* Text shimmer */}
+        <div className="relative overflow-hidden bg-gray-200 rounded h-4 w-full">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+
+        </div>
+  
+        {/* Text shimmer */}
+        <div className="relative overflow-hidden bg-gray-200 rounded h-4 w-full">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+
+        </div>
+  
+      </div>
+    </div>
+  );
+        </>
+        
       ) : (
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {products.length > 0 ? (

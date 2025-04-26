@@ -23,7 +23,7 @@ import MyOrders from "./components/MyOrders";
 function App() {
   return (
     <>
-    <Toaster position="top-right" 
+    <Toaster position="top-right mt-10" 
     toastOptions={{
       ariaProps: {
         role: 'status',
