@@ -243,7 +243,7 @@ const createOrder = async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
-    await sendOrderEmail(savedOrder)
+    //await sendOrderEmail(savedOrder)
 
     res.status(201).json({
       message: "Order created",
