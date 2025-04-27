@@ -15,7 +15,7 @@ const AddressDetails = () => {
     floor: "",
     buildingName: "",
     landmark: "",
-    recepientPhoneNumber: "",
+    recipientPhoneNumber: "",
   });
 
   const handleChange = (e) => {
@@ -42,7 +42,7 @@ const AddressDetails = () => {
           floor: addressDetails.floor,
           building: addressDetails.building,
           landmark: addressDetails.landmark,
-          recepientPhoneNumber: addressDetails.recepientPhoneNumber,
+          recipientPhoneNumber: addressDetails.recipientPhoneNumber,
           city: "Bhiwandi",
           state: "Maharashtra",
           pincode: "421302",
@@ -57,7 +57,7 @@ const AddressDetails = () => {
         <h2 className="text-2xl font-bold mb-6">Add Address Details</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {["houseNumber", "floor", "building", "landmark", "recepient Phone Number"].map((field) => (
+          {["houseNumber", "floor", "building", "landmark", "recipientPhoneNumber"].map((field) => (
             <div key={field}>
               <label className="block text-sm font-semibold mb-1">
                 {field === "houseNumber"

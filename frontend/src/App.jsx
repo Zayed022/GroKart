@@ -18,6 +18,7 @@ import PaymentSuccessOnline from "./components/PaymentOnlineSuccess";
 import MinicategoryPage from "./components/MiniCategory";
 import { Toaster } from "react-hot-toast";
 import MyOrders from "./components/MyOrders";
+import CsCards from "./components/CsCards";
 
 
 function App() {
@@ -49,6 +50,8 @@ function App() {
       <Route path = "/payment-success-online" element = {<PaymentSuccessOnline/>}/>
       <Route path = "/order-history" element = {<MyOrders/>}/>
       <Route path = "/mini" element = {<Sidebar/>}/>
+      <Route path = "/category" element = {<CsCards/>}/>
+
       
       
       

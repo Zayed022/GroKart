@@ -36,7 +36,7 @@ const PaymentSuccess = () => {
           <DetailRow label="Floor " value={addressDetails.floor || "N/A"} />
           <DetailRow label="Building" value={addressDetails.building || "N/A"} />
           <DetailRow label="Landmark" value={addressDetails.landmark || "N/A"} />
-          <DetailRow label="Recepient Phone Number" value={addressDetails.recepientPhoneNumber || "N/A"} />
+          <DetailRow label="Recepient Phone Number" value={addressDetails.recipientPhoneNumber || "N/A"} />
           <DetailRow label="Note" value={paymentDetails.order.notes || "N/A"} icon={<StickyNote />} />
         </div>
 

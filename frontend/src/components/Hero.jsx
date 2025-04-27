@@ -17,7 +17,7 @@ function Hero() {
         <p className="mt-4 text-lg text-gray-600">
           Fresh groceries from your local stores delivered fast and fresh to your doorstep. Skip the lines and shop smart with Grokart!
         </p>
-        <Link to="/shop">
+        <Link to="/category">
           <button className="mt-6 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl text-lg transition duration-200 shadow-lg">
             Start Shopping
           </button>

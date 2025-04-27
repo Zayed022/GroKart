@@ -81,6 +81,7 @@ function SubcategoryPage() {
     <>
     <Navbar/>
     <div className="p-8">
+    
       <h2 className="text-2xl font-semibold text-center">
         Products in {subCategory}
       </h2>
@@ -89,6 +90,7 @@ function SubcategoryPage() {
         <>
         if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1>Loading Products ... </h1>
       <div className="flex w-96 flex-col gap-6 justify-center p-6 shadow-lg rounded-2xl bg-white">
         
         {/* Image shimmer */}
