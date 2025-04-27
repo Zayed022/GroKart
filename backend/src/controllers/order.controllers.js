@@ -10,8 +10,8 @@ import { User } from "../models/user.models.js";
 import { Offer } from "../models/offer.model.js";
 import axios from "axios";
 //import {io} from "../utils/loaction.js"
-import { sendOrderNotification } from "../utils/emailService.js";
-import { sendOrderEmail } from "../utils/mailer.js";
+
+
 dotenv.config();
 
 const razorpayInstance = new Razorpay({
@@ -300,12 +300,7 @@ const createOrder = async (req, res) => {
       isPaid: false,
       status: "Placed", // Can be updated to "Processing" later
     });
-    try {
-      await sendOrderEmail(order);
-      console.log("✅ Email sent!");
-    } catch (error) {
-      console.error("❌ Email sending failed:", error.message);
-    }
+   
     
     // Send success response
     return res.status(201).json({

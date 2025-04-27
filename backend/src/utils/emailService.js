@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 const sendOrderNotification = async (userEmail, subject, message)=>{
     const mailOptions = {
         from : process.env.EMAIL_USER,
-        to : userEmail,
+        to : user.email,
         subject,
         text: message,
     };
