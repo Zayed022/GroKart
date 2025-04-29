@@ -19,6 +19,9 @@ import MinicategoryPage from "./components/MiniCategory";
 import { Toaster } from "react-hot-toast";
 import MyOrders from "./components/MyOrders";
 import CsCards from "./components/CsCards";
+import ContactUs from "./components/ContactUs";
+import TermsAndConditions from "./components/Terms&Condition";
+import CancellationRefundPolicy from "./components/Cancellation";
 
 
 function App() {
@@ -51,6 +54,9 @@ function App() {
       <Route path = "/order-history" element = {<MyOrders/>}/>
       <Route path = "/mini" element = {<Sidebar/>}/>
       <Route path = "/category" element = {<CsCards/>}/>
+      <Route path = "/contact-us" element = {<ContactUs/>}/>
+      <Route path = "/terms-conditions" element = {<TermsAndConditions/>}/>
+      <Route path = "/cancellation" element = {<CancellationRefundPolicy/>}/>
 
       
       

@@ -251,7 +251,7 @@ const createOrder = async (req, res) => {
       razorpayOrder,
     });
   } catch (error) {
-    console.error("Error in createOrder:", error);
+    console.log("Error in createOrder:", error);
     res.status(500).json({ error: "Failed to create order" });
   }
 };

@@ -5,6 +5,7 @@ import {
     FaPhoneAlt,
     FaEnvelope
   } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
   
   const Footer = () => {
     return (
@@ -41,17 +42,21 @@ import {
           {/* Help */}
           <div>
             <h2 className="text-lg font-semibold mb-3">Help</h2>
-            <ul className="space-y-2 text-sm text-gray-300">
-              <li><a href="/help" className="hover:text-white">Help Center</a></li>
-              <li><a href="/terms" className="hover:text-white">Terms & Conditions</a></li>
-              <li><a href="/privacy" className="hover:text-white">Privacy Policy</a></li>
-            </ul>
+            <div className="space-y-2 text-sm text-gray-300">
+              <Link to = 'contact-us'><p  className="hover:text-white">Help Center</p></Link>
+              
+              <Link to = '/terms-conditions'> <p className="hover:text-white">Terms & Conditions</p></Link>
+              <Link to = 'cancellation'><p  className="hover:text-white">Cancellation & Refund Policy</p></Link>
+            </div>
           </div>
   
           {/* Contact */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">Contact</h2>
+            <Link to = 'contact-us'> <h2 className="text-lg font-semibold mb-3">Contact Us</h2></Link>
+           
             <div className="text-sm text-gray-300 space-y-2">
+              <Link to = 'contact-us'><p>Contact Us</p></Link>
+              
               <p className="flex items-center gap-2">
                 <FaEnvelope className="text-red-500" /> support@grokart.in
               </p>
