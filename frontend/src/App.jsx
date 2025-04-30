@@ -23,6 +23,7 @@ import ContactUs from "./components/ContactUs";
 import TermsAndConditions from "./components/Terms&Condition";
 import CancellationRefundPolicy from "./components/Cancellation";
 import PrivacyPolicy from "./components/PrivacyPolicy";
+import AboutUs from "./components/AboutUs";
 
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
       <Route path = "/terms-conditions" element = {<TermsAndConditions/>}/>
       <Route path = "/cancellation" element = {<CancellationRefundPolicy/>}/>\
       <Route path = "/policy" element = {<PrivacyPolicy/>}/>
+      <Route path = "/about" element = {<AboutUs/>}/>
 
       
       

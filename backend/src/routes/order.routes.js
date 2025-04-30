@@ -1,6 +1,6 @@
 import {Router } from "express"
 import {
-    createOrder,
+    //createOrder,
     verifyPayment,
     placeOrder,
     getOrderStatus,
@@ -18,7 +18,7 @@ import { verifyJWT } from "../middlewares/auth.middlewares.js";
 const router = Router();
 
 //router.route("/create-order").post(createOrder);
-router.post("/create-order", verifyJWT, createOrder)
+//router.post("/create-order", verifyJWT, createOrder)
 router.post("/create-cod-order",handleCODPayment)
 router.route("/verify").post(verifyPayment);
 router.route("/place-order").post(placeOrder)

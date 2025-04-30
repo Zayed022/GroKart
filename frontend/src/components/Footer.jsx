@@ -35,7 +35,7 @@ import { Link } from 'react-router-dom';
             <ul className="space-y-2 text-sm text-gray-300">
               <li><a href="/" className="hover:text-white">Home</a></li>
               <li><a href="/offers" className="hover:text-white">Offers</a></li>
-              <li><a href="/about" className="hover:text-white">About Us</a></li>
+              <Link to = 'about'><p className="hover:text-white">About Us</p></Link>
             </ul>
           </div>
   

@@ -189,7 +189,7 @@ const createOrder = async (req, res) => {
     }
   };
   */
-
+/*
   const createOrder = async(req,res)=>{
 
     try{
@@ -255,6 +255,8 @@ const createOrder = async (req, res) => {
     res.status(500).json({ error: "Failed to create order" });
   }
 };
+*/
+
   
 
 export const createOrderUsingCashfree = async(req,res)=>{
@@ -291,21 +293,34 @@ export const createOrderUsingCashfree = async(req,res)=>{
         "x-client-secret": process.env.CASHFREE_CLIENT_SECRET,
       };
 
-      const response = await axios.post(
-        "https://api.cashfree.com/pg/orders",
-        {
-          customer_details: {
-            customer_id: customerId,
-            customer_email: "user@example.com", // replace as needed
-            customer_name: "User Name",         // replace as needed
-          },
-          order_amount: totalAmount + (codCharge || 0),
-          order_currency: "INR",
-        },
-        { headers }
-      );
+      const orderId = `order_${Date.now()}`;
+
+const response = await axios.post(
+  "https://api.cashfree.com/pg/orders",
+  {
+    order_id: orderId,
+    order_amount: totalAmount + (codCharge || 0),
+    order_currency: "INR",
+    customer_details: {
+      customer_id: customerId.toString(),        // ensure it's a string
+      customer_email: "user@example.com",        // required
+      customer_name: "User Name",                // required
+      customer_phone: "9999999999"               // required (dummy value for test)
+    },
+    order_meta: {
+      return_url: `https://grokart-2.onrender.com/payment-status?order_id=${orderId}`
+    }
+  },
+  { headers }
+);
+
+      
 
       cashfreeOrder = response.data;
+if (!cashfreeOrder.payment_session_id) {
+  return res.status(500).json({ error: "Failed to generate payment session ID" });
+}
+
     }
 
     const newOrder = new Order({
@@ -332,11 +347,16 @@ export const createOrderUsingCashfree = async(req,res)=>{
     res.status(201).json({
       message: "Order created",
       order: savedOrder,
-      razorpayOrder,
-      cashfreeOrder,
+      
+      paymentSessionId: cashfreeOrder.payment_session_id,
     });
   } catch (error) {
-    console.log("Error in createOrder:", error.response?.data || error);
+    console.log("Error in createOrder:", {
+      data: error.response?.data,
+      status: error.response?.status,
+      message: error.message,
+    });
+    
     res.status(500).json({ error: "Failed to create order" });
   }
 
@@ -671,7 +691,7 @@ const getMyOrders = async (req, res) => {
 
 
 export {
-  createOrder,
+  //createOrder,
   verifyPayment,
   placeOrder,
   getOrderStatus,

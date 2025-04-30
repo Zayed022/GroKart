@@ -169,8 +169,8 @@ const Payment = () => {
           notes: {
             deliveryInstruction: "Call before arriving",
           },
-          codCharge: codCharge,
-          paymentMethod: "cashfree",
+          codCharge: 0,
+          paymentMethod: "cashfree", // ✅ use correct method
         },
         {
           headers: {
@@ -179,22 +179,38 @@ const Payment = () => {
         }
       );
   
-      const { order, cashfreeOrder } = response.data;
-      toast.success("✅ Order placed using Cashfree!");
+      const { order, paymentSessionId } = response.data;
   
-      clearCart();
-      navigate("/payment-success-online", {
-        state: { order, address, addressDetails },
-      });
+      if (!paymentSessionId) {
+        toast.error("Failed to initiate payment session.");
+        return;
+      }
   
-      console.log("Cashfree Order:", cashfreeOrder);
+      // ✅ Load Cashfree script if not already loaded
+      if (!window.Cashfree) {
+        const script = document.createElement("script");
+        script.src = "https://sdk.cashfree.com/js/ui/2.0.0/cashfree.prod.js";
+        script.async = true;
+        script.onload = () => launchCashfreeCheckout(paymentSessionId);
+        document.body.appendChild(script);
+      } else {
+        launchCashfreeCheckout(paymentSessionId);
+      }
+  
+      function launchCashfreeCheckout(sessionId) {
+        const cashfree = new window.Cashfree(sessionId);
+        cashfree.redirect();
+      }
+  
+      console.log("Cashfree session started for Order:", order);
     } catch (error) {
-      console.error("Cashfree payment error:", error);
+      console.log("Cashfree payment error:", error);
       toast.error("❌ Cashfree payment failed.");
     } finally {
       setLoading(false);
     }
   };
+  
   
 
   const handleCODPayment = async () => {
