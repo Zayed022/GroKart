@@ -44,7 +44,7 @@ import { Link } from 'react-router-dom';
             <h2 className="text-lg font-semibold mb-3">Help</h2>
             <div className="space-y-2 text-sm text-gray-300">
               <Link to = 'contact-us'><p  className="hover:text-white">Help Center</p></Link>
-              
+              <Link to = 'policy'><p  className="hover:text-white">Privacy Policy</p></Link>
               <Link to = '/terms-conditions'> <p className="hover:text-white">Terms & Conditions</p></Link>
               <Link to = 'cancellation'><p  className="hover:text-white">Cancellation & Refund Policy</p></Link>
             </div>

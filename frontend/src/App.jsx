@@ -22,6 +22,7 @@ import CsCards from "./components/CsCards";
 import ContactUs from "./components/ContactUs";
 import TermsAndConditions from "./components/Terms&Condition";
 import CancellationRefundPolicy from "./components/Cancellation";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 
 
 function App() {
@@ -56,7 +57,8 @@ function App() {
       <Route path = "/category" element = {<CsCards/>}/>
       <Route path = "/contact-us" element = {<ContactUs/>}/>
       <Route path = "/terms-conditions" element = {<TermsAndConditions/>}/>
-      <Route path = "/cancellation" element = {<CancellationRefundPolicy/>}/>
+      <Route path = "/cancellation" element = {<CancellationRefundPolicy/>}/>\
+      <Route path = "/policy" element = {<PrivacyPolicy/>}/>
 
       
       
