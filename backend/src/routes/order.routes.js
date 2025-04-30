@@ -10,6 +10,7 @@ import {
     getAssignedOrders,
     handleCODPayment,
     getMyOrders,
+    createOrderUsingCashfree,
     
 } from "../controllers/order.controllers.js"
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -27,5 +28,6 @@ router.route("/assign-partner").post(assignDeliveryPartner)
 router.route("/get-route").get(getDeliveryRoute)
 router.route("/get-assigned-orders").get(getAssignedOrders)
 router.get("/my-orders",verifyJWT,getMyOrders)
+router.post('/create-order-cashfree',createOrderUsingCashfree)
 
 export default router

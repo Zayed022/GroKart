@@ -144,6 +144,58 @@ const Payment = () => {
     }
   };
   
+  const handleCashfreePayment = async () => {
+    if (!user || !user._id || !token) {
+      toast.error("User not found. Please log in again.");
+      navigate("/login");
+      return;
+    }
+  
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        "https://grokart-2.onrender.com/api/v1/order/create-order-cashfree",
+        {
+          customerId: user._id,
+          items: cartItems.map((item) => ({
+            productId: item._id,
+            quantity: item.quantity,
+            name: item.name,
+            price: item.price,
+          })),
+          totalAmount: totalPrice,
+          address,
+          addressDetails,
+          notes: {
+            deliveryInstruction: "Call before arriving",
+          },
+          codCharge: codCharge,
+          paymentMethod: "cashfree",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      const { order, cashfreeOrder } = response.data;
+      toast.success("✅ Order placed using Cashfree!");
+  
+      clearCart();
+      navigate("/payment-success-online", {
+        state: { order, address, addressDetails },
+      });
+  
+      console.log("Cashfree Order:", cashfreeOrder);
+    } catch (error) {
+      console.error("Cashfree payment error:", error);
+      toast.error("❌ Cashfree payment failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   const handleCODPayment = async () => {
     try {
@@ -193,7 +245,7 @@ const Payment = () => {
 
   const handlePayment = () => {
     if (paymentMethod === "upi") {
-      handleUPIPayment();
+      handleCashfreePayment();
     } else {
       handleCODPayment();
     }

@@ -257,6 +257,91 @@ const createOrder = async (req, res) => {
 };
   
 
+export const createOrderUsingCashfree = async(req,res)=>{
+  try {
+    const {
+      customerId,
+      items,
+      totalAmount,
+      address,
+      addressDetails,
+      notes,
+      codCharge,
+      paymentMethod,
+    } = req.body;
+
+    if (
+      !customerId ||
+      !items?.length ||
+      !totalAmount ||
+      !address ||
+      !paymentMethod
+    ) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    let razorpayOrder = null;
+    let cashfreeOrder = null;
+
+    if (paymentMethod === "cashfree") {
+      const headers = {
+        "Content-Type": "application/json",
+        "x-api-version": "2022-09-01",
+        "x-client-id": process.env.CASHFREE_CLIENT_ID,
+        "x-client-secret": process.env.CASHFREE_CLIENT_SECRET,
+      };
+
+      const response = await axios.post(
+        "https://api.cashfree.com/pg/orders",
+        {
+          customer_details: {
+            customer_id: customerId,
+            customer_email: "user@example.com", // replace as needed
+            customer_name: "User Name",         // replace as needed
+          },
+          order_amount: totalAmount + (codCharge || 0),
+          order_currency: "INR",
+        },
+        { headers }
+      );
+
+      cashfreeOrder = response.data;
+    }
+
+    const newOrder = new Order({
+      customerId,
+      items,
+      totalAmount,
+      address,
+      addressDetails,
+      notes,
+      codCharge,
+      paymentMethod,
+      receipt:
+        razorpayOrder?.receipt ||
+        cashfreeOrder?.cf_order_id ||
+        `receipt_cod_${Date.now()}`,
+      razorpayOrderId: razorpayOrder?.id || null,
+      cashfreeOrderId: cashfreeOrder?.cf_order_id || null,
+      currency: "INR",
+      status: "Placed",
+    });
+
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json({
+      message: "Order created",
+      order: savedOrder,
+      razorpayOrder,
+      cashfreeOrder,
+    });
+  } catch (error) {
+    console.log("Error in createOrder:", error.response?.data || error);
+    res.status(500).json({ error: "Failed to create order" });
+  }
+
+}
+
  // Constants
  // You can adjust this as needed
 
