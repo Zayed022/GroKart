@@ -14,8 +14,11 @@
     "prettier": "^3.4.2"
   },
   "dependencies": {
+    "@cashfreepayments/cashfree-js": "^1.0.5",
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.2",
+    "cashfree": "^1.0.1",
+    "cashfree-pg": "^5.0.8",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

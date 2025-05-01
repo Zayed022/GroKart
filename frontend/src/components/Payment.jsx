@@ -153,10 +153,14 @@ const Payment = () => {
   
     try {
       setLoading(true);
+  
       const response = await axios.post(
         "https://grokart-2.onrender.com/api/v1/order/create-order-cashfree",
         {
           customerId: user._id,
+          customerEmail: user.email || "user@example.com",
+          customerPhone: user.phone || "9999999999",
+          customerName: user.name || "User",
           items: cartItems.map((item) => ({
             productId: item._id,
             quantity: item.quantity,
@@ -170,7 +174,7 @@ const Payment = () => {
             deliveryInstruction: "Call before arriving",
           },
           codCharge: 0,
-          paymentMethod: "cashfree", // ✅ use correct method
+          paymentMethod: "cashfree",
         },
         {
           headers: {
@@ -186,30 +190,37 @@ const Payment = () => {
         return;
       }
   
-      // ✅ Load Cashfree script if not already loaded
+      // Load Cashfree SDK dynamically
+      const launchCashfreeCheckout = () => {
+        const cashfree = new window.Cashfree(paymentSessionId);
+        cashfree.redirect();
+      };
+  
       if (!window.Cashfree) {
         const script = document.createElement("script");
         script.src = "https://sdk.cashfree.com/js/ui/2.0.0/cashfree.prod.js";
         script.async = true;
-        script.onload = () => launchCashfreeCheckout(paymentSessionId);
+        script.onload = () => {
+          launchCashfreeCheckout();
+        };
+        script.onerror = () => {
+          toast.error("Failed to load payment gateway.");
+          console.error("Cashfree SDK load error");
+        };
         document.body.appendChild(script);
       } else {
-        launchCashfreeCheckout(paymentSessionId);
-      }
-  
-      function launchCashfreeCheckout(sessionId) {
-        const cashfree = new window.Cashfree(sessionId);
-        cashfree.redirect();
+        launchCashfreeCheckout();
       }
   
       console.log("Cashfree session started for Order:", order);
     } catch (error) {
-      console.log("Cashfree payment error:", error);
-      toast.error("❌ Cashfree payment failed.");
+      console.error("Cashfree payment error:", error.response?.data || error);
+      toast.error("❌ Cashfree payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  
   
   
 
@@ -258,7 +269,7 @@ const Payment = () => {
       toast.error("❌ COD order failed. Try again.");
     }
   };
-{/*}
+
   const handlePayment = () => {
     if (paymentMethod === "upi") {
       handleCashfreePayment();
@@ -266,11 +277,6 @@ const Payment = () => {
       handleCODPayment();
     }
   };
-  */}
-
-  const handlePayment=()=>{
-    handleCODPayment();
-  }
 
   return (
     <div className="max-w-xl mx-auto bg-white shadow-2xl rounded-2xl p-6 mt-6 space-y-6">
@@ -284,8 +290,16 @@ const Payment = () => {
       <div>
         <h3 className="text-sm font-semibold mb-2 text-gray-700">Select Payment Method</h3>
         <div className="flex gap-4">
-          
-          
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              value="upi"
+              checked={paymentMethod === "upi"}
+              onChange={() => setPaymentMethod("upi")}
+              className="accent-indigo-600"
+            />
+            <span>Pay Online (UPI / Card)</span>
+          </label>
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="radio"
@@ -344,7 +358,7 @@ const Payment = () => {
             : "bg-indigo-600 hover:bg-indigo-700"
         }`}
       >
-        {paymentMethod === "cod" ? "Pay Now using COD" : "Pay Now using COD"}
+        {paymentMethod === "upi" ? "Pay Now using UPI" : "Pay Now using COD"}
       </button>
     </div>
   );
