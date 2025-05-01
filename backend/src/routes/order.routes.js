@@ -28,6 +28,6 @@ router.route("/assign-partner").post(assignDeliveryPartner)
 router.route("/get-route").get(getDeliveryRoute)
 router.route("/get-assigned-orders").get(getAssignedOrders)
 router.get("/my-orders",verifyJWT,getMyOrders)
-router.post('/create-order-cashfree',createOrderUsingCashfree)
+router.post('/create-order-cashfree',verifyJWT,createOrderUsingCashfree)
 
 export default router

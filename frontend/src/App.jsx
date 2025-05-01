@@ -24,6 +24,7 @@ import TermsAndConditions from "./components/Terms&Condition";
 import CancellationRefundPolicy from "./components/Cancellation";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import AboutUs from "./components/AboutUs";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 function App() {
@@ -40,7 +41,12 @@ function App() {
     <Routes>
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <Home />
+        </ProtectedRoute>
+      }
+         />
       <Route path="/category/:categoryName" element={<CategoryPage />} />
       <Route path="/subCategory/:subCategory" element={<Subcategorypage />} />
       <Route path="/minicategory/:miniCategory" element={<MinicategoryPage />} />

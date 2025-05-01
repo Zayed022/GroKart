@@ -58,7 +58,7 @@ import { Link } from 'react-router-dom';
               <Link to = 'contact-us'><p>Contact Us</p></Link>
               
               <p className="flex items-center gap-2">
-                <FaEnvelope className="text-red-500" /> support@grokart.in
+                <FaEnvelope className="text-red-500" /> grokart.co@gmail.com
               </p>
               <p className="flex items-center gap-2">
                 <FaPhoneAlt className="text-red-500" /> +91 7498881947

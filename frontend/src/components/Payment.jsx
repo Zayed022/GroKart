@@ -258,7 +258,7 @@ const Payment = () => {
       toast.error("❌ COD order failed. Try again.");
     }
   };
-
+{/*}
   const handlePayment = () => {
     if (paymentMethod === "upi") {
       handleCashfreePayment();
@@ -266,6 +266,11 @@ const Payment = () => {
       handleCODPayment();
     }
   };
+  */}
+
+  const handlePayment=()=>{
+    handleCODPayment();
+  }
 
   return (
     <div className="max-w-xl mx-auto bg-white shadow-2xl rounded-2xl p-6 mt-6 space-y-6">
@@ -279,16 +284,8 @@ const Payment = () => {
       <div>
         <h3 className="text-sm font-semibold mb-2 text-gray-700">Select Payment Method</h3>
         <div className="flex gap-4">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="radio"
-              value="upi"
-              checked={paymentMethod === "upi"}
-              onChange={() => setPaymentMethod("upi")}
-              className="accent-indigo-600"
-            />
-            <span>Pay Online (UPI / Card)</span>
-          </label>
+          
+          
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="radio"
@@ -347,7 +344,7 @@ const Payment = () => {
             : "bg-indigo-600 hover:bg-indigo-700"
         }`}
       >
-        {paymentMethod === "upi" ? "Pay Now using UPI" : "Pay Now using COD"}
+        {paymentMethod === "cod" ? "Pay Now using COD" : "Pay Now using COD"}
       </button>
     </div>
   );
