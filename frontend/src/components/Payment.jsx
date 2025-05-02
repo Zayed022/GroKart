@@ -23,8 +23,8 @@ const Payment = () => {
   );
   const deliveryCharge = 15;
   const handlingFee = 9;
-  const codCharge = paymentMethod === "cod" ? 20 : 0;
-
+  //const codCharge = paymentMethod === "cod" ? 20 : 0;
+  const codCharge = 0;
   const totalPrice =
     totalItemPrice + deliveryCharge + handlingFee + codCharge;
 
@@ -143,7 +143,9 @@ const Payment = () => {
       toast.error("❌ Online payment failed. Try again.");
     }
   };
+
   
+
   const handleCashfreePayment = async () => {
     if (!user || !user._id || !token) {
       toast.error("User not found. Please log in again.");
@@ -183,43 +185,29 @@ const Payment = () => {
         }
       );
   
-      const { order, paymentSessionId } = response.data;
+      const { paymentSessionId, orderId } = response.data;
   
-      if (!paymentSessionId) {
+      if (!paymentSessionId || !orderId) {
         toast.error("Failed to initiate payment session.");
         return;
       }
   
-      // Load Cashfree SDK dynamically
-      const launchCashfreeCheckout = () => {
-        const cashfree = new window.Cashfree(paymentSessionId);
-        cashfree.redirect();
-      };
+      const cashfree = await load({ mode: "production" }); // Use "sandbox" in dev
+      cashfree.checkout({
+        paymentSessionId,
+        redirectTarget: "_self",
+      });
   
-      if (!window.Cashfree) {
-        const script = document.createElement("script");
-        script.src = "https://sdk.cashfree.com/js/ui/2.0.0/cashfree.prod.js";
-        script.async = true;
-        script.onload = () => {
-          launchCashfreeCheckout();
-        };
-        script.onerror = () => {
-          toast.error("Failed to load payment gateway.");
-          console.error("Cashfree SDK load error");
-        };
-        document.body.appendChild(script);
-      } else {
-        launchCashfreeCheckout();
-      }
-  
-      console.log("Cashfree session started for Order:", order);
+      console.log("✅ Cashfree session started for Order:", orderId);
     } catch (error) {
-      console.error("Cashfree payment error:", error.response?.data || error);
-      toast.error("❌ Cashfree payment failed. Please try again.");
+      console.error("❌ Cashfree payment error:", error.response?.data || error);
+      toast.error("Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  
+
   
   
   
@@ -271,11 +259,7 @@ const Payment = () => {
   };
 
   const handlePayment = () => {
-    if (paymentMethod === "upi") {
-      handleCashfreePayment();
-    } else {
-      handleCODPayment();
-    }
+    handleCODPayment();
   };
 
   return (
@@ -290,16 +274,7 @@ const Payment = () => {
       <div>
         <h3 className="text-sm font-semibold mb-2 text-gray-700">Select Payment Method</h3>
         <div className="flex gap-4">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="radio"
-              value="upi"
-              checked={paymentMethod === "upi"}
-              onChange={() => setPaymentMethod("upi")}
-              className="accent-indigo-600"
-            />
-            <span>Pay Online (UPI / Card)</span>
-          </label>
+          
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="radio"
@@ -336,12 +311,7 @@ const Payment = () => {
             <span>Handling Fee</span>
             <span>₹{handlingFee}</span>
           </div>
-          {paymentMethod === "cod" && (
-            <div className="flex justify-between text-red-500 font-medium">
-              <span>COD Charges</span>
-              <span>₹{codCharge}</span>
-            </div>
-          )}
+          
           <div className="border-t border-gray-200 mt-3 pt-2 flex justify-between font-semibold text-green-700 text-base">
             <span>Total Payable</span>
             <span>₹{totalPrice}</span>

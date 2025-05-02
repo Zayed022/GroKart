@@ -48,8 +48,8 @@ const orderSchema = new Schema(
     },
 
     CashfreeOrderId: String,
-    razorpayPaymentId: String,
-    razorpaySignature: String,
+    //razorpayPaymentId: String,
+    //razorpaySignature: String,
 
     receipt: String,
 

@@ -259,13 +259,18 @@ const createOrder = async (req, res) => {
 
   
 
-import { Cashfree } from "cashfree-pg";
+import Cashfree from "cashfree-pg";
 
 
-Cashfree.XClientId = process.env.CASHFREE_CLIENT_ID;
-Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET;
 
 
+const cashfree = new Cashfree.Cashfree({
+  env: process.env.CASHFREE_ENV,
+  clientId: process.env.CASHFREE_CLIENT_ID,
+  clientSecret: process.env.CASHFREE_CLIENT_SECRET,
+});
+
+// Create Cashfree Order
 export const createOrderUsingCashfree = async (req, res) => {
   try {
     const {
@@ -274,90 +279,77 @@ export const createOrderUsingCashfree = async (req, res) => {
       totalAmount,
       address,
       addressDetails,
-      notes,
-      codCharge = 0,
       paymentMethod,
-      customerEmail,
-      customerPhone,
-      customerName,
+      codCharge,
     } = req.body;
 
-    if (
-      !customerId ||
-      !items?.length ||
-      !totalAmount ||
-      !address ||
-      !paymentMethod
-    ) {
-      return res.status(400).json({ error: "Missing required fields" });
+    // Basic validations
+    if (!customerId || !items || !totalAmount || !address || !paymentMethod) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    let cashfreeOrder = null;
+    const orderId = "order_" + Date.now(); // custom order ID
+    const returnUrl = `https://yourdomain.com/payment-success?order_id=${orderId}`;
 
-    if (paymentMethod === "cashfree") {
-      const orderId = `order_${Date.now()}`;
-
-      const requestPayload = {
-        order_id: orderId,
-        order_amount: totalAmount + codCharge,
-        order_currency: "INR",
-        customer_details: {
-          customer_id: customerId.toString(),
-          customer_email: customerEmail || "user@example.com",
-          customer_name: customerName || "User",
-          customer_phone: customerPhone || "9999999999",
-        },
-        order_meta: {
-          return_url: `https://localhost:5173/payment-status?order_id=${orderId}`, // Replace with your production domain
-        },
-      };
-
-      const response = await Cashfree.PG.orders.createOrder(requestPayload);
-      cashfreeOrder = response;
-      
-      if (!cashfreeOrder.payment_session_id) {
-        return res.status(500).json({
-          error: "Failed to create Cashfree payment session",
-        });
-      }
-    }
-
-    const newOrder = new Order({
+    // Step 1: Create order in DB
+    const order = await Order.create({
       customerId,
       items,
       totalAmount,
       address,
       addressDetails,
-      notes,
-      codCharge,
       paymentMethod,
-      receipt: cashfreeOrder?.cf_order_id || `receipt_cod_${Date.now()}`,
-      cashfreeOrderId: cashfreeOrder?.cf_order_id || null,
-      currency: "INR",
+      codCharge,
+      receipt: orderId,
       status: "Placed",
     });
 
-    const savedOrder = await newOrder.save();
+    // If method is COD, skip Cashfree
+    if (paymentMethod === "cod") {
+      return res.status(200).json({
+        success: true,
+        message: "Order placed with COD",
+        order,
+      });
+    }
 
-    return res.status(201).json({
-      message: "Order created",
-      order: savedOrder,
-      paymentSessionId: cashfreeOrder?.payment_session_id || null,
-    });
-  } catch (error) {
-    console.error("Error in createOrderUsingCashfree:", {
-      data: error.response?.data,
-      status: error.response?.status,
-      message: error.message,
+    // Step 2: Create Cashfree Order
+    const response = await cashfree.PG.orders.createOrder({
+      order_id: orderId,
+      order_amount: totalAmount,
+      order_currency: "INR",
+      customer_details: {
+        customer_id: customerId.toString(),
+        customer_email: "test@example.com", // Replace with actual
+        customer_phone: "9999999999", // Replace with actual
+        customer_name: "Test User", // Replace with actual
+      },
+      order_meta: {
+        return_url: returnUrl,
+      },
     });
 
-    return res.status(500).json({
-      error:
-        error.response?.data?.message ||
-        "Internal server error while creating order",
+    const paymentSessionId = response.payment_session_id;
+
+    // Step 3: Update Order with CashfreeOrderId
+    order.CashfreeOrderId = response.order_id;
+    await order.save();
+
+    // Step 4: Return session ID to frontend
+    return res.status(200).json({
+      success: true,
+      message: "Cashfree order created",
+      paymentSessionId,
+      orderId: order._id,
     });
+  } catch (err) {
+    console.error("Cashfree Order Error:", err.message);
+    return res.status(500).json({ success: false, error: err.message });
   }
 };
+
+
+
 
 
 
