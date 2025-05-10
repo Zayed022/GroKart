@@ -21,23 +21,25 @@ const PaymentSuccess = () => {
           <CheckCircle2 className="text-green-600 w-14 h-14 mb-3" />
           <h2 className="text-3xl font-bold text-green-700">Order Confirmed!</h2>
           <p className="text-gray-600 mt-2">
-            Thank you for your purchase. Your order has been placed successfully.
+            Thank you for your purchase. Your order has been placed successfully and will arrive in few minutes!.
           </p>
         </div>
 
         <div className="space-y-4 text-gray-700">
-          <DetailRow label="Payment Method" value={paymentDetails.order.paymentMethod} icon={<CreditCard />} />
-          <DetailRow label="Base Amount" value={`₹${paymentDetails.order.baseAmount}`} />
-          <DetailRow label="COD Charge" value={`₹${paymentDetails.order.codCharge}`} />
+          <DetailRow label="Payment Method" value={paymentDetails.order.paymentMethod.toUpperCase()} icon={<CreditCard />} />
+          <DetailRow label="Base Amount" value={`₹${paymentDetails.order.totalAmount - 44}`} />
+          
           <DetailRow label="Total Amount" value={`₹${paymentDetails.order.totalAmount - 20}`} />
-          <DetailRow label="Payment Status" value={paymentDetails.status} />
+          <DetailRow label="Payment Status" value={paymentDetails.status || "Pending"} />
           <DetailRow label="Delivery Address" value={address || "N/A"} icon={<MapPin />} />
           <DetailRow label="House Number" value={addressDetails.houseNumber || "N/A"} />
           <DetailRow label="Floor " value={addressDetails.floor || "N/A"} />
           <DetailRow label="Building" value={addressDetails.building || "N/A"} />
           <DetailRow label="Landmark" value={addressDetails.landmark || "N/A"} />
           <DetailRow label="Recepient Phone Number" value={addressDetails.recipientPhoneNumber || "N/A"} />
-          <DetailRow label="Note" value={paymentDetails.order.notes || "N/A"} icon={<StickyNote />} />
+          <div className="text-l text-red-500 font-bold">
+          <DetailRow  label="Note" value={paymentDetails.order.notes || `Please pay ₹${paymentDetails.order.totalAmount-20} to Delivery Partner upon arrival of order`} icon={<StickyNote />} />
+        </div>
         </div>
 
         <div className="text-center mt-6">

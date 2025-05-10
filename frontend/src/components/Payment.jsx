@@ -271,22 +271,8 @@ const Payment = () => {
         <p className="text-sm text-gray-600">{address}</p>
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold mb-2 text-gray-700">Select Payment Method</h3>
-        <div className="flex gap-4">
-          
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="radio"
-              value="cod"
-              checked={paymentMethod === "cod"}
-              onChange={() => setPaymentMethod("cod")}
-              className="accent-indigo-600"
-            />
-            <span>Cash on Delivery</span>
-          </label>
-        </div>
-      </div>
+      
+      
 
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">Order Summary</h3>
@@ -328,7 +314,7 @@ const Payment = () => {
             : "bg-indigo-600 hover:bg-indigo-700"
         }`}
       >
-        {paymentMethod === "upi" ? "Pay Now using UPI" : "Pay Now using COD"}
+        {paymentMethod === "cod" ? "Confirm Order Using COD" : "Confirm Order Using COD"}
       </button>
     </div>
   );
