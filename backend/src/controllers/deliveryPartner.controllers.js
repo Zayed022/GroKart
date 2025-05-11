@@ -1,124 +1,175 @@
-import { User } from "../models/user.models.js";
+import { DeliveryPartner } from "../models/deliveryPartner.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
+const generateAccessAndRefreshTokens = async (userId) => {
+  try {
+    const deliveryPartner = await DeliveryPartner.findById(userId);
+    const accessToken = deliveryPartner.generateAccessToken();
+    const refreshToken = deliveryPartner.generateRefreshToken();
+    deliveryPartner.refreshToken = refreshToken;
+    await deliveryPartner.save({ validateBeforeSave: false });
+    return { accessToken, refreshToken };
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong while generating access and refresh token"
+    );
+  }
+};
 
-
-
-const generateAccessAndRefreshTokens = async(userId)=>{
-    try {
-        const user = await User.findById(userId);
-        const accessToken = user.generateAccessToken();
-        const refreshToken = user.generateRefreshToken();
-        user.refreshToken = refreshToken
-        await user.save({validateBeForSafe:false})
-        return {accessToken,refreshToken}
-    } catch (error) {
-        throw new ApiError(500,"Something went wrong while generating access and refresh token");
-        
+const registerDeliveryPartner = async (req, res) => {
+  try {
+    const {
+      email,
+      name,
+      password,
+      phone,
+      vehicleNumber,
+      licenseNumber,
+      isApproved,
+      isAvailable,
+    } = req.body;
+    const existingDeliveryPartner = await DeliveryPartner.findOne({ email });
+    if (existingDeliveryPartner) {
+      return res
+        .status(400)
+        .json({ message: "Delivery Partner already exists" });
     }
-}
 
-const registerDeliveryPartner = async(req,res)=>{
-    try{
-        const {email,name, password,phone} = req.body;
-        const existingUser = await User.findOne({email});
-        if(existingUser){
-            return res.status(400).json({message:"Delivery Partner already exists"})
-        }
+    const pucProofLocalPath = req.files?.pucProof[0]?.path;
+    console.log(pucProofLocalPath);
+    if (!pucProofLocalPath) {
+      return res.status(400).json({ message: "Puc Proof is required" });
+    }
+    const pucProof = await uploadOnCloudinary(pucProofLocalPath);
+    if (!pucProof) {
+      return res.status(400).json({ message: "Puc Proof is required" });
+    }
 
-        //const hashedPassword = await bcrypt.hash(password,10);
-        const newDeliveryPartner = new User({
-            name,
-            email,
-            phone,
-            password,
-            isDeliveryPartner: true
-        });
-        await newDeliveryPartner.save();
-        res.status(201).json({message:"Delivery Partner registered successfully"});
+    const licenseProofLocalPath = req.files?.licenseProof[0]?.path;
+    console.log(licenseProofLocalPath);
+    if (!licenseProofLocalPath) {
+      return res.status(400).json({ message: "License Proof is required" });
     }
-    catch(error){
-        console.log(error)
-        res.status(500).json({message:"Error registering delivery partner"});
+    const licenseProof = await uploadOnCloudinary(licenseProofLocalPath);
+    if (!licenseProof) {
+      return res.status(400).json({ message: "License Proof is required" });
     }
+    //const hashedPassword = await bcrypt.hash(password,10);
+    const newDeliveryPartner = new DeliveryPartner({
+      name,
+      email,
+      phone,
+      password,
+      vehicleNumber,
+      licenseNumber,
+      isApproved,
+      isAvailable,
+      pucProof: pucProof.url,
+      licenseProof: licenseProof.url,
+    });
+    await newDeliveryPartner.save();
+    res
+      .status(201)
+      .json({ message: "Delivery Partner registered successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error registering delivery partner" });
+  }
 };
 
 const deliveryPartnerLogin = async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // Input validation
-    if (! email || !password) {
-        return res.status(400).json({ message: "All fields are required" });
+  if (!email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    const deliveryPartner = await DeliveryPartner.findOne({ email });
+
+    if (!deliveryPartner) {
+      return res.status(404).json({ message: "Delivery Partner not found" });
     }
 
-    try {
-        // Find user by email or phone
-        const deliveryPartner = await User.findOne({ email } );
-        if (!deliveryPartner || !deliveryPartner.isDeliveryPartner) {
-            return res.status(404).json({ message: "Access Denied" });
-        }
-
-        // Verify password
-        const isPasswordValid = await deliveryPartner.isPasswordCorrect(password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: "Invalid user credentials" });
-        }
-
-        // Generate tokens
-        const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(deliveryPartner._id);
-
-        // Fetch logged-in user details (excluding sensitive fields)
-        const loggedInDeliveryPartner = await User.findById(deliveryPartner._id).select("-password -refreshToken");
-
-        // Set cookies
-        const options = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Set to true in production
-        };
-
-        // Send response
-        res.status(200)
-           .cookie("accessToken", accessToken, options)
-           .cookie("refreshToken", refreshToken, options)
-           .json({
-               message: "Delivery Partner logged in successfully",
-               user: loggedInDeliveryPartner,
-           });
-    } catch (error) {
-        console.error("Error logging in user:", error);
-        console.log(error)
-        res.status(500).json({ message: "Internal server error" });
+    if (!deliveryPartner.isApproved) {
+      return res.status(403).json({ message: "Access Denied: Not approved" });
     }
+
+    const isPasswordValid = await deliveryPartner.isPasswordCorrect(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+      deliveryPartner._id
+    );
+
+    const loggedInDeliveryPartner = await DeliveryPartner.findById(
+      deliveryPartner._id
+    ).select("-password -refreshToken");
+
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    };
+
+    res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json({
+        message: "Delivery Partner logged in successfully",
+        data: {
+          deliveryPartner: loggedInDeliveryPartner,
+          tokens: {
+            accessToken,
+            refreshToken,
+          },
+        },
+      });
+  } catch (error) {
+    console.error("Error logging in delivery partner:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-const logoutDeliveryPartner = async(req,res)=>{
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
-    return res.status(201).json({message:"Delivery Partner logged out successfully"})
-}
 
-const getAllDeliveryPartner = async(req,res)=>{
-    try{
-        const deliveryPartners = await User.find({isDeliveryPartner:true});
-        return res.status(200).json({
-            success:true,
-            count: deliveryPartners.length,
-            data: deliveryPartners
-        });
-    }
-    catch(error){
-        console.log("Error fetching delivery partners:",error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error"
-        });
-    }
-}
+const logoutDeliveryPartner = async (req, res) => {
+  const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "Strict",
+};
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
+  return res
+    .status(201)
+    .json({ message: "Delivery Partner logged out successfully" });
+};
+
+const getAllDeliveryPartner = async (req, res) => {
+  try {
+    const deliveryPartners = await DeliveryPartner.find({});
+    return res.status(200).json({
+      success: true,
+      count: deliveryPartners.length,
+      data: deliveryPartners,
+    });
+  } catch (error) {
+    console.error("Error fetching delivery partners:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
 
 export {
-    registerDeliveryPartner,
-    deliveryPartnerLogin,
-    logoutDeliveryPartner,
-    getAllDeliveryPartner
-
-}
+  registerDeliveryPartner,
+  deliveryPartnerLogin,
+  logoutDeliveryPartner,
+  getAllDeliveryPartner,
+};
