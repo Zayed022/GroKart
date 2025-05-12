@@ -25,10 +25,24 @@ import http from "http"; // Import HTTP module
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
 import { initializeSocket } from "./utils/loaction.js"; // Import WebSocket setup
+import { Server } from "socket.io";
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {origin: '*'}
+});
+app.set("io",io);
 
+io.on("connection", socket => {
+  console.log("Delivery partner connected: " + socket.id);
+
+  socket.on("join", (deliveryPartnerId) => {
+    socket.join(deliveryPartnerId); // Join a private room
+  });
+});
 dotenv.config({
     path: "./.env",
 });
+
 
 connectDB()
     .then(() => {

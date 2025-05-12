@@ -2,8 +2,6 @@ import mongoose, { Schema } from "mongoose";
 
 const orderSchema = new Schema(
   {
-    
-
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -42,12 +40,12 @@ const orderSchema = new Schema(
       type: String,
       default: "INR",
     },
-    isPaid:{
+    isPaid: {
       type: Boolean,
       default: false,
     },
 
-    CashfreeOrderId: String,
+    //CashfreeOrderId: String,
     //razorpayPaymentId: String,
     //razorpaySignature: String,
 
@@ -74,20 +72,32 @@ const orderSchema = new Schema(
       type: String,
       enum: [
         "Pending",
-        "Processing",
         "Out for Delivery",
         "Delivered",
         "Cancelled",
         "Placed",
+        "Assigned",
       ],
       default: "Pending",
     },
+    statusHistory: [
+  {
+    status: {
+      type: String,
+      enum: ["Pending", "Picked Up", "Out for Delivery", "Delivered","Cancelled","Placed","Assigned"],
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+],
 
     address: {
       type: String,
       required: true,
     },
-    addressDetails:{
+    addressDetails: {
       type: Object,
       default: {},
     },
@@ -95,6 +105,11 @@ const orderSchema = new Schema(
     notes: {
       type: Object,
       default: {},
+
+      assignedTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DeliveryPartner",
+      },
     },
   },
   { timestamps: true }
