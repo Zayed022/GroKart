@@ -104,7 +104,7 @@ const registerDeliveryPartner = async (req, res) => {
       panCardProof: panCardProof.url,
     });
     await newDeliveryPartner.save();
-    res
+    return res
       .status(201)
       .json({ message: "Delivery Partner registered successfully" });
   } catch (error) {
