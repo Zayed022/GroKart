@@ -32,19 +32,16 @@ const registerDeliveryPartner = async (req, res) => {
       isAvailable,
     } = req.body;
     if (
-      !(
-        email ||
-        name ||
-        password ||
-        phone ||
-        vehicleNumber ||
-        licenseNumber ||
-        isApproved ||
-        isAvailable
-      )
-    ) {
-      console.log("All files arre required");
-    }
+  !email ||
+  !name ||
+  !password ||
+  !phone ||
+  !vehicleNumber ||
+  !licenseNumber
+) {
+  return res.status(400).json({ message: "All fields are required" });
+}
+
     const existingDeliveryPartner = await DeliveryPartner.findOne({ email });
     if (existingDeliveryPartner) {
       return res
@@ -57,7 +54,7 @@ const registerDeliveryPartner = async (req, res) => {
     if (!aadhaarProofLocalPath) {
       return res.status(400).json({ message: "Aadhar Proof is required" });
     }
-    const aadhaarProof = await uploadOnCloudinary(pucProofLocalPath);
+    const aadhaarProof = await uploadOnCloudinary(aadhaarProofLocalPath);
     if (!aadhaarProof) {
       return res.status(400).json({ message: "Aadhaar Proof is required" });
     }
