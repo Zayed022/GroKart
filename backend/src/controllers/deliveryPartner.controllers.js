@@ -103,6 +103,8 @@ const registerDeliveryPartner = async (req, res) => {
       isAvailable,
       pucProof: pucProof.url,
       licenseProof: licenseProof.url,
+      aadhaarProof: aadhaarProof.url,
+      panCardProof: panCardProof.url,
     });
     await newDeliveryPartner.save();
     res
