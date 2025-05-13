@@ -148,25 +148,24 @@ const deliveryPartnerLogin = async (req, res) => {
     ).select("-password -refreshToken");
 
     const options = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-    };
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Set to true in production
+        };
+        
 
-    res
+    return res
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
       .json({
         message: "Delivery Partner logged in successfully",
-        data: {
+        
           deliveryPartner: loggedInDeliveryPartner,
 
-          tokens: {
+          tokens: 
             accessToken,
-            refreshToken,
-          },
-        },
+           
+        
       });
   } catch (error) {
     console.error("Error logging in delivery partner:", error);
