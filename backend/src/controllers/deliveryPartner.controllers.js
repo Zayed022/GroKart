@@ -52,6 +52,26 @@ const registerDeliveryPartner = async (req, res) => {
         .json({ message: "Delivery Partner already exists" });
     }
 
+    const aadhaarProofLocalPath = req.files?.aadhaarProof[0]?.path;
+    console.log(aadhaarProofLocalPath);
+    if (!aadhaarProofLocalPath) {
+      return res.status(400).json({ message: "Aadhar Proof is required" });
+    }
+    const aadhaarProof = await uploadOnCloudinary(pucProofLocalPath);
+    if (!aadhaarProof) {
+      return res.status(400).json({ message: "Aadhaar Proof is required" });
+    }
+
+    const panCardProofLocalPath = req.files?.panCardProof[0]?.path;
+    console.log(panCardProofLocalPath);
+    if (!panCardProofLocalPath) {
+      return res.status(400).json({ message: "Pan Card Proof is required" });
+    }
+    const panCardProof = await uploadOnCloudinary(panCardProofLocalPath);
+    if (!panCardProof) {
+      return res.status(400).json({ message: "Pan Card Proof is required" });
+    }
+
     const pucProofLocalPath = req.files?.pucProof[0]?.path;
     console.log(pucProofLocalPath);
     if (!pucProofLocalPath) {

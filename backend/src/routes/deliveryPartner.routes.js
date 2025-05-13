@@ -27,6 +27,14 @@ router.route("/register").post(
         {
             name:"licenseProof",
             maxCount:1,
+        },
+        {
+            name:"aadhaarProof",
+            maxCount:1,
+        },
+        {
+            name:"panCardProof",
+            maxCount:1,
         }
     ]),
     

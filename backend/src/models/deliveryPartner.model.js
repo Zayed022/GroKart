@@ -23,6 +23,14 @@ const deliveryPartnerSchema = new Schema({
     type: String,
     required: true,
   },
+  aadhaarProof:{
+    type: String,
+    required: true,
+  },
+  panCardProof:{
+    type: String,
+    required: true,
+  },
   vehicleNumber: {
     type: String,
     required: true,
