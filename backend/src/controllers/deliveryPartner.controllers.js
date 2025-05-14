@@ -307,7 +307,7 @@ const getAssignedOrdersForDeliveryPartner = async (req, res) => {
       .populate("assignedTo", "name phoneNumber") // optional: include delivery partner info
       .lean();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Assigned orders fetched successfully",
       count: orders.length,
       data: orders,

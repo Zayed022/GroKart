@@ -106,11 +106,13 @@ const orderSchema = new Schema(
       type: Object,
       default: {},
 
-      assignedTo: {
+      
+    },
+
+    assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "DeliveryPartner",
       },
-    },
   },
   { timestamps: true }
 );
