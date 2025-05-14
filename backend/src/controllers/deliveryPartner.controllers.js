@@ -303,7 +303,7 @@ const getAssignedOrdersForDeliveryPartner = async (req, res) => {
 
     const orders = await Order.find({ assignedTo: deliveryPartnerId })
       .sort({ createdAt: -1 })
-      .populate("userId", "name address") // optional: include customer info
+      .populate("customerId", "name address") // optional: include customer info
       .populate("assignedTo", "name phoneNumber") // optional: include delivery partner info
       .lean();
 
