@@ -77,6 +77,7 @@ const orderSchema = new Schema(
         "Cancelled",
         "Placed",
         "Assigned",
+        "Picked Up"
       ],
       default: "Pending",
     },

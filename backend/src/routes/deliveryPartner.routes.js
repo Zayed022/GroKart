@@ -4,12 +4,15 @@ import { Router } from "express";
 import {registerDeliveryPartner,
     deliveryPartnerLogin,
     logoutDeliveryPartner,
+    getMyDetails,
+    updateMyDetails,
     getAllDeliveryPartner,
     getAvailableDeliveryPartners,
     assignOrderToDeliveryPartner,
     getAssignedOrdersForDeliveryPartner,
     updateOrderStatusByDeliveryPartner,
     getEarningsAndDeliveryHistory,
+    getCompletedOrdersByDeliveryPartner,
     getDashboardStats,
     getDeliveryReports,
     updateAvailability,
@@ -42,12 +45,15 @@ router.route("/register").post(
     registerDeliveryPartner)
 router.route("/login").post(deliveryPartnerLogin)
 router.route("/logout").post(verifyJWTDelivery,logoutDeliveryPartner)
+router.route("/me").get(verifyJWTDelivery,getMyDetails)
+router.route("/update").get(verifyJWTDelivery,updateMyDetails)
 router.route("/get-all-delivery-partner").get(getAllDeliveryPartner)
 router.get("/available", getAvailableDeliveryPartners);
 router.post("/assign-order", assignOrderToDeliveryPartner);
 router.get("/assigned-orders", verifyJWTDelivery, getAssignedOrdersForDeliveryPartner);
 router.put("/order/:orderId/status", verifyJWTDelivery, updateOrderStatusByDeliveryPartner);
 router.get("/earnings", verifyJWTDelivery, getEarningsAndDeliveryHistory);
+router.get("/completed-orders", verifyJWTDelivery, getCompletedOrdersByDeliveryPartner);
 router.get("/dashboard", verifyJWTDelivery, getDashboardStats);
 router.get("/reports", verifyJWTDelivery, getDeliveryReports);
 router.post("update-availability",updateAvailability)

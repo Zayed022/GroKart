@@ -198,6 +198,70 @@ const logoutDeliveryPartner = async (req, res) => {
   }
 };
 
+const getMyDetails = async (req, res) => {
+  try {
+    const deliveryPartnerId = req.delivery._id; // Assuming you attach this in your auth middleware
+
+    const deliveryPartner = await DeliveryPartner.findById(deliveryPartnerId).select('-password');
+    if (!deliveryPartner) {
+      return res.status(404).json({ message: "Delivery partner not found" });
+    }
+
+    return res.status(200).json({
+      message: "Delivery partner details fetched successfully",
+      data: deliveryPartner,
+    });
+  } catch (error) {
+    console.error("Error fetching delivery partner details:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updateMyDetails = async (req, res) => {
+  try {
+    const deliveryPartnerId = req.delivery._id;
+
+    const {
+      name,
+      phone,
+      vehicleNumber,
+      licenseNumber,
+      password, // optional
+    } = req.body;
+
+    const deliveryPartner = await DeliveryPartner.findById(deliveryPartnerId);
+
+    if (!deliveryPartner) {
+      return res.status(404).json({ message: "Delivery partner not found" });
+    }
+
+    // Update fields if they are provided
+    if (name) deliveryPartner.name = name;
+    if (phone) deliveryPartner.phone = phone;
+    if (vehicleNumber) deliveryPartner.vehicleNumber = vehicleNumber;
+    if (licenseNumber) deliveryPartner.licenseNumber = licenseNumber;
+    if (password) deliveryPartner.password = password; // make sure to hash if not hashed via middleware
+
+    // Save updated details
+    await deliveryPartner.save();
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      data: {
+        name: deliveryPartner.name,
+        phone: deliveryPartner.phone,
+        vehicleNumber: deliveryPartner.vehicleNumber,
+        licenseNumber: deliveryPartner.licenseNumber,
+        email: deliveryPartner.email,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error updating delivery partner:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 const getAllDeliveryPartner = async (req, res) => {
   try {
     const deliveryPartners = await DeliveryPartner.find({});
@@ -377,66 +441,51 @@ const getEarningsAndDeliveryHistory = async (req, res) => {
 
     // Group orders by date
     const dailyStats = {};
+    let totalDeliveries = 0;
     let totalEarnings = 0;
 
-    deliveredOrders.forEach((order) => {
-      const deliveredDate = new Date(order.deliveredAt);
-      const dateKey = deliveredDate.toISOString().split("T")[0]; // YYYY-MM-DD format
+   deliveredOrders.forEach((order) => {
+  const deliveredDate = new Date(order.deliveredAt || order.updatedAt);
+  if (isNaN(deliveredDate)) return;
 
-      if (!dailyStats[dateKey]) {
-        dailyStats[dateKey] = {
-          orders: [],
-          incentive: 0,
-        };
-      }
+  const dateKey = deliveredDate.toISOString().split("T")[0];
 
-      dailyStats[dateKey].orders.push(order);
-    });
+  if (!dailyStats[dateKey]) {
+    dailyStats[dateKey] = { orders: [] };
+  }
 
-    // Calculate incentives and earnings per day
-    Object.keys(dailyStats).forEach((date) => {
-      const orders = dailyStats[date].orders;
-      const numOrders = orders.length;
+  dailyStats[dateKey].orders.push(order);
+});
 
-      const baseEarnings = orders.reduce(
-        (sum, order) => sum + (order.deliveryCommission || 0),
-        0
-      );
 
-      // ₹30 incentive for every 6 deliveries
+    // Calculate earnings and incentives per day
+    const history = Object.entries(dailyStats).map(([date, data]) => {
+      const numOrders = data.orders.length;
+      const baseEarnings = numOrders * 15;
       const incentive = Math.floor(numOrders / 6) * 30;
-
-      dailyStats[date].incentive = incentive;
-
       const totalForDay = baseEarnings + incentive;
-      totalEarnings += totalForDay;
-    });
 
-    // Format the response
-    const history = Object.entries(dailyStats).map(([date, data]) => ({
-      date,
-      numberOfDeliveries: data.orders.length,
-      incentive: data.incentive,
-      dailyEarnings: data.orders.reduce(
-        (sum, order) => sum + (order.deliveryCommission || 0),
-        0
-      ),
-      totalEarningsForDay:
-        data.orders.reduce(
-          (sum, order) => sum + (order.deliveryCommission || 0),
-          0
-        ) + data.incentive,
-      orders: data.orders.map((order) => ({
-        _id: order._id,
-        deliveredAt: order.deliveredAt,
-        amount: order.totalAmount,
-        commission: order.deliveryCommission,
-        address: order.deliveryAddress,
-      })),
-    }));
+      totalDeliveries += numOrders;
+      totalEarnings += totalForDay;
+
+      return {
+        date,
+        numberOfDeliveries: numOrders,
+        incentive,
+        dailyEarnings: baseEarnings,
+        totalEarningsForDay: totalForDay,
+        orders: data.orders.map((order) => ({
+          _id: order._id,
+          deliveredAt: order.deliveredAt,
+          amount: order.totalAmount,
+          commission: 15, // fixed per delivery
+          address: order.deliveryAddress,
+        })),
+      };
+    });
 
     res.status(200).json({
-      totalDeliveries: deliveredOrders.length,
+      totalDeliveries,
       totalEarnings,
       dailyHistory: history,
     });
@@ -445,6 +494,39 @@ const getEarningsAndDeliveryHistory = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+const getCompletedOrdersByDeliveryPartner = async (req, res) => {
+  try {
+    const deliveryPartnerId = req.delivery._id; // or req.user._id based on your auth middleware
+
+    // Fetch all delivered orders assigned to this delivery partner
+    const completedOrders = await Order.find({
+      assignedTo: deliveryPartnerId,
+      status: "Delivered",
+    }).sort({ deliveredAt: -1 }); // Sort by most recent delivered first
+
+    // Optional: fallback to updatedAt if deliveredAt is not available
+    const formattedOrders = completedOrders.map((order) => ({
+      _id: order._id,
+      totalAmount: order.totalAmount,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      deliveryAddress: order.deliveryAddress,
+      deliveredAt: order.deliveredAt || order.updatedAt,
+      status: order.status,
+    }));
+
+    res.status(200).json({
+      count: completedOrders.length,
+      orders: formattedOrders,
+    });
+  } catch (error) {
+    console.error("Error fetching completed orders:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 
 const getDashboardStats = async (req, res) => {
   const deliveryPartnerId = req.delivery._id;
@@ -547,12 +629,15 @@ export {
   registerDeliveryPartner,
   deliveryPartnerLogin,
   logoutDeliveryPartner,
+  getMyDetails,
+  updateMyDetails,
   getAllDeliveryPartner,
   getAvailableDeliveryPartners,
   assignOrderToDeliveryPartner,
   getAssignedOrdersForDeliveryPartner,
   updateOrderStatusByDeliveryPartner,
   getEarningsAndDeliveryHistory,
+  getCompletedOrdersByDeliveryPartner,
   getDashboardStats,
   getDeliveryReports,
   updateAvailability,
