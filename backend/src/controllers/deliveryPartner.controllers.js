@@ -162,8 +162,7 @@ const deliveryPartnerLogin = async (req, res) => {
         
           deliveryPartner: loggedInDeliveryPartner,
 
-          tokens: 
-            accessToken,
+          token: accessToken,
            
         
       });
@@ -522,6 +521,28 @@ const getDeliveryReports = async (req, res) => {
   }
 };
 
+const updateAvailability = async (req, res) => {
+  try {
+    const deliveryPartnerId = req.delivery._id;
+    const { isAvailable } = req.body;
+
+    const updatedPartner = await DeliveryPartner.findByIdAndUpdate(
+      deliveryPartnerId,
+      { isAvailable },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: "Availability updated successfully",
+      data: updatedPartner,
+    });
+  } catch (error) {
+    console.error("Error updating availability:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 export {
   registerDeliveryPartner,
   deliveryPartnerLogin,
@@ -534,4 +555,5 @@ export {
   getEarningsAndDeliveryHistory,
   getDashboardStats,
   getDeliveryReports,
+  updateAvailability,
 };

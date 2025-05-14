@@ -12,6 +12,7 @@ import {registerDeliveryPartner,
     getEarningsAndDeliveryHistory,
     getDashboardStats,
     getDeliveryReports,
+    updateAvailability,
 } from "../controllers/deliveryPartner.controllers.js"
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJWT, verifyJWTDelivery } from "../middlewares/auth.middlewares.js";
@@ -49,6 +50,7 @@ router.put("/order/:orderId/status", verifyJWTDelivery, updateOrderStatusByDeliv
 router.get("/earnings", verifyJWTDelivery, getEarningsAndDeliveryHistory);
 router.get("/dashboard", verifyJWTDelivery, getDashboardStats);
 router.get("/reports", verifyJWTDelivery, getDeliveryReports);
+router.post("update-availability",updateAvailability)
 
 
 
