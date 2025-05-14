@@ -511,7 +511,8 @@ const getCompletedOrdersByDeliveryPartner = async (req, res) => {
       totalAmount: order.totalAmount,
       paymentMethod: order.paymentMethod,
       paymentStatus: order.paymentStatus,
-      deliveryAddress: order.deliveryAddress,
+      deliveryAddress: order.address,
+      deliveryAddressDetails: order.addressDetails,
       deliveredAt: order.deliveredAt || order.updatedAt,
       status: order.status,
     }));
