@@ -1,62 +1,46 @@
-/*
-import dotenv from "dotenv"
-import connectDB from "./db/index.js"
-import { app } from "./app.js"
-dotenv.config({
-    path:'./.env'
-})
-
-connectDB()
-.then(()=>{
-    
-    app.listen(process.env.PORT||2000,()=>{
-        console.log(`Server is running at PORT : ${process.env.PORT}`)
-    })
-    
-
-})
-.catch((err)=>{
-    console.log("MongoDB connection failed!!!",err);
-})
-    */
-
 import dotenv from "dotenv";
-import http from "http"; // Import HTTP module
+import http from "http";
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
-import { initializeSocket } from "./utils/loaction.js"; // Import WebSocket setup
 import { Server } from "socket.io";
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {origin: '*'}
-});
-app.set("io",io);
 
-io.on("connection", socket => {
+dotenv.config({ path: "./.env" });
+
+// Create HTTP server once
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
+
+// Save `io` instance globally and in app context
+global.io = io;
+app.set("io", io);
+
+// Handle socket connections
+io.on("connection", (socket) => {
   console.log("Delivery partner connected: " + socket.id);
 
+  // Delivery partner joins a room with their ID
   socket.on("join", (deliveryPartnerId) => {
-    socket.join(deliveryPartnerId); // Join a private room
+    console.log(`Delivery partner ${deliveryPartnerId} joined room`);
+    socket.join(deliveryPartnerId); // Used to send private notifications
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
   });
 });
-dotenv.config({
-    path: "./.env",
-});
 
-
+// Connect to DB and start server
 connectDB()
-    .then(() => {
-        const server = http.createServer(app); // Create HTTP server
-        const PORT = process.env.PORT || 2000;
-
-        // Start the server
-        server.listen(PORT, () => {
-            console.log(`Server is running at PORT : ${PORT}`);
-        });
-
-        // Initialize WebSocket
-        initializeSocket(server);
-    })
-    .catch((err) => {
-        console.log("MongoDB connection failed!!!", err);
+  .then(() => {
+    const PORT = process.env.PORT || 2000;
+    server.listen(PORT, () => {
+      console.log(` Server is running at PORT: ${PORT}`);
     });
+  })
+  .catch((err) => {
+    console.log("❌ MongoDB connection failed!!!", err);
+  });

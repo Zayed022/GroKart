@@ -497,22 +497,20 @@ const getEarningsAndDeliveryHistory = async (req, res) => {
 
 const getCompletedOrdersByDeliveryPartner = async (req, res) => {
   try {
-    const deliveryPartnerId = req.delivery._id; // or req.user._id based on your auth middleware
+    const deliveryPartnerId = req.delivery._id;
 
-    // Fetch all delivered orders assigned to this delivery partner
     const completedOrders = await Order.find({
       assignedTo: deliveryPartnerId,
       status: "Delivered",
-    }).sort({ deliveredAt: -1 }); // Sort by most recent delivered first
+    }).sort({ deliveredAt: -1 });
 
-    // Optional: fallback to updatedAt if deliveredAt is not available
     const formattedOrders = completedOrders.map((order) => ({
       _id: order._id,
       totalAmount: order.totalAmount,
       paymentMethod: order.paymentMethod,
       paymentStatus: order.paymentStatus,
-      deliveryAddress: order.address,
-      deliveryAddressDetails: order.addressDetails,
+      address: order.address || "N/A",
+      addressDetails: order.addressDetails || {},
       deliveredAt: order.deliveredAt || order.updatedAt,
       status: order.status,
     }));
@@ -526,8 +524,6 @@ const getCompletedOrdersByDeliveryPartner = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
 
 const getDashboardStats = async (req, res) => {
   const deliveryPartnerId = req.delivery._id;
@@ -625,6 +621,43 @@ const updateAvailability = async (req, res) => {
   }
 };
 
+const getDailyCollectionStatus = async (req, res) => {
+  try {
+    const deliveryPartnerId = req.delivery._id;
+
+    // Get today's date range (start to end of day in UTC)
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    // Fetch today's delivered orders
+    const todaysOrders = await Order.find({
+      assignedTo: deliveryPartnerId,
+      status: "Delivered",
+      deliveredAt: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    // Calculate total amount collected
+    const totalCollected = todaysOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+
+    // Check if all orders are marked as payment done
+    const allPaid = todaysOrders.every((order) => order.paymentToAdmin === true);
+
+    const paymentStatus = allPaid ? "Payment Done Successfully" : "Payment Pending";
+
+    return res.status(200).json({
+      date: startOfDay.toISOString().split("T")[0], // YYYY-MM-DD
+      totalOrdersDelivered: todaysOrders.length,
+      totalAmountCollected: totalCollected,
+      paymentStatus,
+    });
+  } catch (error) {
+    console.error("Error fetching daily collection status:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 
 export {
   registerDeliveryPartner,
@@ -642,4 +675,5 @@ export {
   getDashboardStats,
   getDeliveryReports,
   updateAvailability,
+  getDailyCollectionStatus,
 };

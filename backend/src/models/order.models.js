@@ -113,7 +113,13 @@ const orderSchema = new Schema(
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "DeliveryPartner",
-      },
+    },
+
+    paymentToAdmin: {
+       type: Boolean, 
+       default: false 
+    }
+
   },
   { timestamps: true }
 );
