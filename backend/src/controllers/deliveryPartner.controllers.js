@@ -1,5 +1,7 @@
 import { DeliveryPartner } from "../models/deliveryPartner.model.js";
 import { Order } from "../models/order.models.js";
+import { User } from "../models/user.models.js";
+import { Product } from "../models/product.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import moment from "moment"
 
@@ -429,6 +431,53 @@ const updateOrderStatusByDeliveryPartner = async (req, res) => {
   }
 };
 
+const updatePaymentStatusByDeliveryPartner = async (req, res) => {
+  try {
+    const deliveryPartnerId = req.delivery._id;
+    const { orderId } = req.params;
+    const { paymentStatus } = req.body;
+
+    const validStatuses = ["pending", "paid"];
+
+    if (!validStatuses.includes(paymentStatus)) {
+      return res.status(400).json({ message: "Invalid payment status" });
+    }
+
+    const order = await Order.findOne({
+      _id: orderId,
+      assignedTo: deliveryPartnerId,
+    });
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ message: "Order not found or not assigned to you" });
+    }
+
+    // Update current status and deliveredAt if needed
+    order.paymentStatus = paymentStatus;
+    if (paymentStatus === "Paid") {
+      order.deliveredAt = new Date();
+    }
+
+    // Add to statusHistory
+    order.paymentStatusHistory.push({
+      paymentStatus,
+      updatedAt: new Date(),
+    });
+
+    await order.save();
+
+    res.status(200).json({
+      message: "Payment status updated and logged successfully",
+      data: order,
+    });
+  } catch (error) {
+    console.error("Error updating payment status:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const getEarningsAndDeliveryHistory = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id;
@@ -659,6 +708,10 @@ const getDailyCollectionStatus = async (req, res) => {
 
 const getOrderStats = async (req, res) => {
   try {
+    // Time range for today's orders
+    const startOfDay = moment().startOf('day').toDate();
+    const endOfDay = moment().endOf('day').toDate();
+
     // 1. Delivered Orders
     const deliveredCount = await Order.countDocuments({ status: 'Delivered' });
 
@@ -671,17 +724,18 @@ const getOrderStats = async (req, res) => {
     // 4. Assigned Orders
     const assignedCount = await Order.countDocuments({ status: 'Assigned' });
 
-    // 5. Today's Orders
-    const startOfDay = moment().startOf('day').toDate();
-    const endOfDay = moment().endOf('day').toDate();
+    const placedCount = await Order.countDocuments({ status: 'Placed' });
 
-    const todayOrdersCount = await Order.countDocuments({
+    // 5. Today's Orders
+    const todayOrders = await Order.find({
       createdAt: { $gte: startOfDay, $lte: endOfDay }
     });
 
-    // 6. Average Order Value
+    const todayOrdersCount = todayOrders.length;
+
+    // 6. Average Order Value (excluding ₹20 from each order, if applicable)
     const allOrders = await Order.find({}, 'totalAmount');
-    const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.totalAmount - 20), 0);
     const averageOrderValue = allOrders.length > 0
       ? Number((totalRevenue / allOrders.length).toFixed(2))
       : 0;
@@ -692,15 +746,39 @@ const getOrderStats = async (req, res) => {
       ? Number(((deliveredCount / totalOrders) * 100).toFixed(2))
       : 0;
 
+    // 8. Total Users
+    const totalUsers = await User.countDocuments();
+
+    const totalProducts = await Product.countDocuments();
+
+    // 9. Total Delivery Partners
+    const totalDeliveryPartners = await DeliveryPartner.countDocuments();
+
+    // 10. Available Delivery Partners
+    const availableDeliveryPartners = await DeliveryPartner.countDocuments({ isAvailable: true });
+
+    // 11. Total Sales (sum of all order totals)
+    const totalSales = allOrders.reduce((sum, order) => sum + order.totalAmount-20, 0);
+
+    // 12. Today's Revenue (sum of today’s order totals)
+    const todaysRevenue = todayOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+
     // Final Response
     res.status(200).json({
       deliveredCount,
       outForDeliveryCount,
       pickedCount,
       assignedCount,
+      placedCount,
       todayOrdersCount,
       averageOrderValue,
       fulfillmentRate,
+      totalUsers,
+      totalProducts,
+      totalDeliveryPartners,
+      availableDeliveryPartners,
+      totalSales,
+      todaysRevenue
     });
 
   } catch (error) {
@@ -708,6 +786,7 @@ const getOrderStats = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 
@@ -722,6 +801,7 @@ export {
   assignOrderToDeliveryPartner,
   getAssignedOrdersForDeliveryPartner,
   updateOrderStatusByDeliveryPartner,
+  updatePaymentStatusByDeliveryPartner,
   getEarningsAndDeliveryHistory,
   getCompletedOrdersByDeliveryPartner,
   getDashboardStats,

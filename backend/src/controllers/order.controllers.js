@@ -680,6 +680,44 @@ const getMyOrders = async (req, res) => {
   });
 };
 
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .select(
+        "_id customerId items totalAmount currency isPaid paymentMethod paymentStatus codCharge status address addressDetails paymentToAdmin statusHistory createdAt updatedAt"
+      )
+      .sort({ createdAt: -1 }); // latest orders first
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found" });
+    }
+
+    res.status(200).json({
+      message: "Orders fetched successfully",
+      orders,
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getOrderById = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.status(200).json({ message: "Order fetched successfully", order });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occured while fetching the order." });
+  }
+};
+
+
 
 export {
   //createOrder,
@@ -691,5 +729,7 @@ export {
   getDeliveryRoute,
   applyDiscount,
   getAssignedOrders,
-  getMyOrders
+  getMyOrders,
+  getAllOrders,
+  getOrderById,
 };

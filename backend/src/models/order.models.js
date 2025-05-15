@@ -93,6 +93,18 @@ const orderSchema = new Schema(
     },
   },
 ],
+paymentStatusHistory: [
+  {
+    status: {
+      type: String,
+      enum: ["pending", "paid"],
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+],
 
     address: {
       type: String,

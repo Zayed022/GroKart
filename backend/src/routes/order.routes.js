@@ -11,9 +11,12 @@ import {
     handleCODPayment,
     getMyOrders,
     createOrderUsingCashfree,
+    getAllOrders,
+    getOrderById,
     
 } from "../controllers/order.controllers.js"
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { updatePaymentStatusByDeliveryPartner } from "../controllers/deliveryPartner.controllers.js";
 
 const router = Router();
 
@@ -24,10 +27,13 @@ router.route("/verify").post(verifyPayment);
 router.route("/place-order").post(placeOrder)
 router.route("/status").get(getOrderStatus)
 router.route("/:orderId/status").put(updateOrderStatus)
+router.route("/:orderId/payment-status").put(updatePaymentStatusByDeliveryPartner)
 router.route("/assign-partner").post(assignDeliveryPartner)
 router.route("/get-route").get(getDeliveryRoute)
 router.route("/get-assigned-orders").get(getAssignedOrders)
 router.get("/my-orders",verifyJWT,getMyOrders)
 router.post('/create-order-cashfree',verifyJWT,createOrderUsingCashfree)
+router.get("/get", getAllOrders)
+router.get("/get-order-by-id", getOrderById)
 
 export default router
