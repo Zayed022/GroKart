@@ -60,7 +60,7 @@ router.get("/dashboard", verifyJWTDelivery, getDashboardStats);
 router.get("/reports", verifyJWTDelivery, getDeliveryReports);
 router.post("update-availability",updateAvailability)
 router.get("/daily-collection", verifyJWTDelivery, getDailyCollectionStatus);
-router.get("/daily-stats",verifyJWTAdmin, getOrderStats)
+router.get("/daily-stats", getOrderStats)
 
 
 
