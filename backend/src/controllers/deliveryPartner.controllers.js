@@ -657,6 +657,58 @@ const getDailyCollectionStatus = async (req, res) => {
   }
 };
 
+const getOrderStats = async (req, res) => {
+  try {
+    // 1. Delivered Orders
+    const deliveredCount = await Order.countDocuments({ status: 'Delivered' });
+
+    // 2. Out for Delivery
+    const outForDeliveryCount = await Order.countDocuments({ status: 'Out for Delivery' });
+
+    // 3. Picked Orders
+    const pickedCount = await Order.countDocuments({ status: 'Picked' });
+
+    // 4. Assigned Orders
+    const assignedCount = await Order.countDocuments({ status: 'Assigned' });
+
+    // 5. Today's Orders
+    const startOfDay = moment().startOf('day').toDate();
+    const endOfDay = moment().endOf('day').toDate();
+
+    const todayOrdersCount = await Order.countDocuments({
+      createdAt: { $gte: startOfDay, $lte: endOfDay }
+    });
+
+    // 6. Average Order Value
+    const allOrders = await Order.find({}, 'totalAmount');
+    const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+    const averageOrderValue = allOrders.length > 0
+      ? Number((totalRevenue / allOrders.length).toFixed(2))
+      : 0;
+
+    // 7. Order Fulfillment Rate
+    const totalOrders = allOrders.length;
+    const fulfillmentRate = totalOrders > 0
+      ? Number(((deliveredCount / totalOrders) * 100).toFixed(2))
+      : 0;
+
+    // Final Response
+    res.status(200).json({
+      deliveredCount,
+      outForDeliveryCount,
+      pickedCount,
+      assignedCount,
+      todayOrdersCount,
+      averageOrderValue,
+      fulfillmentRate,
+    });
+
+  } catch (error) {
+    console.error("Error fetching order stats:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 
 export {
@@ -676,4 +728,5 @@ export {
   getDeliveryReports,
   updateAvailability,
   getDailyCollectionStatus,
+  getOrderStats,
 };
