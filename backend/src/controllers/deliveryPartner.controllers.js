@@ -708,60 +708,67 @@ const getDailyCollectionStatus = async (req, res) => {
 
 const getOrderStats = async (req, res) => {
   try {
-    // Time range for today's orders
+    // Time ranges
     const startOfDay = moment().startOf('day').toDate();
     const endOfDay = moment().endOf('day').toDate();
+    const startOfWeek = moment().startOf('isoWeek').toDate();
+    const startOfMonth = moment().startOf('month').toDate();
 
-    // 1. Delivered Orders
+    // Order Status Counts
     const deliveredCount = await Order.countDocuments({ status: 'Delivered' });
-
-    // 2. Out for Delivery
     const outForDeliveryCount = await Order.countDocuments({ status: 'Out for Delivery' });
-
-    // 3. Picked Orders
     const pickedCount = await Order.countDocuments({ status: 'Picked' });
-
-    // 4. Assigned Orders
     const assignedCount = await Order.countDocuments({ status: 'Assigned' });
-
     const placedCount = await Order.countDocuments({ status: 'Placed' });
 
-    // 5. Today's Orders
-    const todayOrders = await Order.find({
+    const todayOrders = await Order.find({ createdAt: { $gte: startOfDay, $lte: endOfDay } });
+    const todayOrdersCount = todayOrders.length;
+
+    // Average Order Value (subtracting ₹20 per order)
+    const allOrders = await Order.find({}, 'totalAmount customerId');
+    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.totalAmount - 20), 0);
+    const averageOrderValue = allOrders.length > 0 ? Number((totalRevenue / allOrders.length).toFixed(2)) : 0;
+
+    // Fulfillment Rate
+    const totalOrders = allOrders.length;
+    const fulfillmentRate = totalOrders > 0 ? Number(((deliveredCount / totalOrders) * 100).toFixed(2)) : 0;
+
+    // General Counts
+    const totalUsers = await User.countDocuments();
+    const totalProducts = await Product.countDocuments();
+    const totalDeliveryPartners = await DeliveryPartner.countDocuments();
+    const availableDeliveryPartners = await DeliveryPartner.countDocuments({ isAvailable: true });
+
+    // Total Sales
+    const totalSales = allOrders.reduce((sum, order) => sum + (order.totalAmount - 20), 0);
+
+    // Today's Revenue
+    const todaysRevenue = todayOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+
+    // 🔥 NEW METRIC 1: New Users Today
+    const newUsersToday = await User.countDocuments({
       createdAt: { $gte: startOfDay, $lte: endOfDay }
     });
 
-    const todayOrdersCount = todayOrders.length;
+    // 🔥 NEW METRIC 2: New Users This Week
+    const newUsersThisWeek = await User.countDocuments({
+      createdAt: { $gte: startOfWeek }
+    });
 
-    // 6. Average Order Value (excluding ₹20 from each order, if applicable)
-    const allOrders = await Order.find({}, 'totalAmount');
-    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.totalAmount - 20), 0);
-    const averageOrderValue = allOrders.length > 0
-      ? Number((totalRevenue / allOrders.length).toFixed(2))
-      : 0;
+    // 🔥 NEW METRIC 3: New Users This Month
+    const newUsersThisMonth = await User.countDocuments({
+      createdAt: { $gte: startOfMonth }
+    });
 
-    // 7. Order Fulfillment Rate
-    const totalOrders = allOrders.length;
-    const fulfillmentRate = totalOrders > 0
-      ? Number(((deliveredCount / totalOrders) * 100).toFixed(2))
-      : 0;
+    // 🔥 NEW METRIC 4: Retention Rate (Users with more than 1 order)
+    const customerOrderMap = new Map();
+    allOrders.forEach((order) => {
+      const customerId = order.customerId.toString();
+      customerOrderMap.set(customerId, (customerOrderMap.get(customerId) || 0) + 1);
+    });
 
-    // 8. Total Users
-    const totalUsers = await User.countDocuments();
-
-    const totalProducts = await Product.countDocuments();
-
-    // 9. Total Delivery Partners
-    const totalDeliveryPartners = await DeliveryPartner.countDocuments();
-
-    // 10. Available Delivery Partners
-    const availableDeliveryPartners = await DeliveryPartner.countDocuments({ isAvailable: true });
-
-    // 11. Total Sales (sum of all order totals)
-    const totalSales = allOrders.reduce((sum, order) => sum + order.totalAmount-20, 0);
-
-    // 12. Today's Revenue (sum of today’s order totals)
-    const todaysRevenue = todayOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+    const repeatUsersCount = Array.from(customerOrderMap.values()).filter(count => count > 1).length;
+    const retentionRate = totalUsers > 0 ? Number(((repeatUsersCount / totalUsers) * 100).toFixed(2)) : 0;
 
     // Final Response
     res.status(200).json({
@@ -778,7 +785,11 @@ const getOrderStats = async (req, res) => {
       totalDeliveryPartners,
       availableDeliveryPartners,
       totalSales,
-      todaysRevenue
+      todaysRevenue,
+      newUsersToday,
+      newUsersThisWeek,
+      newUsersThisMonth,
+      retentionRate
     });
 
   } catch (error) {
@@ -911,6 +922,7 @@ const getCompletedOrdersByDP = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
+
 
 
 

@@ -12,7 +12,8 @@ import { addProduct,
     getAllCategories,
     getAllSubCategories,
     getAllMiniCategories,
-    getCategoriesWithSubCategories} from "../controllers/product.controllers.js";
+    getCategoriesWithSubCategories,
+    getProductsAll} from "../controllers/product.controllers.js";
 
 const router = Router()
 
@@ -38,5 +39,6 @@ router.route("/get-all-categories").get(getAllCategories)
 router.route("/get-all-sub-categories").get(getAllSubCategories)
 router.get('/minicategory/:miniCategory', getProductsByMiniCategory);
 router.route("/get-categories-with-subcategories").get(getCategoriesWithSubCategories)
+router.route("/get").get(getProductsAll)
 
 export default router

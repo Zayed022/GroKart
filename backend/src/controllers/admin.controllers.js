@@ -370,7 +370,7 @@ const getDailyCollectionByDeliveryPartners = async (req, res) => {
     const collections = await Order.aggregate([
       {
         $match: {
-          status: "completed",
+          status: "Delivered",
           updatedAt: { $gte: startOfDay, $lte: endOfDay },
         },
       },
@@ -428,7 +428,7 @@ const getDailyEarningsByDeliveryPartners = async (req, res) => {
     const earnings = await Order.aggregate([
       {
         $match: {
-          status: "completed",
+          status: "Delivered",
           updatedAt: { $gte: startOfDay, $lte: endOfDay },
         },
       },
@@ -491,7 +491,7 @@ const getAllTimeEarningsByDeliveryPartners = async (req, res) => {
   try {
     const earnings = await Order.aggregate([
       {
-        $match: { status: "completed" },
+        $match: { status: "delivered" },
       },
       {
         $group: {
@@ -550,7 +550,7 @@ const getAllTimeEarningsByDeliveryPartners = async (req, res) => {
 
 const getAllDeliveredOrdersWithTimestamps = async (req, res) => {
   try {
-    const orders = await Order.find({ status: "delivered" })
+    const orders = await Order.find({ status: "Delivered" })
       .sort({ updatedAt: -1 }) // Most recent first
       .populate("userId", "name email")
       .populate("deliveryPartnerId", "name email phone");

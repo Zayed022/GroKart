@@ -49,7 +49,11 @@ const userSchema = new Schema({
     isDeliveryPartner:{
         type:Boolean,
         default: false,
+    },
+    lastLogin: {
+        type: Date
     }
+
 },{timestamps:true});
 
 userSchema.pre("save",async function(next){

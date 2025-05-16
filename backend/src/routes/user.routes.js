@@ -7,7 +7,11 @@ import {
     updateUserProfile,
     deleteUserAccount,
     getLoggedInUserDetails,
-    googleLogin
+    googleLogin,
+    searchUser,
+    fetchUserOrdersByQuery,
+    getUserAccountInfo,
+    getAllUsers
 } from "../controllers/user.controllers.js"
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 
@@ -20,6 +24,10 @@ router.post("/google-login", googleLogin);
 router.get("/profile", verifyJWT,getLoggedInUserDetails)
 router.patch("/profile", verifyJWT,updateUserProfile)
 router.delete("/profile", verifyJWT,deleteUserAccount)
+router.get("/search", searchUser);
+router.get('/by-user', fetchUserOrdersByQuery);
+router.get("/account-info", getUserAccountInfo);
+router.get("/get-all-users",getAllUsers)
 
 
 

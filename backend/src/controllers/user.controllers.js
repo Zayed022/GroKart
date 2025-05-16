@@ -1,4 +1,6 @@
 import { User } from "../models/user.models.js";
+import { Order } from "../models/order.models.js";
+import { DeliveryPartner } from "../models/deliveryPartner.model.js";
 import {OAuth2Client} from "google-auth-library"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -87,6 +89,10 @@ const loginUser = async (req, res) => {
         const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
         // Set cookies
+
+        user.lastLogin = new Date();
+        await user.save();
+
         const options = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Set to true in production
@@ -232,7 +238,113 @@ const deleteUserAccount = async(req,res)=>{
   }
 }
 
+const searchUser = async (req, res) => {
+  const { query } = req.query;
 
+  if (!query) {
+    return res.status(400).json({ message: "Search query is required" });
+  }
+
+  try {
+    const users = await User.find({
+      $or: [
+        { _id: query.match(/^[0-9a-fA-F]{24}$/) ? query : undefined },
+        { name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+        { phone: { $regex: query, $options: "i" } },
+      ].filter(Boolean),
+    }).select("-password -refreshToken"); // Exclude sensitive data
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const fetchUserOrdersByQuery = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || !query.trim()) {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    // Search user by ID, name, or email
+    const users = await User.find({
+      $or: [
+        { _id: query },
+        { name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } }
+      ]
+    });
+
+    if (!users.length) {
+      return res.status(404).json({ message: "No user found" });
+    }
+
+    const userIds = users.map(user => user._id);
+
+    const orders = await Order.find({ user: { $in: userIds } }).populate("user", "name email");
+
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getUserAccountInfo = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter is required" });
+    }
+
+    // Search by ID, email, or name
+    const user = await User.findOne({
+      $or: [
+        { _id: query },
+        { email: query },
+        { name: { $regex: query, $options: "i" } }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      user: {
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin || "N/A",
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching user account info:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    return res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
 
 
@@ -242,5 +354,9 @@ export {registerUser,
      logoutUser,
      //getUserProfile,
      updateUserProfile,
-     deleteUserAccount
+     deleteUserAccount,
+     searchUser,
+     fetchUserOrdersByQuery,
+     getUserAccountInfo,
+     getAllUsers,
     }

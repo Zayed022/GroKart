@@ -71,6 +71,23 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getProductsAll = async (req, res) => {
+  try {
+    const products = await Product.find({});
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 
 const getProductById = async (req, res) => {
   try {
@@ -323,4 +340,5 @@ export {
   getAllSubCategories,
   getAllMiniCategories,
   getCategoriesWithSubCategories,
+  getProductsAll,
 };
