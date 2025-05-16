@@ -762,13 +762,19 @@ const getOrderStats = async (req, res) => {
 
     // 🔥 NEW METRIC 4: Retention Rate (Users with more than 1 order)
     const customerOrderMap = new Map();
-    allOrders.forEach((order) => {
-      const customerId = order.customerId.toString();
-      customerOrderMap.set(customerId, (customerOrderMap.get(customerId) || 0) + 1);
-    });
 
-    const repeatUsersCount = Array.from(customerOrderMap.values()).filter(count => count > 1).length;
-    const retentionRate = totalUsers > 0 ? Number(((repeatUsersCount / totalUsers) * 100).toFixed(2)) : 0;
+allOrders.forEach((order) => {
+  if (!order.customerId) {
+    console.warn("Skipping order without customerId:", order._id);
+    return;
+  }
+
+  const customerId = order.customerId.toString();
+  customerOrderMap.set(customerId, (customerOrderMap.get(customerId) || 0) + 1);
+});
+
+const repeatUsersCount = Array.from(customerOrderMap.values()).filter(count => count > 1).length;
+const retentionRate = totalUsers > 0 ? Number(((repeatUsersCount / totalUsers) * 100).toFixed(2)) : 0;
 
     // Final Response
     res.status(200).json({
