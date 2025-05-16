@@ -6,7 +6,12 @@ import {
     getAllAdmin,
     searchOrders,
     filterOrders,
-    exportOrders
+    exportOrders,
+    getDailyCollectionByDeliveryPartners,
+    getDailyEarningsByDeliveryPartners,
+    getAllTimeEarningsByDeliveryPartners,
+    getAllDeliveredOrdersWithTimestamps,
+    getDeliveryReports
 } from "../controllers/admin.controllers.js"
 import { isAdminTrue } from "../middlewares/admin.middlewares.js";
 
@@ -22,6 +27,15 @@ router.route("get-all-admin").get(getAllAdmin)
 router.post("/search", searchOrders);
 router.post("/filter-orders", filterOrders);
 router.post("/export-orders", exportOrders);
+router.get("/daily-collection", getDailyCollectionByDeliveryPartners);
+router.get("/daily-earnings", getDailyEarningsByDeliveryPartners);
+router.get("/all-time-earnings", getAllTimeEarningsByDeliveryPartners);
+router.get("/delivered-orders", getAllDeliveredOrdersWithTimestamps);
+router.get("/report", getDeliveryReports);
+
+
+
+
 
 
 export default router

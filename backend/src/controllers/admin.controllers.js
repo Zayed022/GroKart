@@ -1,6 +1,7 @@
 import { Admin } from "../models/admin.model.js";
 import { User } from "../models/user.models.js";
 import { Order } from "../models/order.models.js";
+import { DeliveryPartner } from "../models/deliveryPartner.model.js";
 import {Parser} from "json2csv"
 import ExcelJs from "exceljs"
 import PDFDocument from "pdfkit"
@@ -358,7 +359,271 @@ const exportOrders = async (req, res) => {
   }
 };
 
+const getDailyCollectionByDeliveryPartners = async (req, res) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
 
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const collections = await Order.aggregate([
+      {
+        $match: {
+          status: "completed",
+          updatedAt: { $gte: startOfDay, $lte: endOfDay },
+        },
+      },
+      {
+        $group: {
+          _id: "$deliveryPartnerId",
+          totalAmountCollected: { $sum: "$totalAmount" },
+          orderCount: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "deliverypartners",
+          localField: "_id",
+          foreignField: "_id",
+          as: "deliveryPartner",
+        },
+      },
+      {
+        $unwind: "$deliveryPartner",
+      },
+      {
+        $project: {
+          _id: 0,
+          partnerId: "$deliveryPartner._id",
+          name: "$deliveryPartner.name",
+          email: "$deliveryPartner.email",
+          phone: "$deliveryPartner.phone",
+          totalAmountCollected: 1,
+          orderCount: 1,
+        },
+      },
+      { $sort: { totalAmountCollected: -1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      count: collections.length,
+      data: collections,
+    });
+  } catch (error) {
+    console.error("Error fetching daily collections:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const getDailyEarningsByDeliveryPartners = async (req, res) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const earnings = await Order.aggregate([
+      {
+        $match: {
+          status: "completed",
+          updatedAt: { $gte: startOfDay, $lte: endOfDay },
+        },
+      },
+      {
+        $group: {
+          _id: "$deliveryPartnerId",
+          orderCount: { $sum: 1 },
+        },
+      },
+      {
+        $addFields: {
+          baseEarnings: { $multiply: ["$orderCount", 15] },
+          incentives: {
+            $multiply: [{ $floor: { $divide: ["$orderCount", 6] } }, 30],
+          },
+        },
+      },
+      {
+        $addFields: {
+          totalEarnings: { $add: ["$baseEarnings", "$incentives"] },
+        },
+      },
+      {
+        $lookup: {
+          from: "deliverypartners",
+          localField: "_id",
+          foreignField: "_id",
+          as: "deliveryPartner",
+        },
+      },
+      { $unwind: "$deliveryPartner" },
+      {
+        $project: {
+          _id: 0,
+          partnerId: "$deliveryPartner._id",
+          name: "$deliveryPartner.name",
+          email: "$deliveryPartner.email",
+          phone: "$deliveryPartner.phone",
+          orderCount: 1,
+          baseEarnings: 1,
+          incentives: 1,
+          totalEarnings: 1,
+        },
+      },
+      { $sort: { totalEarnings: -1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      count: earnings.length,
+      data: earnings,
+    });
+  } catch (error) {
+    console.error("Error fetching earnings:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const getAllTimeEarningsByDeliveryPartners = async (req, res) => {
+  try {
+    const earnings = await Order.aggregate([
+      {
+        $match: { status: "completed" },
+      },
+      {
+        $group: {
+          _id: "$deliveryPartnerId",
+          orderCount: { $sum: 1 },
+        },
+      },
+      {
+        $addFields: {
+          baseEarnings: { $multiply: ["$orderCount", 15] },
+          incentives: {
+            $multiply: [{ $floor: { $divide: ["$orderCount", 6] } }, 30],
+          },
+        },
+      },
+      {
+        $addFields: {
+          totalEarnings: { $add: ["$baseEarnings", "$incentives"] },
+        },
+      },
+      {
+        $lookup: {
+          from: "deliverypartners",
+          localField: "_id",
+          foreignField: "_id",
+          as: "deliveryPartner",
+        },
+      },
+      { $unwind: "$deliveryPartner" },
+      {
+        $project: {
+          _id: 0,
+          partnerId: "$deliveryPartner._id",
+          name: "$deliveryPartner.name",
+          email: "$deliveryPartner.email",
+          phone: "$deliveryPartner.phone",
+          orderCount: 1,
+          baseEarnings: 1,
+          incentives: 1,
+          totalEarnings: 1,
+        },
+      },
+      { $sort: { totalEarnings: -1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      count: earnings.length,
+      data: earnings,
+    });
+  } catch (error) {
+    console.error("Error fetching all-time earnings:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const getAllDeliveredOrdersWithTimestamps = async (req, res) => {
+  try {
+    const orders = await Order.find({ status: "delivered" })
+      .sort({ updatedAt: -1 }) // Most recent first
+      .populate("userId", "name email")
+      .populate("deliveryPartnerId", "name email phone");
+
+    const formattedOrders = orders.map((order) => ({
+      orderId: order._id,
+      userName: order.userId?.name || "N/A",
+      userEmail: order.userId?.email || "N/A",
+      deliveryPartner: {
+        name: order.deliveryPartnerId?.name || "N/A",
+        email: order.deliveryPartnerId?.email || "N/A",
+        phone: order.deliveryPartnerId?.phone || "N/A",
+      },
+      placedAt: order.createdAt,
+      deliveredAt: order.updatedAt,
+      totalAmount: order.totalAmount,
+      items: order.items || [],
+    }));
+
+    res.status(200).json({
+      success: true,
+      count: formattedOrders.length,
+      data: formattedOrders,
+    });
+  } catch (error) {
+    console.error("Error fetching delivered orders:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const getDeliveryReports = async (req, res) => {
+  try {
+    const { startDate, endDate, deliveryPartnerId } = req.query;
+
+    const matchConditions = {
+      status: "Delivered",
+    };
+    if (startDate && endDate) {
+      matchConditions.deliveredAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+    if (deliveryPartnerId) {
+      matchConditions.deliveryPartner = deliveryPartnerId;
+    }
+
+    const orders = await Order.find(matchConditions);
+
+    // Aggregate metrics
+    const totalOrders = orders.length;
+    const totalEarnings = totalOrders * 15 + Math.floor(totalOrders / 6) * 30;
+
+    const avgDeliveryTime =
+      orders.reduce((acc, order) => {
+        const placed = new Date(order.placedAt);
+        const delivered = new Date(order.deliveredAt);
+        return acc + (delivered - placed);
+      }, 0) / totalOrders;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalOrders,
+        totalEarnings,
+        avgDeliveryTime: Math.round(avgDeliveryTime / 60000), // in minutes
+        orders,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 
 
 
@@ -370,5 +635,10 @@ export {
     searchOrders,
     filterOrders,
     exportOrders,
+    getDailyCollectionByDeliveryPartners,
+    getDailyEarningsByDeliveryPartners,
+    getAllTimeEarningsByDeliveryPartners,
+    getAllDeliveredOrdersWithTimestamps,
+    getDeliveryReports,
 
 }

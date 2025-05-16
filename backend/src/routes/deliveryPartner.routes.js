@@ -8,6 +8,7 @@ import {registerDeliveryPartner,
     updateMyDetails,
     getAllDeliveryPartner,
     getAvailableDeliveryPartners,
+    getRegisteredDeliveryPartners,
     assignOrderToDeliveryPartner,
     getAssignedOrdersForDeliveryPartner,
     updateOrderStatusByDeliveryPartner,
@@ -17,7 +18,10 @@ import {registerDeliveryPartner,
     getDeliveryReports,
     updateAvailability,
     getDailyCollectionStatus,
-    getOrderStats
+    approveDeliveryPartner,
+    getOrderStats,
+    searchDeliveryPartner,
+    getCompletedOrdersByDP,
 } from "../controllers/deliveryPartner.controllers.js"
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJWT, verifyJWTAdmin, verifyJWTDelivery } from "../middlewares/auth.middlewares.js";
@@ -51,6 +55,7 @@ router.route("/me").get(verifyJWTDelivery,getMyDetails)
 router.route("/update").get(verifyJWTDelivery,updateMyDetails)
 router.route("/get-all-delivery-partner").get(getAllDeliveryPartner)
 router.get("/available", getAvailableDeliveryPartners);
+router.get("/registered", getRegisteredDeliveryPartners);
 router.post("/assign-order", assignOrderToDeliveryPartner);
 router.get("/assigned-orders", verifyJWTDelivery, getAssignedOrdersForDeliveryPartner);
 router.put("/order/:orderId/status", verifyJWTDelivery, updateOrderStatusByDeliveryPartner);
@@ -60,6 +65,9 @@ router.get("/dashboard", verifyJWTDelivery, getDashboardStats);
 router.get("/reports", verifyJWTDelivery, getDeliveryReports);
 router.post("update-availability",updateAvailability)
 router.get("/daily-collection", verifyJWTDelivery, getDailyCollectionStatus);
+router.post("/approve", approveDeliveryPartner);
+router.get("/search", searchDeliveryPartner);
+router.get("/completed-by-partner", getCompletedOrdersByDP);
 router.get("/daily-stats", getOrderStats)
 
 

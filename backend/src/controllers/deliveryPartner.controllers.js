@@ -787,6 +787,131 @@ const getOrderStats = async (req, res) => {
   }
 };
 
+const getRegisteredDeliveryPartners = async (req, res) => {
+  try {
+    const registeredPartners = await DeliveryPartner.find({
+      isApproved: false,
+    }).select("-password -refreshToken");
+    res.status(200).json({
+      success: true,
+      count: registeredPartners.length,
+      data: registeredPartners,
+    });
+  } catch (error) {
+    console.error("Error fetching registered delivery partners:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const approveDeliveryPartner = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ success: false, message: "Email is required" });
+  }
+
+  try {
+    const partner = await DeliveryPartner.findOne({ email });
+
+    if (!partner) {
+      return res.status(404).json({ success: false, message: "Delivery Partner not found" });
+    }
+
+    if (partner.isApproved) {
+      return res.status(200).json({ success: true, message: "Already approved" });
+    }
+
+    partner.isApproved = true;
+    await partner.save();
+
+    return res.status(200).json({ success: true, message: "Delivery Partner approved successfully" });
+  } catch (error) {
+    console.error("Error approving delivery partner:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const searchDeliveryPartner = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ success: false, message: "Query is required" });
+    }
+
+    const searchRegex = new RegExp(query, "i");
+
+    const result = await DeliveryPartner.find({
+      $or: [
+        { _id: query.match(/^[0-9a-fA-F]{24}$/) ? query : undefined }, // only match _id if valid ObjectId
+        { name: { $regex: searchRegex } },
+        { email: { $regex: searchRegex } },
+      ],
+    }).select("-password -refreshToken");
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: "No delivery partner found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error searching delivery partner:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const getCompletedOrdersByDP = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ success: false, message: "Query is required" });
+    }
+
+    const searchRegex = new RegExp(query, "i");
+    const isObjectId = query.match(/^[0-9a-fA-F]{24}$/);
+
+    // Find matching delivery partners
+    const deliveryPartners = await DeliveryPartner.find({
+      $or: [
+        ...(isObjectId ? [{ _id: query }] : []),
+        { name: { $regex: searchRegex } },
+        { email: { $regex: searchRegex } },
+      ],
+    });
+
+    if (deliveryPartners.length === 0) {
+      return res.status(404).json({ success: false, message: "No matching delivery partner found." });
+    }
+
+    const partnerIds = deliveryPartners.map((dp) => dp._id);
+
+    const orders = await Order.find({
+      deliveryPartnerId: { $in: partnerIds },
+      status: "completed",
+    })
+      .populate("userId", "name email phone")
+      .populate("deliveryPartnerId", "name email")
+      .sort({ createdAt: -1 });
+
+    if (orders.length === 0) {
+      return res.status(404).json({ success: false, message: "No completed orders found for the given delivery partner." });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Error fetching completed orders:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 
 
 
@@ -809,4 +934,8 @@ export {
   updateAvailability,
   getDailyCollectionStatus,
   getOrderStats,
+  getRegisteredDeliveryPartners,
+  approveDeliveryPartner,
+  searchDeliveryPartner,
+  getCompletedOrdersByDP,
 };
