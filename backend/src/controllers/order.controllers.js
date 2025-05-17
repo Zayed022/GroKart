@@ -665,20 +665,29 @@ const getAssignedOrders = async (req, res) => {
 };
 
 const getMyOrders = async (req, res) => {
-  const userId = req.user._id;
+  try {
+    const userId = req.user._id;
 
-  if (!userId) {
-    throw new ApiError(401, "User ID not found in request");
+    if (!userId) {
+      throw new ApiError(401, "User ID not found in request");
+    }
+
+    const orders = await Order.find({ customerId: userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Fetched user orders successfully",
+      data: orders,
+    });
+  } catch (error) {
+    console.error(error?.message || error);
+    res.status(500).json({
+      success: false,
+      message: error?.message || "Failed to fetch orders",
+    });
   }
-
-  const orders = await Order.find({ customerId: userId }).sort({ createdAt: -1 });
-
-  res.status(200).json({
-    success: true,
-    message: "Fetched user orders successfully",
-    data: orders,
-  });
 };
+
 
 const getAllOrders = async (req, res) => {
   try {

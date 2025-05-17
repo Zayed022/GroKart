@@ -6,7 +6,7 @@ app.use(cors({
     origin:["https://gro-kart.vercel.app", 
       "http://localhost:5174",
       "http://localhost:5173",
-      "https://grokart-a-web-app-for-admin.vercel.app/"
+      "https://grokart-a-web-app-for-admin.vercel.app"
     ],
     credentials:true
 }))

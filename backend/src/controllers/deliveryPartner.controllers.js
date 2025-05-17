@@ -765,7 +765,7 @@ const getOrderStats = async (req, res) => {
 
 allOrders.forEach((order) => {
   if (!order.customerId) {
-    console.warn("Skipping order without customerId:", order._id);
+    //console.warn("Skipping order without customerId:", order._id);
     return;
   }
 
@@ -908,7 +908,7 @@ const getCompletedOrdersByDP = async (req, res) => {
 
     const orders = await Order.find({
       deliveryPartnerId: { $in: partnerIds },
-      status: "completed",
+      status: "Delivered",
     })
       .populate("userId", "name email phone")
       .populate("deliveryPartnerId", "name email")

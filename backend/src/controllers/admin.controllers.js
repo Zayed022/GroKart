@@ -67,7 +67,7 @@ const adminLogin = async (req, res) => {
       return res.status(403).json({ message: "Access Denied: Not approved" });
     }
 
-    const isPasswordValid = await deliveryPartner.isPasswordCorrect(password);
+    const isPasswordValid = await admin.isPasswordCorrect(password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -491,7 +491,7 @@ const getAllTimeEarningsByDeliveryPartners = async (req, res) => {
   try {
     const earnings = await Order.aggregate([
       {
-        $match: { status: "delivered" },
+        $match: { status: "Delivered" },
       },
       {
         $group: {

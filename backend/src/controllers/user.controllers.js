@@ -270,14 +270,21 @@ const fetchUserOrdersByQuery = async (req, res) => {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    // Search user by ID, name, or email
-    const users = await User.find({
-      $or: [
-        { _id: query },
-        { name: { $regex: query, $options: "i" } },
-        { email: { $regex: query, $options: "i" } }
-      ]
-    });
+    // Check if the query is a valid MongoDB ObjectId
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(query);
+
+    const searchConditions = [
+      { name: { $regex: query, $options: "i" } },
+      { email: { $regex: query, $options: "i" } },
+      { phone: { $regex: query, $options: "i" } }
+    ];
+
+    if (isValidObjectId) {
+      searchConditions.push({ _id: query });
+    }
+
+    // Find matching users
+    const users = await User.find({ $or: searchConditions });
 
     if (!users.length) {
       return res.status(404).json({ message: "No user found" });
@@ -285,7 +292,9 @@ const fetchUserOrdersByQuery = async (req, res) => {
 
     const userIds = users.map(user => user._id);
 
-    const orders = await Order.find({ user: { $in: userIds } }).populate("user", "name email");
+    // Fetch orders by customerId and populate user info
+    const orders = await Order.find({ customerId: { $in: userIds } })
+                              .populate("customerId", "name email phone");
 
     res.status(200).json({ orders });
   } catch (error) {
@@ -302,14 +311,16 @@ const getUserAccountInfo = async (req, res) => {
       return res.status(400).json({ message: "Query parameter is required" });
     }
 
-    // Search by ID, email, or name
-    const user = await User.findOne({
-      $or: [
-        { _id: query },
-        { email: query },
-        { name: { $regex: query, $options: "i" } }
-      ]
-    });
+    const searchConditions = [
+      { email: query },
+      { name: { $regex: query, $options: "i" } }
+    ];
+
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      searchConditions.unshift({ _id: query });
+    }
+
+    const user = await User.findOne({ $or: searchConditions });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
