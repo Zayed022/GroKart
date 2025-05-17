@@ -108,29 +108,11 @@ const adminLogin = async (req, res) => {
   }
 };
 
-const logoutAdmin = async (req, res) => {
-  try {
-    const adminId = req.admin._id; // Assuming protected route with auth
-
-    // Mark as unavailable
-    
-
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-    };
-
-    res.clearCookie("accessToken", cookieOptions);
-    res.clearCookie("refreshToken", cookieOptions);
-    return res
-      .status(201)
-      .json({ message: "Admin logged out successfully" });
-  } catch (error) {
-    console.error("Error logging out admin:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+const logoutAdmin = async(req,res)=>{
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  return res.status(200).json({message:"Logged out successfully"});
+}
 
 const getAllAdmin = async (req, res) => {
   try {
@@ -495,7 +477,7 @@ const getAllTimeEarningsByDeliveryPartners = async (req, res) => {
       },
       {
         $group: {
-          _id: "$deliveryPartnerId",
+          _id: "$assignedTo",
           orderCount: { $sum: 1 },
         },
       },
@@ -559,7 +541,7 @@ const getAllDeliveredOrdersWithTimestamps = async (req, res) => {
       orderId: order._id,
       userName: order.userId?.name || "N/A",
       userEmail: order.userId?.email || "N/A",
-      deliveryPartner: {
+      assignedTo: {
         name: order.deliveryPartnerId?.name || "N/A",
         email: order.deliveryPartnerId?.email || "N/A",
         phone: order.deliveryPartnerId?.phone || "N/A",

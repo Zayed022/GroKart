@@ -6,7 +6,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 //import {  sendOTP, verifyOTP } from "../utils/otpGenerate.utils.js";
-
+import mongoose from "mongoose";
 const generateAccessAndRefreshTokens = async(userId)=>{
     try {
         const user = await User.findById(userId);

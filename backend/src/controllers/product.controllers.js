@@ -82,7 +82,7 @@ const getProductsAll = async (req, res) => {
   } catch (error) {
     console.error("Error fetching products:", error);
     return res.status(500).json({
-      
+      data: error,
       success: false,
       message: "Internal Server Error",
     });

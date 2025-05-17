@@ -907,7 +907,7 @@ const getCompletedOrdersByDP = async (req, res) => {
     const partnerIds = deliveryPartners.map((dp) => dp._id);
 
     const orders = await Order.find({
-      deliveryPartnerId: { $in: partnerIds },
+      assignedTo: { $in: partnerIds },
       status: "Delivered",
     })
       .populate("userId", "name email phone")
