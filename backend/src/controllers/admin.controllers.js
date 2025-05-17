@@ -1,6 +1,7 @@
 import { Admin } from "../models/admin.model.js";
 import { User } from "../models/user.models.js";
 import { Order } from "../models/order.models.js";
+import { Product } from "../models/product.models.js";
 import { DeliveryPartner } from "../models/deliveryPartner.model.js";
 import {Parser} from "json2csv"
 import ExcelJs from "exceljs"
@@ -607,6 +608,40 @@ const getDeliveryReports = async (req, res) => {
   }
 };
 
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({});
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find({});
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 
 
 export {
@@ -622,5 +657,7 @@ export {
     getAllTimeEarningsByDeliveryPartners,
     getAllDeliveredOrdersWithTimestamps,
     getDeliveryReports,
+    getAllOrders,
+    getAllProducts,
 
 }

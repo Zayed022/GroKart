@@ -11,7 +11,9 @@ import {
     getDailyEarningsByDeliveryPartners,
     getAllTimeEarningsByDeliveryPartners,
     getAllDeliveredOrdersWithTimestamps,
-    getDeliveryReports
+    getDeliveryReports,
+    getAllOrders,
+    getAllProducts
 } from "../controllers/admin.controllers.js"
 import { isAdminTrue } from "../middlewares/admin.middlewares.js";
 
@@ -32,6 +34,8 @@ router.get("/daily-earnings", getDailyEarningsByDeliveryPartners);
 router.get("/all-time-earnings", getAllTimeEarningsByDeliveryPartners);
 router.get("/delivered-orders", getAllDeliveredOrdersWithTimestamps);
 router.get("/report", getDeliveryReports);
+router.get("/get-orders", getAllOrders);
+router.get("/get-products", getAllProducts);
 
 
 

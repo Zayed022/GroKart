@@ -39,6 +39,6 @@ router.route("/get-all-categories").get(getAllCategories)
 router.route("/get-all-sub-categories").get(getAllSubCategories)
 router.get('/minicategory/:miniCategory', getProductsByMiniCategory);
 router.route("/get-categories-with-subcategories").get(getCategoriesWithSubCategories)
-router.route("/get").get(getProductsAll)
+router.route("/get-all-products").get(getProductsAll)
 
 export default router

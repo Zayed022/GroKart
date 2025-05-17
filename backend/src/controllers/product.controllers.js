@@ -73,21 +73,27 @@ const getAllProducts = async (req, res) => {
 
 const getProductsAll = async (req, res) => {
   try {
-    const products = await Product.find({});
-    return res.status(200).json({
+    console.log("Trying to fetch all products...");
+
+    const products = await Product.find();
+
+    console.log("Total products fetched:", products.length);
+
+    res.status(200).json({
       success: true,
       count: products.length,
       data: products,
     });
   } catch (error) {
-    console.error("Error fetching products:", error);
-    return res.status(500).json({
-      data: error,
+    console.error("Error fetching products:", error.message);
+    res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: "An error occurred while fetching products.",
     });
   }
 };
+
+
 
 
 const getProductById = async (req, res) => {
