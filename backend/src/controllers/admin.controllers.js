@@ -3,6 +3,7 @@ import { User } from "../models/user.models.js";
 import { Order } from "../models/order.models.js";
 import { Product } from "../models/product.models.js";
 import { DeliveryPartner } from "../models/deliveryPartner.model.js";
+import mongoose from "mongoose";
 import {Parser} from "json2csv"
 import ExcelJs from "exceljs"
 import PDFDocument from "pdfkit"
@@ -135,31 +136,32 @@ const getAllAdmin = async (req, res) => {
 const searchOrders = async (req, res) => {
   try {
     const { query } = req.body;
-
-    if (!query || query.trim() === "") {
+    if (!query?.trim()) {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const searchRegex = new RegExp(query, "i");
+    const searchRegex = new RegExp(query.trim(), "i");
 
-    // Match users by name, email, or phone
-    const matchingUsers = await User.find({
+    /* 🔎 1. match users */
+    const userIds = await User.find({
       $or: [
-        { name: { $regex: searchRegex } },
+        { name:  { $regex: searchRegex } },
         { email: { $regex: searchRegex } },
-        { phone: { $regex: searchRegex } },
-      ],
-    }).select("_id");
+        { phone: { $regex: searchRegex } }
+      ]
+    }).distinct("_id");               // gives plain array of ObjectIds
 
-    const userIds = matchingUsers.map((user) => user._id);
+    /* 🔎 2. match orders
+       - if query is a valid ObjectId we also try it directly on _id            */
+    const orderCriteria = [
+      { customerId: { $in: userIds } }
+    ];
 
-    // Search orders by _id or matching customerId
-    const orders = await Order.find({
-      $or: [
-        { _id: mongoose.Types.ObjectId.isValid(query) ? query : undefined },
-        { customerId: { $in: userIds } },
-      ],
-    })
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      orderCriteria.push({ _id: query });
+    }
+
+    const orders = await Order.find({ $or: orderCriteria })
       .sort({ createdAt: -1 })
       .populate("customerId", "name email phone");
 
@@ -169,10 +171,10 @@ const searchOrders = async (req, res) => {
 
     res.status(200).json({
       message: "Matching orders fetched successfully",
-      orders,
+      orders
     });
-  } catch (error) {
-    console.error("Error searching orders:", error);
+  } catch (err) {
+    console.error("Error searching orders →", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -208,6 +210,9 @@ const filterOrders = async (req, res) => {
       if (minAmount) filters.totalAmount.$gte = Number(minAmount);
       if (maxAmount) filters.totalAmount.$lte = Number(maxAmount);
     }
+    Object.keys(filters).forEach(
+  (k) => (filters[k] === "" || filters[k] == null) && delete filters[k]
+);
 
     const orders = await Order.find(filters)
       .sort({ createdAt: -1 })
@@ -250,7 +255,12 @@ const exportOrders = async (req, res) => {
     if (startDate || endDate) {
       filter.createdAt = {};
       if (startDate) filter.createdAt.$gte = new Date(startDate);
-      if (endDate) filter.createdAt.$lte = new Date(endDate);
+      if (endDate) {
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  filter.createdAt.$lte = end;
+}
+
     }
 
     if (minAmount || maxAmount) {
@@ -258,6 +268,11 @@ const exportOrders = async (req, res) => {
       if (minAmount) filter.totalAmount.$gte = Number(minAmount);
       if (maxAmount) filter.totalAmount.$lte = Number(maxAmount);
     }
+
+    Object.keys(filter).forEach(
+  (k) => (filter[k] === "" || filter[k] == null) && delete filter[k]
+);
+
 
     const orders = await Order.find(filter).lean();
 
@@ -535,8 +550,8 @@ const getAllDeliveredOrdersWithTimestamps = async (req, res) => {
   try {
     const orders = await Order.find({ status: "Delivered" })
       .sort({ updatedAt: -1 }) // Most recent first
-      .populate("userId", "name email")
-      .populate("deliveryPartnerId", "name email phone");
+      .populate("customerId", "name email")
+      .populate("assignedTo", "name email phone");
 
     const formattedOrders = orders.map((order) => ({
       orderId: order._id,
@@ -642,6 +657,79 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const updatePaymentStatusByAdmin = async (req, res) => {
+  try {
+    // If you need admin info:
+    // const adminId = req.admin?._id;
+
+    const { orderId, paymentStatus } = req.body;
+
+    if (!orderId || !paymentStatus) {
+      return res.status(400).json({ message: "orderId and paymentStatus are required" });
+    }
+
+    const validStatuses = ["Unpaid", "Paid"];
+    if (!validStatuses.includes(paymentStatus)) {
+      return res.status(400).json({ message: "Invalid payment status" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Only update if different
+    if (order.paymentStatus === paymentStatus) {
+      return res.status(200).json({ message: "Payment status already set", data: order });
+    }
+
+    // Update
+    order.paymentStatus = paymentStatus;
+
+    // Optional: add audit entry
+    order.statusHistory.push({
+      changedBy: req.admin?._id || null,
+      field: "paymentStatus",
+      from: order.paymentStatus,
+      to: paymentStatus,
+      changedAt: new Date(),
+    });
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Payment status updated successfully",
+      data: order,
+    });
+  } catch (error) {
+    console.error("Error updating payment status:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+};
+
+const getSales = async(req,res)=>{
+  try {
+    const [{ totalRevenue = 0 } = {}] = await Order.aggregate([
+      { $match: { status: "Delivered" } },          // only Delivered
+      { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
+      { $project: { _id: 0, totalRevenue: 1 } }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      deliveredSalesTotal: totalRevenue,
+    });
+  } catch (err) {
+    console.error("Error fetching delivered sales total:", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}
+
 
 
 export {
@@ -659,5 +747,7 @@ export {
     getDeliveryReports,
     getAllOrders,
     getAllProducts,
+    updatePaymentStatusByAdmin,
+    getSales,
 
 }

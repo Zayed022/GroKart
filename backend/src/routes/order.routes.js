@@ -34,6 +34,6 @@ router.route("/get-assigned-orders").get(getAssignedOrders)
 router.get("/my-orders",verifyJWT,getMyOrders)
 router.post('/create-order-cashfree',verifyJWT,createOrderUsingCashfree)
 router.get("/get", getAllOrders)
-router.get("/get-order-by-id", getOrderById)
+router.get("/:orderId", getOrderById);
 
 export default router

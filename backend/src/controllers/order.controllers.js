@@ -713,16 +713,23 @@ const getAllOrders = async (req, res) => {
 
 const getOrderById = async (req, res) => {
   try {
-    const { orderId } = req.body;
-    const order = await Order.findById(orderId);
+    const { orderId } = req.params;            // <-- pull from params
+    if (!orderId) {
+      return res.status(400).json({ error: "orderId is required" });
+    }
+
+    const order = await Order.findById(orderId)
+      .populate("customerId",  "name email phone")
+      .populate("assignedTo",  "name email phone");
+
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
+
     res.status(200).json({ message: "Order fetched successfully", order });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occured while fetching the order." });
+  } catch (err) {
+    console.error("getOrderById error →", err);
+    res.status(500).json({ error: "An error occurred while fetching the order." });
   }
 };
 

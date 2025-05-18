@@ -390,7 +390,7 @@ const updateOrderStatusByDeliveryPartner = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ["Picked Up", "Out for Delivery", "Delivered"];
+    const validStatuses = ["Picked Up", "Out for Delivery", "Delivered", "Cancelled By Customer"];
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid order status" });
@@ -725,11 +725,23 @@ const getOrderStats = async (req, res) => {
     const todayOrdersCount = todayOrders.length;
 
     // Average Order Value (subtracting ₹20 per order)
-    const allOrders = await Order.find({}, 'totalAmount customerId');
-    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.totalAmount - 20), 0);
-    const averageOrderValue = allOrders.length > 0 ? Number((totalRevenue / allOrders.length).toFixed(2)) : 0;
+    const deliveredOrders = await Order.find(
+  { status: "Delivered" },               // <-- filter
+  "totalAmount"
+);
+
+const deliveredRevenue = deliveredOrders.reduce(
+  (sum, o) => sum + (o.totalAmount - 20), // subtract fee only if it applies
+  0
+);
+
+const averageOrderValue =
+  deliveredOrders.length > 0
+    ? +(deliveredRevenue / deliveredOrders.length).toFixed(2)
+    : 0;
 
     // Fulfillment Rate
+    const allOrders = await Order.find({}, 'totalAmount customerId');
     const totalOrders = allOrders.length;
     const fulfillmentRate = totalOrders > 0 ? Number(((deliveredCount / totalOrders) * 100).toFixed(2)) : 0;
 
@@ -740,7 +752,12 @@ const getOrderStats = async (req, res) => {
     const availableDeliveryPartners = await DeliveryPartner.countDocuments({ isAvailable: true });
 
     // Total Sales
-    const totalSales = allOrders.reduce((sum, order) => sum + (order.totalAmount - 20), 0);
+   
+
+const totalSales = deliveredOrders.reduce(
+  (sum, o) => sum + (o.totalAmount - 20), // deduct ₹20 COD fee if that applies
+  0
+);
 
     // Today's Revenue
     const todaysRevenue = todayOrders.reduce((sum, order) => sum + order.totalAmount, 0);
@@ -910,8 +927,8 @@ const getCompletedOrdersByDP = async (req, res) => {
       assignedTo: { $in: partnerIds },
       status: "Delivered",
     })
-      .populate("userId", "name email phone")
-      .populate("deliveryPartnerId", "name email")
+      .populate("customerId", "name email phone")
+      .populate("assignedTo", "name email")
       .sort({ createdAt: -1 });
 
     if (orders.length === 0) {

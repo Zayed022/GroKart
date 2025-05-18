@@ -13,7 +13,9 @@ import {
     getAllDeliveredOrdersWithTimestamps,
     getDeliveryReports,
     getAllOrders,
-    getAllProducts
+    getAllProducts,
+    updatePaymentStatusByAdmin,
+    getSales
 } from "../controllers/admin.controllers.js"
 import { isAdminTrue } from "../middlewares/admin.middlewares.js";
 
@@ -36,6 +38,8 @@ router.get("/delivered-orders", getAllDeliveredOrdersWithTimestamps);
 router.get("/report", getDeliveryReports);
 router.get("/get-orders", getAllOrders);
 router.get("/get-products", getAllProducts);
+router.patch("/update-payment-status", verifyJWTAdmin,updatePaymentStatusByAdmin);
+router.get("/get-sales", getSales);
 
 
 
