@@ -665,25 +665,36 @@ const getAssignedOrders = async (req, res) => {
 };
 
 const getMyOrders = async (req, res) => {
+  // 1. Guard: user must be authenticated
+  if (!req.user?.id) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
   try {
-    const userId = req.user._id;
+    const userId = req.user.id;
 
-    if (!userId) {
-      throw new ApiError(401, "User ID not found in request");
-    }
+    // 2. Query
+    const orders = await Order.find({ customerId: userId })
+      .sort({ createdAt: -1 })
+      // .select("-__v")                        // optional: trim payload
+      // .populate("items.productId", "name")   // optional: richer data
+      // .populate("assignedTo", "name phone"); // optional: delivery info
 
-    const orders = await Order.find({ customerId: userId }).sort({ createdAt: -1 });
-
+    // 3. Response
     res.status(200).json({
       success: true,
+      count:   orders.length,
       message: "Fetched user orders successfully",
-      data: orders,
+      data:    orders,
     });
-  } catch (error) {
-    console.error(error?.message || error);
+  } catch (err) {
+    console.error("Error fetching user orders:", err);
     res.status(500).json({
       success: false,
-      message: error?.message || "Failed to fetch orders",
+      message: "Server error while fetching orders",
     });
   }
 };

@@ -548,33 +548,36 @@ const getAllTimeEarningsByDeliveryPartners = async (req, res) => {
 
 const getAllDeliveredOrdersWithTimestamps = async (req, res) => {
   try {
+    // 1. Fetch every Delivered order, newest first
     const orders = await Order.find({ status: "Delivered" })
-      .sort({ updatedAt: -1 }) // Most recent first
-      .populate("customerId", "name email")
-      .populate("assignedTo", "name email phone");
+      .sort({ updatedAt: -1 })
+      .populate("customerId", "name email")          // <-- makes order.customerId an object
+      .populate("assignedTo", "name email phone");   // <-- makes order.assignedTo an object
 
-    const formattedOrders = orders.map((order) => ({
-      orderId: order._id,
-      userName: order.userId?.name || "N/A",
-      userEmail: order.userId?.email || "N/A",
-      assignedTo: {
-        name: order.deliveryPartnerId?.name || "N/A",
-        email: order.deliveryPartnerId?.email || "N/A",
-        phone: order.deliveryPartnerId?.phone || "N/A",
+    // 2. Shape the response for the client
+    const formatted = orders.map((o) => ({
+      orderId: o._id,
+      userName:      o.customerId?.name  || "N/A",
+      userEmail:     o.customerId?.email || "N/A",
+      deliveryPartner: {
+        name:  o.assignedTo?.name  || "N/A",
+        email: o.assignedTo?.email || "N/A",
+        phone: o.assignedTo?.phone || "N/A",
       },
-      placedAt: order.createdAt,
-      deliveredAt: order.updatedAt,
-      totalAmount: order.totalAmount,
-      items: order.items || [],
+      placedAt:    o.createdAt,
+      deliveredAt: o.updatedAt,
+      totalAmount: o.totalAmount,
+      items:       o.items || [],
     }));
 
+    // 3. Send it back
     res.status(200).json({
       success: true,
-      count: formattedOrders.length,
-      data: formattedOrders,
+      count:   formatted.length,
+      data:    formatted,
     });
-  } catch (error) {
-    console.error("Error fetching delivered orders:", error);
+  } catch (err) {
+    console.error("Error fetching delivered orders:", err);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

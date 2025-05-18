@@ -38,7 +38,7 @@ router.get("/delivered-orders", getAllDeliveredOrdersWithTimestamps);
 router.get("/report", getDeliveryReports);
 router.get("/get-orders", getAllOrders);
 router.get("/get-products", getAllProducts);
-router.patch("/update-payment-status", verifyJWTAdmin,updatePaymentStatusByAdmin);
+router.patch("/update-payment-status",updatePaymentStatusByAdmin);
 router.get("/get-sales", getSales);
 
 
