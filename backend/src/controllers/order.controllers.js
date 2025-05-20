@@ -392,7 +392,7 @@ export const createOrderUsingCashfree = async (req, res) => {
       notes,
       codCharge: COD_CHARGE,
       paymentMethod: "cod",
-      paymentStatus: "pending",
+      paymentStatus: "Pending",
       isPaid: false,
       status: "Placed", // Can be updated to "Processing" later
     });
