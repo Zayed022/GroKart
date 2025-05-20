@@ -744,6 +744,92 @@ const getOrderById = async (req, res) => {
   }
 };
 
+const generateInvoice = async (req, res) => {
+  try {
+    const { id } = req.params; // orderId
+    const order = await Order.findById(id)
+      .populate("customerId", "name email phone")
+      .lean();
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (order.status !== "Delivered")
+      return res.status(400).json({ message: "Invoice is only available after delivery" });
+
+    const formatCurrency = (amount) =>
+      new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+
+    const doc = new PDFDocument({ margin: 40, size: "A4" });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice_${order._id}.pdf`
+    );
+
+    doc.pipe(res);
+
+    // Header
+    doc.fontSize(20).text("INVOICE", { align: "right" }).moveDown(0.5);
+
+    // Company
+    doc.fontSize(10)
+      .text("GroKart Corp.", { align: "right" })
+      .text("123 Market Street")
+      .text("Mumbai, MH 400001")
+      .text("support@grokart.com")
+      .moveDown(1.5);
+
+    // Customer + meta
+    doc.fontSize(12)
+      .text(`Bill To: ${order.customerId?.name || 'N/A'}`)
+      .text(`E-Mail : ${order.customerId?.email || 'N/A'}`)
+      .text(`Phone  : ${order.customerId?.phone || 'N/A'}`)
+      .moveUp(3)
+      .text(`Invoice #: ${order._id}`, { align: "right" })
+      .text(`Invoice Date: ${new Date(order.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`, { align: "right" })
+      .text(`Payment Status: ${order.paymentStatus}`, { align: "right" })
+      .moveDown(1.5);
+
+    // Table header
+    doc.fontSize(11)
+      .text("Item", 40)
+      .text("Qty", 250)
+      .text("Price", 300)
+      .text("Subtotal", 400)
+      .moveDown(0.5);
+
+    // Divider line
+    doc.moveTo(40, doc.y)
+      .lineTo(550, doc.y)
+      .strokeColor("#CCCCCC")
+      .stroke();
+
+    // Items
+    (order.items || []).forEach((it) => {
+      doc.moveDown(0.6)
+        .fontSize(10)
+        .text(it.name, 40)
+        .text(it.quantity, 250)
+        .text(formatCurrency(it.price), 300)
+        .text(formatCurrency(it.price * it.quantity), 400);
+    });
+
+    // Total
+    doc.moveDown(1)
+      .fontSize(12)
+      .text("Grand Total:", 300, undefined, { continued: true })
+      .text(formatCurrency(order.totalAmount), 400);
+
+    doc.end();
+  } catch (err) {
+    console.error(err);
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Failed to generate invoice" });
+    }
+  }
+};
+
+
 
 
 export {
@@ -759,4 +845,5 @@ export {
   getMyOrders,
   getAllOrders,
   getOrderById,
+  generateInvoice,
 };

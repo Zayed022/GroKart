@@ -720,6 +720,7 @@ const getOrderStats = async (req, res) => {
     const pickedCount = await Order.countDocuments({ status: 'Picked' });
     const assignedCount = await Order.countDocuments({ status: 'Assigned' });
     const placedCount = await Order.countDocuments({ status: 'Placed' });
+    const paymentStatusCount = await Order.countDocuments({paymentStatus: 'Paid'})
 
     const todayOrders = await Order.find({ createdAt: { $gte: startOfDay, $lte: endOfDay } });
     const todayOrdersCount = todayOrders.length;
@@ -800,6 +801,7 @@ const retentionRate = totalUsers > 0 ? Number(((repeatUsersCount / totalUsers) *
       pickedCount,
       assignedCount,
       placedCount,
+      paymentStatusCount,
       todayOrdersCount,
       averageOrderValue,
       fulfillmentRate,

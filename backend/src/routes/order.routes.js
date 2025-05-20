@@ -13,6 +13,7 @@ import {
     createOrderUsingCashfree,
     getAllOrders,
     getOrderById,
+    generateInvoice,
     
 } from "../controllers/order.controllers.js"
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -35,5 +36,6 @@ router.get("/my-orders",verifyJWT,getMyOrders)
 router.post('/create-order-cashfree',verifyJWT,createOrderUsingCashfree)
 router.get("/get", getAllOrders)
 router.get("/:orderId", getOrderById);
+router.get("/order/:id/invoice", verifyJWT, generateInvoice);
 
 export default router

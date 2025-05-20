@@ -25,6 +25,7 @@ import CancellationRefundPolicy from "./components/Cancellation";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import AboutUs from "./components/AboutUs";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Offers from "./components/Offers";
 
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
       <Route path = "/cancellation" element = {<CancellationRefundPolicy/>}/>\
       <Route path = "/policy" element = {<PrivacyPolicy/>}/>
       <Route path = "/about" element = {<AboutUs/>}/>
+      <Route path = "/offers" element = {<Offers/>}/>
 
       
       

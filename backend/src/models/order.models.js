@@ -60,7 +60,7 @@ const orderSchema = new Schema(
     paymentStatus: {
       type: String,
       enum: ["Pending", "Paid",  "refunded",  "Unpaid"],
-      default: "pending",
+      default: "Pending",
     },
 
     codCharge: {
