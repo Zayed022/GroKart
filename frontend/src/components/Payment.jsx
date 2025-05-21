@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { CartContext } from "../context/Cart";
@@ -7,14 +7,12 @@ import { toast } from "react-hot-toast";
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem("token"); // ✅ Correct key
-
-  const user = JSON.parse(localStorage.getItem("user")); // or wherever you're storing user info
-
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
   const { cartItems, clearCart } = useContext(CartContext);
   const { address, addressDetails } = location.state || { address: "No address provided" };
 
-  const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const [loading, setLoading] = useState(false);
 
   const totalItemPrice = cartItems.reduce(
@@ -23,10 +21,9 @@ const Payment = () => {
   );
   const deliveryCharge = 15;
   const handlingFee = 9;
-  //const codCharge = paymentMethod === "cod" ? 20 : 0;
   const codCharge = 0;
-  const totalPrice =
-    totalItemPrice + deliveryCharge + handlingFee + codCharge;
+  const totalPrice = totalItemPrice + deliveryCharge + handlingFee + codCharge;
+
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -214,24 +211,22 @@ const Payment = () => {
 
   const handleCODPayment = async () => {
     try {
-      const token = localStorage.getItem("token"); // or from context/store
-      
-  
+      setLoading(true);
       const response = await axios.post(
         "https://grokart-2.onrender.com/api/v1/order/create-cod-order",
         {
-          customerId: user._id, // assuming user info is available
+          customerId: user._id,
           items: cartItems.map((item) => ({
             productId: item._id,
             quantity: item.quantity,
             name: item.name,
             price: item.price,
-          })),      // should be an array of productId, name, quantity, price
+          })),
           totalAmount: totalPrice,
           address,
           addressDetails,
-          notes: {},              // if you're using any notes
-          paymentMethod: "cod",  // required in backend
+          notes: {},
+          paymentMethod: "cod",
         },
         {
           headers: {
@@ -241,42 +236,34 @@ const Payment = () => {
       );
 
       clearCart();
-
-  
       const paymentDetails = response.data;
-      console.log("Payment Response:", response.data);
-
-  
       toast.success("✅ COD Order Placed!");
       navigate("/payment-success", {
         state: { paymentDetails, address, addressDetails },
       });
-  
     } catch (error) {
-      console.log("COD order failed:", error);
+      console.error("COD order failed:", error);
       toast.error("❌ COD order failed. Try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePayment = () => {
-    handleCODPayment();
-  };
-
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-2xl rounded-2xl p-6 mt-6 space-y-6">
-      <h2 className="text-3xl font-bold text-center text-gray-800">Checkout</h2>
+    <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-2xl p-6 mt-8 space-y-8">
+      <h2 className="text-3xl font-bold text-center text-gray-800">Review & Confirm</h2>
 
-      <div className="bg-gray-100 p-4 rounded-md">
-        <h3 className="text-sm font-semibold text-gray-700 mb-1">Delivery Address</h3>
+      {/* Delivery Address */}
+      <section className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+        <h3 className="text-sm font-semibold text-gray-700 mb-1">Deliver To</h3>
         <p className="text-sm text-gray-600">{address}</p>
-      </div>
+        
+      </section>
 
-      
-      
-
-      <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">Order Summary</h3>
-        <div className="space-y-1 text-sm text-gray-600">
+      {/* Order Summary */}
+      <section>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Order Summary</h3>
+        <div className="space-y-2 text-sm text-gray-700">
           {cartItems.map((item, index) => (
             <div key={index} className="flex justify-between">
               <span>
@@ -285,36 +272,70 @@ const Payment = () => {
               <span>₹{item.price * item.quantity}</span>
             </div>
           ))}
-          <div className="flex justify-between mt-2">
+
+          <hr className="my-2 border-gray-200" />
+
+          <div className="flex justify-between font-medium">
             <span>Items Total</span>
             <span>₹{totalItemPrice}</span>
           </div>
-          <div className="flex justify-between">
-            <span>Delivery Charges</span>
-            <span>₹{deliveryCharge}</span>
+
+          <div>
+            <div className="flex justify-between">
+              <span>Delivery Charge</span>
+              <span>₹{deliveryCharge}</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1 ml-1">
+              100% of this amount goes to the delivery partner.
+            </p>
           </div>
+
           <div className="flex justify-between">
             <span>Handling Fee</span>
             <span>₹{handlingFee}</span>
           </div>
-          
-          <div className="border-t border-gray-200 mt-3 pt-2 flex justify-between font-semibold text-green-700 text-base">
+
+          <div className="border-t border-gray-200 pt-3 mt-3 flex justify-between font-semibold text-lg text-green-700">
             <span>Total Payable</span>
             <span>₹{totalPrice}</span>
           </div>
         </div>
-      </div>
+      </section>
 
+      {/* Payment Method (Future Scope) */}
+      {/* <section>
+        <h3 className="text-sm font-semibold text-gray-700 mb-2">Select Payment Method</h3>
+        <div className="flex gap-4">
+          <button
+            className={`px-4 py-2 rounded-md text-sm font-medium border ${
+              paymentMethod === "upi" ? "bg-indigo-100 border-indigo-600" : "bg-white border-gray-300"
+            }`}
+            onClick={() => setPaymentMethod("upi")}
+          >
+            UPI
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md text-sm font-medium border ${
+              paymentMethod === "cod" ? "bg-indigo-100 border-indigo-600" : "bg-white border-gray-300"
+            }`}
+            onClick={() => setPaymentMethod("cod")}
+          >
+            COD
+          </button>
+        </div>
+      </section> */}
+
+      {/* Confirm Button */}
       <button
-        onClick={handlePayment}
+        onClick={handleCODPayment}
         disabled={loading}
-        className={`w-full py-3 text-white rounded-md text-lg font-medium transition duration-200 ${
+        className={`w-full py-3 text-white rounded-xl text-lg font-semibold transition duration-200 ${
           loading
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-indigo-600 hover:bg-indigo-700"
         }`}
       >
-        {paymentMethod === "cod" ? "Confirm Order Using COD" : "Confirm Order Using COD"}
+        {loading ? "Placing Order..." : "Confirm Order Using COD"}
       </button>
     </div>
   );
