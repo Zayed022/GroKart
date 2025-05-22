@@ -5,6 +5,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 
 import { CartContext } from "../context/Cart";
+import DynamicSearchButton from "./DynamicSearchButton";
 
 function Navbar() {
   const { getTotalQuantity } = useContext(CartContext);
@@ -26,14 +27,7 @@ function Navbar() {
         </Link>
 
         {/* Search Styled Button */}
-        <Link to="/all-products" className="w-full md:w-auto">
-          <div className="relative group">
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
-              <span className="text-sm">🔍</span>
-              <span className="text-sm font-medium">Search Products</span>
-            </div>
-          </div>
-        </Link>
+        <DynamicSearchButton/>
 
         {/* Cart + Login */}
         <div className="flex items-center gap-6">
