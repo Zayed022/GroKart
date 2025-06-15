@@ -126,7 +126,7 @@ const createOrder = async (req, res) => {
   };
   */
 
-  const COD_CHARGE = 20;
+  const COD_CHARGE = 0;
   /*
   const createOrder = async (req, res) => {
     try {
@@ -380,7 +380,7 @@ export const createOrderUsingCashfree = async (req, res) => {
     }
 
     // Calculate final amount
-    const finalAmount = totalAmount + COD_CHARGE;
+    const finalAmount = totalAmount;
 
     // Create and save order
     const order = await Order.create({
