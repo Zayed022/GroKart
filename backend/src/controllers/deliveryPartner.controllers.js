@@ -411,6 +411,7 @@ const updateOrderStatusByDeliveryPartner = async (req, res) => {
     order.status = status;
     if (status === "Delivered") {
       order.deliveredAt = new Date();
+      DeliveryPartner.isAvailable = true;
     }
 
     // Add to statusHistory
