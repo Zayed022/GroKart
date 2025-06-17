@@ -50,13 +50,13 @@ const PaymentSuccess = () => {
           />
           <DetailRow
             label="Base Amount"
-            value={`₹${paymentDetails.order.totalAmount - 44}`}
+            value={`₹${paymentDetails.order.totalAmount - 24}`}
           />
           <DetailRow
             label="Total Amount"
             value={
               <span className="text-green-700 font-bold text-lg">{`₹${
-                paymentDetails.order.totalAmount - 20
+                paymentDetails.order.totalAmount 
               }`}</span>
             }
           />
@@ -112,7 +112,7 @@ const PaymentSuccess = () => {
               value={
                 paymentDetails.order.notes ||
                 `Please pay ₹${
-                  paymentDetails.order.totalAmount - 20
+                  paymentDetails.order.totalAmount 
                 } to Delivery Partner upon arrival of order`
               }
               icon={<StickyNote />}

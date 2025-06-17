@@ -20,9 +20,10 @@ const Payment = () => {
     0
   );
   const deliveryCharge = 15;
-  const handlingFee = 9;
+  const handlingFee = 7;
   const codCharge = 0;
-  const totalPrice = totalItemPrice + deliveryCharge + handlingFee + codCharge;
+  const GSTCharges = 2;
+  const totalPrice = totalItemPrice + deliveryCharge + handlingFee + codCharge + GSTCharges;
 
 
   const loadRazorpayScript = () => {
@@ -293,6 +294,11 @@ const Payment = () => {
           <div className="flex justify-between">
             <span>Handling Fee</span>
             <span>₹{handlingFee}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>GST & Charges</span>
+            <span>₹{GSTCharges}</span>
           </div>
 
           <div className="border-t border-gray-200 pt-3 mt-3 flex justify-between font-semibold text-lg text-green-700">
