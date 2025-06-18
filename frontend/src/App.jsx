@@ -26,6 +26,7 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 import AboutUs from "./components/AboutUs";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Offers from "./components/Offers";
+import OrderInvoice from "./components/OrderInvoice";
 
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
       <Route path = "/policy" element = {<PrivacyPolicy/>}/>
       <Route path = "/about" element = {<AboutUs/>}/>
       <Route path = "/offers" element = {<Offers/>}/>
+      <Route path = "/invoice/:orderId" element = {<OrderInvoice/>}/>
 
       
       

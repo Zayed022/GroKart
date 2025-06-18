@@ -1,15 +1,15 @@
 import React from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   CheckCircle2,
   MapPin,
   StickyNote,
   CreditCard,
   ShoppingBagIcon,
+  Phone,
+  Mail,
+  FileText,
 } from "lucide-react";
-
-
 
 const PaymentSuccess = () => {
   const location = useLocation();
@@ -23,113 +23,71 @@ const PaymentSuccess = () => {
     );
   }
 
+  const orderId = paymentDetails.order._id;
+
   return (
     <div className="flex justify-center items-start min-h-screen bg-gray-50 px-4 py-12">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 space-y-6">
         <div className="flex flex-col items-center text-center">
           <CheckCircle2 className="text-green-600 w-14 h-14 mb-3" />
-          <h2 className="text-3xl font-bold text-green-700">
-            Order Confirmed!
-          </h2>
+          <h2 className="text-3xl font-bold text-green-700">Order Confirmed!</h2>
           <p className="text-gray-600 mt-2">
-            Thank you for your purchase. Your order has been placed successfully
-            and will arrive in few minutes!.
+            Thank you for your purchase. Your order has been placed successfully and will arrive in few minutes!
           </p>
         </div>
 
         <div className="space-y-4 text-gray-700">
-          <DetailRow
-            label="Order ID"
-            value={paymentDetails.order._id || "N/A"}
-          />
-
-          <DetailRow
-            label="Payment Method"
-            value={paymentDetails.order.paymentMethod.toUpperCase()}
-            icon={<CreditCard />}
-          />
-          <DetailRow
-            label="Base Amount"
-            value={`₹${paymentDetails.order.totalAmount - 24}`}
-          />
-          <DetailRow
-            label="Total Amount"
-            value={
-              <span className="text-green-700 font-bold text-lg">{`₹${
-                paymentDetails.order.totalAmount 
-              }`}</span>
-            }
-          />
-
+          <DetailRow label="Order ID" value={orderId || "N/A"} />
+          <DetailRow label="Payment Method" value={paymentDetails.order.paymentMethod.toUpperCase()} icon={<CreditCard />} />
+          <DetailRow label="Base Amount" value={`₹${paymentDetails.order.totalAmount - 24}`} />
+          <DetailRow label="Total Amount" value={<span className="text-green-700 font-bold text-lg">₹{paymentDetails.order.totalAmount}</span>} />
           <DetailRow
             label="Payment Status"
             value={
-              <span
-                className={`px-2 py-1 rounded-full text-sm font-semibold
-      ${
-        paymentDetails.status === "Success"
-          ? "bg-green-100 text-green-800"
-          : "bg-yellow-100 text-yellow-800"
-      }`}
-              >
+              <span className={`px-2 py-1 rounded-full text-sm font-semibold ${
+                paymentDetails.status === "Success" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+              }`}>
                 {paymentDetails.status || "Pending"}
               </span>
             }
           />
-
-          <DetailRow
-            label="Delivery Address"
-            value={address || "N/A"}
-            icon={<MapPin />}
-          />
-          <DetailRow
-            label="House Number"
-            value={addressDetails.houseNumber || "N/A"}
-          />
-          <DetailRow label="Floor " value={addressDetails.floor || "N/A"} />
-          <DetailRow
-            label="Building"
-            value={addressDetails.building || "N/A"}
-          />
-          <DetailRow
-            label="Landmark"
-            value={addressDetails.landmark || "N/A"}
-          />
-          <DetailRow
-            label="Recepient Phone Number"
-            value={addressDetails.recipientPhoneNumber || "N/A"}
-          />
-          <p className="text-sm text-gray-500 mt-2">
-            Expected delivery:{" "}
-            <span className="font-medium text-indigo-600">
-              within 15 minutes
-            </span>
-          </p>
-
+          <DetailRow label="Delivery Address" value={address || "N/A"} icon={<MapPin />} />
+          <DetailRow label="House Number" value={addressDetails.houseNumber || "N/A"} />
+          <DetailRow label="Floor" value={addressDetails.floor || "N/A"} />
+          <DetailRow label="Building" value={addressDetails.building || "N/A"} />
+          <DetailRow label="Landmark" value={addressDetails.landmark || "N/A"} />
+          <DetailRow label="Recipient Phone Number" value={addressDetails.recipientPhoneNumber || "N/A"} />
+          <p className="text-sm text-gray-500 mt-2">Expected delivery: <span className="font-medium text-indigo-600">within 15 minutes</span></p>
           <div className="text-l text-red-500 font-bold">
-            <DetailRow
-              label="Note"
-              value={
-                paymentDetails.order.notes ||
-                `Please pay ₹${
-                  paymentDetails.order.totalAmount 
-                } to Delivery Partner upon arrival of order`
-              }
-              icon={<StickyNote />}
-            />
+            <DetailRow label="Note" value={paymentDetails.order.notes || `Please pay ₹${paymentDetails.order.totalAmount} to Delivery Partner upon arrival of order`} icon={<StickyNote />} />
           </div>
         </div>
 
+        {/* ✅ Invoice & Support Buttons */}
+        <div className="flex flex-col md:flex-row gap-4 justify-center mt-8">
+          <Link to={`/invoice/${orderId}`} state={{ paymentDetails, address, addressDetails }}>
+            <button className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+              <FileText size={18} /> View Invoice
+            </button>
+          </Link>
+
+          <a href="tel:+917498881947" className="flex items-center gap-2 px-5 py-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition">
+            <Phone size={18} /> Support
+          </a>
+
+          <a href="mailto:zayedans022@gmail.com" className="flex items-center gap-2 px-5 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition">
+            <Mail size={18} /> Email Us
+          </a>
+        </div>
+
         <div className="text-center mt-6 flex items-center justify-center">
-  <Link to="/">
-    <button
-      className="group px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-full flex items-center justify-center gap-2 transition duration-300"
-    >
-      <ShoppingBagIcon className="w-4 h-4 group-hover:scale-110" />
-      Continue Shopping
-    </button>
-  </Link>
-</div>
+          <Link to="/">
+            <button className="group px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-full flex items-center justify-center gap-2 transition duration-300">
+              <ShoppingBagIcon className="w-4 h-4 group-hover:scale-110" />
+              Continue Shopping
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );
