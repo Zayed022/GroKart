@@ -45,9 +45,9 @@ const PaymentSuccess = () => {
             label="Payment Status"
             value={
               <span className={`px-2 py-1 rounded-full text-sm font-semibold ${
-                paymentDetails.status === "Success" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                paymentDetails.order.paymentStatus === "Success" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
               }`}>
-                {paymentDetails.status || "Pending"}
+                {paymentDetails.order.paymentStatus || "Pending"}
               </span>
             }
           />

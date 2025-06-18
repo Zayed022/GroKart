@@ -67,6 +67,7 @@ const Login = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", response.data.user._id);
       localStorage.setItem("email", response.data.user.email);
+      login(token, res.data.user);
 
       // Redirect to home/dashboard
       navigate("/");
