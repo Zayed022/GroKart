@@ -1,35 +1,53 @@
 // src/pages/ContactUs.jsx
+import {
+  Mail,
+  MapPin,
+  Phone,
+  Building2,
+  BadgeInfo,
+} from "lucide-react";
+
 export default function ContactUs() {
   return (
-    <section className="min-h-screen bg-gradient-to-tr from-indigo-50 via-white to-indigo-50 py-16 px-6 sm:px-12 md:px-20 flex items-center">
-      <div className="max-w-3xl w-full mx-auto bg-white rounded-3xl shadow-lg p-10 sm:p-16">
-        <h1 className="text-4xl font-extrabold text-indigo-900 mb-4 text-center tracking-tight">
-          Contact Us
-        </h1>
-        <p className="text-sm text-gray-500 mb-10 text-center">
-          Last updated on <time dateTime="2025-04-29T22:37:13">29-04-2025 22:37:13</time>
-        </p>
+    <section className="min-h-screen bg-gradient-to-tr from-indigo-50 via-white to-indigo-50 py-16 px-4 sm:px-8 md:px-20 flex items-center justify-center">
+      <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl p-8 sm:p-12">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-indigo-800 mb-2">Contact Us</h1>
+          <p className="text-sm text-gray-500 mb-8">
+            Last updated on <time dateTime="2025-04-29T22:37:13">29-Apr-2025 at 10:37 PM</time>
+          </p>
+        </div>
 
-        <div className="space-y-8 text-gray-700">
-          <ContactItem label="Merchant Legal Entity Name" value="MOHD ZAYED MOHD SALIM ANSARI" />
+        <div className="space-y-6 text-gray-800">
           <ContactItem
+            icon={<BadgeInfo className="text-indigo-600 w-5 h-5" />}
+            label="Merchant Legal Entity Name"
+            value="MOHD ZAYED MOHD SALIM ANSARI"
+          />
+          <ContactItem
+            icon={<Building2 className="text-indigo-600 w-5 h-5" />}
             label="Registered Address"
-            value="1396, Naigaon Road, Behind Rafey Medical, Bhiwandi, Maharashtra, PIN: 421302"
+            value="1396, Naigaon Road, Behind Rafey Medical, Bhiwandi, Maharashtra, 421302"
           />
           <ContactItem
+            icon={<MapPin className="text-indigo-600 w-5 h-5" />}
             label="Operational Address"
-            value="1396, Naigaon Road, Behind Rafey Medical, Bhiwandi, Maharashtra, PIN: 421302"
+            value="1396, Naigaon Road, Behind Rafey Medical, Bhiwandi, Maharashtra, 421302"
           />
-          <ContactItem label="Telephone No" value="+91 74988 81947" />
           <ContactItem
+            icon={<Phone className="text-indigo-600 w-5 h-5" />}
+            label="Phone"
+            value="+91 74988 81947"
+          />
+          <ContactItem
+            icon={<Mail className="text-indigo-600 w-5 h-5" />}
             label="Email"
             value={
               <a
                 href="mailto:zayedans022@gmail.com"
-                className="text-indigo-600 underline hover:text-indigo-800 transition-colors duration-300"
-                aria-label="Send email to zayedans022@gmail.com"
+                className="text-indigo-600 underline hover:text-indigo-800 transition"
               >
-                zayedans022@gmail.com
+                grocart.co@gmail.com
               </a>
             }
           />
@@ -39,11 +57,14 @@ export default function ContactUs() {
   );
 }
 
-function ContactItem({ label, value }) {
+function ContactItem({ icon, label, value }) {
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-indigo-800 mb-1">{label}:</h2>
-      <p className="text-lg leading-relaxed">{value}</p>
+    <div className="flex items-start gap-4">
+      <div className="mt-1">{icon}</div>
+      <div>
+        <h2 className="text-sm font-medium text-gray-500">{label}</h2>
+        <p className="text-base font-medium text-gray-800">{value}</p>
+      </div>
     </div>
   );
 }
