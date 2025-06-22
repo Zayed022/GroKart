@@ -9,7 +9,9 @@ function SubcategoryPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
-  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem("cart")) || {});
+  const [cart, setCart] = useState(
+    () => JSON.parse(localStorage.getItem("cart")) || {}
+  );
 
   // Time check for store hours (8:00 AM to 1:30 AM next day)
   const isStoreOpen = () => {
@@ -152,7 +154,14 @@ function SubcategoryPage() {
                   </div>
 
                   {storeOpen ? (
-                    cart[product._id] ? (
+                    product.stock === 0 ? (
+                      <button
+                        disabled
+                        className="w-full border border-gray-300 text-gray-400 text-sm py-2 font-semibold rounded-lg cursor-not-allowed bg-gray-100"
+                      >
+                        Out of Stock
+                      </button>
+                    ) : cart[product._id] ? (
                       <div className="flex items-center justify-between border border-pink-500 rounded-full px-3 py-1">
                         <button
                           onClick={() => decreaseQuantity(product)}

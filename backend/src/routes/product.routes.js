@@ -29,7 +29,8 @@ router.route("/add-product").post(
 
 router.route("/get-product").get(getAllProducts)
 router.route("/:productId").get(getProductById)
-router.route("/update-products").post(updateProductDetails)
+router.route("/products/:id").put(updateProductDetails);
+
 router.route("/delete-product").delete(deleteProduct)
 router.route("/").get(getProducts)
 router.route("/category/:category").get(getProductsByCategory)
