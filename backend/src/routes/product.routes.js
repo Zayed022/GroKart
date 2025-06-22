@@ -14,7 +14,7 @@ import { addProduct,
     getAllMiniCategories,
     getCategoriesWithSubCategories,
     getProductsAll,
-    updateProductStock,
+
     updateStock} from "../controllers/product.controllers.js";
 
 const router = Router()
