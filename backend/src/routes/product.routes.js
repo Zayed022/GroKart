@@ -14,7 +14,8 @@ import { addProduct,
     getAllMiniCategories,
     getCategoriesWithSubCategories,
     getProductsAll,
-    updateProductStock} from "../controllers/product.controllers.js";
+    updateProductStock,
+    updateStock} from "../controllers/product.controllers.js";
 
 const router = Router()
 
@@ -30,8 +31,7 @@ router.route("/add-product").post(
 
 router.route("/get-product").get(getAllProducts)
 router.route("/:productId").get(getProductById)
-router.route("/products/:id").put(updateProductDetails);
-
+router.route("/products/:id").put(updateProductDetails)
 router.route("/delete-product").delete(deleteProduct)
 router.route("/").get(getProducts)
 router.route("/category/:category").get(getProductsByCategory)
@@ -39,9 +39,10 @@ router.route("/subCategory/:subCategory").get(getProductsBySubCatgeory)
 router.route("/minicategory/:").get(getProductsByMiniCategory)
 router.route("/get-all-categories").get(getAllCategories)
 router.route("/get-all-sub-categories").get(getAllSubCategories)
-router.get('/minicategory/:miniCategory', getProductsByMiniCategory);
+router.get('/minicategory/:miniCategory', getProductsByMiniCategory)
 router.route("/get-categories-with-subcategories").get(getCategoriesWithSubCategories)
 router.route("/get-all-products").get(getProductsAll)
-router.put("/products/stock", updateProductStock);
+router.put("/products/stock", updateStock);
+
 
 export default router

@@ -345,23 +345,15 @@ const getCategoriesWithSubCategories = async (req, res) => {
   }
 };
 
-const updateProductStock = async (req, res) => {
+const updateStock = async (req, res) => {
   try {
     const { productId, productName, stock } = req.body;
 
-    if (stock === undefined || stock < 0) {
-      return res.status(400).json({ message: "Valid stock value is required" });
+    if (!productId && !productName) {
+      return res.status(400).json({ message: "Product ID or Name is required." });
     }
 
-    let query = {};
-
-    if (productId) {
-      query._id = productId;
-    } else if (productName) {
-      query.name = productName;
-    } else {
-      return res.status(400).json({ message: "Either productId or productName is required" });
-    }
+    const query = productId ? { _id: productId } : { name: productName };
 
     const updatedProduct = await Product.findOneAndUpdate(
       query,
@@ -370,7 +362,7 @@ const updateProductStock = async (req, res) => {
     );
 
     if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found." });
     }
 
     return res.status(200).json({
@@ -378,10 +370,12 @@ const updateProductStock = async (req, res) => {
       product: updatedProduct,
     });
   } catch (error) {
-    console.error("Stock Update Error:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error("Update Stock Error:", error);
+    return res.status(500).json({ message: "Server Error" });
   }
 };
+
+
 export {
   addProduct,
   getAllProducts,
@@ -397,5 +391,5 @@ export {
   getAllMiniCategories,
   getCategoriesWithSubCategories,
   getProductsAll,
-  updateProductStock
+  updateStock
 };
