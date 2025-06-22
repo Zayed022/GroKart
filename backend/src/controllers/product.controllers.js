@@ -345,6 +345,43 @@ const getCategoriesWithSubCategories = async (req, res) => {
   }
 };
 
+const updateProductStock = async (req, res) => {
+  try {
+    const { productId, productName, stock } = req.body;
+
+    if (stock === undefined || stock < 0) {
+      return res.status(400).json({ message: "Valid stock value is required" });
+    }
+
+    let query = {};
+
+    if (productId) {
+      query._id = productId;
+    } else if (productName) {
+      query.name = productName;
+    } else {
+      return res.status(400).json({ message: "Either productId or productName is required" });
+    }
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      query,
+      { $set: { stock } },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    return res.status(200).json({
+      message: "Stock updated successfully",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Stock Update Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 export {
   addProduct,
   getAllProducts,
@@ -360,4 +397,5 @@ export {
   getAllMiniCategories,
   getCategoriesWithSubCategories,
   getProductsAll,
+  updateProductStock
 };
