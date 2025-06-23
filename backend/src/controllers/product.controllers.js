@@ -1,5 +1,6 @@
 import { Product } from "../models/product.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import mongoose from "mongoose";
 
 const addProduct = async (req, res) => {
   const {
