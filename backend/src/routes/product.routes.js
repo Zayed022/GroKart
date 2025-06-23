@@ -42,7 +42,7 @@ router.route("/get-all-sub-categories").get(getAllSubCategories)
 router.get('/minicategory/:miniCategory', getProductsByMiniCategory)
 router.route("/get-categories-with-subcategories").get(getCategoriesWithSubCategories)
 router.route("/get-all-products").get(getProductsAll)
-router.put("/products/stock", updateStock);
+router.put("/stock", updateStock);
 
 
 export default router

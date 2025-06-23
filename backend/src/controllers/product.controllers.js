@@ -353,7 +353,19 @@ const updateStock = async (req, res) => {
       return res.status(400).json({ message: "Product ID or Name is required." });
     }
 
-    const query = productId ? { _id: productId } : { name: productName };
+    if (stock === undefined || isNaN(stock) || stock < 0) {
+      return res.status(400).json({ message: "Valid stock is required." });
+    }
+
+    const query = productId
+      ? mongoose.Types.ObjectId.isValid(productId)
+        ? { _id: productId }
+        : null
+      : { name: productName };
+
+    if (!query) {
+      return res.status(400).json({ message: "Invalid Product ID format." });
+    }
 
     const updatedProduct = await Product.findOneAndUpdate(
       query,
