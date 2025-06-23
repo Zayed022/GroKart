@@ -189,7 +189,13 @@ const CartDisplay = ({ onClose }) => {
 
         <button
           className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 mt-6 shadow-md"
-          onClick={getUserLocation}
+          onClick={() => {
+            if (cartItems.length === 0) {
+              alert("Your cart is empty. Add items to proceed.");
+              return;
+            }
+            getUserLocation();
+          }}
         >
           Add Address to Proceed
         </button>
