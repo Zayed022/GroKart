@@ -154,44 +154,60 @@ function SubcategoryPage() {
                   </div>
 
                   {storeOpen ? (
-                    product.stock === 0 ? (
-                      <button
-                        disabled
-                        className="w-full border border-gray-300 text-gray-400 text-sm py-2 font-semibold rounded-lg cursor-not-allowed bg-gray-100"
-                      >
-                        Out of Stock
-                      </button>
-                    ) : cart[product._id] ? (
-                      <div className="flex items-center justify-between border border-pink-500 rounded-full px-3 py-1">
+                    <div className="flex flex-col gap-1">
+                      {product.stock === 0 ? (
                         <button
-                          onClick={() => decreaseQuantity(product)}
-                          className="text-xl font-bold text-pink-600"
+                          disabled
+                          className="w-full border border-gray-300 text-gray-400 text-sm py-2 font-semibold rounded-lg cursor-not-allowed bg-gray-100"
                         >
-                          −
+                          Out of Stock
                         </button>
-                        <span className="text-sm">{cart[product._id]}</span>
-                        <button
-                          onClick={() => increaseQuantity(product)}
-                          className="text-xl font-bold text-pink-600"
-                        >
-                          +
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className="w-full border border-pink-500 text-pink-500 hover:bg-pink-50 text-sm py-2 font-semibold rounded-lg transition"
-                        onClick={() => {
-                          addToCart(product);
-                          setCart((prev) => ({
-                            ...prev,
-                            [product._id]: 1,
-                          }));
-                          toast.success(`${product.name} added to cart`);
-                        }}
-                      >
-                        Add to Cart
-                      </button>
-                    )
+                      ) : cart[product._id] ? (
+                        <>
+                          <div className="flex items-center justify-between border border-pink-500 rounded-full px-3 py-1">
+                            <button
+                              onClick={() => decreaseQuantity(product)}
+                              className="text-xl font-bold text-pink-600"
+                            >
+                              −
+                            </button>
+                            <span className="text-sm">{cart[product._id]}</span>
+                            <button
+                              onClick={() => increaseQuantity(product)}
+                              className="text-xl font-bold text-pink-600"
+                            >
+                              +
+                            </button>
+                          </div>
+                          {product.stock < 5 && product.stock > 0 && (
+                            <p className="text-xs text-red-500 font-medium mt-1">
+                              Only {product.stock} left!
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="w-full border border-pink-500 text-pink-500 hover:bg-pink-50 text-sm py-2 font-semibold rounded-lg transition"
+                            onClick={() => {
+                              addToCart(product);
+                              setCart((prev) => ({
+                                ...prev,
+                                [product._id]: 1,
+                              }));
+                              toast.success(`${product.name} added to cart`);
+                            }}
+                          >
+                            Add to Cart
+                          </button>
+                          {product.stock < 5 && product.stock > 0 && (
+                            <p className="text-xs text-red-500 font-medium mt-1">
+                              Only {product.stock} left!
+                            </p>
+                          )}
+                        </>
+                      )}
+                    </div>
                   ) : (
                     <button
                       disabled

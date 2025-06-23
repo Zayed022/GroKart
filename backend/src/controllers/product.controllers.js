@@ -388,6 +388,38 @@ const updateStock = async (req, res) => {
   }
 };
 
+const resetAllStock = async (req, res) => {
+  try {
+    const result = await Product.updateMany({}, { $set: { stock: 0 } });
+
+    return res.status(200).json({
+      message: "All product stocks have been reset to 0.",
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Reset All Stock Error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const setStockToEightIfZeroOrLess = async (req, res) => {
+  try {
+    const result = await Product.updateMany(
+      { stock: { $lte: 0 } },
+      { $set: { stock: 8 } }
+    );
+
+    return res.status(200).json({
+      message: "Stock updated to 8 for all products with stock <= 0.",
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Set Stock Error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
 
 export {
   addProduct,
@@ -404,5 +436,7 @@ export {
   getAllMiniCategories,
   getCategoriesWithSubCategories,
   getProductsAll,
-  updateStock
+  updateStock,
+  resetAllStock,
+  setStockToEightIfZeroOrLess,
 };

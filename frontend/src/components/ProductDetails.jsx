@@ -64,58 +64,51 @@ const ProductDetails = () => {
     fetchProduct();
   }, [productId]);
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="flex w-96 flex-col gap-6 justify-center p-6 shadow-lg rounded-2xl bg-white">
-        
-        {/* Image shimmer */}
-        <div className="relative overflow-hidden bg-gray-200 rounded-lg h-48 w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
-        </div>
-  
-        {/* Title shimmer */}
-        <div className="relative overflow-hidden bg-gray-200 rounded h-6 w-40">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+  if (loading)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="flex w-96 flex-col gap-6 justify-center p-6 shadow-lg rounded-2xl bg-white">
+          {/* Image shimmer */}
+          <div className="relative overflow-hidden bg-gray-200 rounded-lg h-48 w-full">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+          </div>
 
-        </div>
-  
-        {/* Text shimmer */}
-        <div className="relative overflow-hidden bg-gray-200 rounded h-4 w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+          {/* Title shimmer */}
+          <div className="relative overflow-hidden bg-gray-200 rounded h-6 w-40">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+          </div>
 
-        </div>
-  
-        {/* Text shimmer */}
-        <div className="relative overflow-hidden bg-gray-200 rounded h-4 w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+          {/* Text shimmer */}
+          <div className="relative overflow-hidden bg-gray-200 rounded h-4 w-full">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+          </div>
 
+          {/* Text shimmer */}
+          <div className="relative overflow-hidden bg-gray-200 rounded h-4 w-full">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+          </div>
         </div>
-  
       </div>
-    </div>
-  );
-  
-  
+    );
 
-  
   if (!product) return <p>Product not found.</p>;
 
   return (
     <>
       <Navbar />
-      
+
       <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="breadcrumbs text-sm text-10  ">
-        <ul>
-          <li>
-            <a>{product.category}</a>
-          </li>
-          <li>
-            <a>{product.subCategory}</a>
-          </li>
-          <li className="font-bold">{product.miniCategory}</li>
-        </ul>
-      </div>
+        <div className="breadcrumbs text-sm text-10  ">
+          <ul>
+            <li>
+              <a>{product.category}</a>
+            </li>
+            <li>
+              <a>{product.subCategory}</a>
+            </li>
+            <li className="font-bold">{product.miniCategory}</li>
+          </ul>
+        </div>
         <div className="w-full max-w-4xl bg-white p-8 rounded-xl shadow-lg transition-transform transform hover:scale-105 hover:shadow-2xl duration-300">
           <div className="flex flex-col md:flex-row items-center justify-center gap-10">
             <div className="w-full md:w-1/2 flex justify-center">
@@ -137,36 +130,57 @@ const ProductDetails = () => {
               </p>
 
               <div className="mt-4">
-                {cart[product._id] ? (
-                  <div className="flex items-center justify-center border border-green-500 rounded-lg w-full">
-                    <button
-                      onClick={() => decreaseQuantity(product)}
-                      className="px-3 py-2 text-green-500 font-bold"
-                    >
-                      −
-                    </button>
-                    <span className="px-4">{cart[product._id]}</span>
-                    <button
-                      onClick={() => increaseQuantity(product)}
-                      className="px-3 py-2 text-green-500 font-bold"
-                    >
-                      +
-                    </button>
+                {product.stock === 0 ? (
+                  <button
+                    disabled
+                    className="px-6 py-2 w-full bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed"
+                  >
+                    Out of Stock
+                  </button>
+                ) : cart[product._id] ? (
+                  <div className="flex flex-col gap-1 items-center justify-center">
+                    <div className="flex items-center justify-center border border-green-500 rounded-lg w-full">
+                      <button
+                        onClick={() => decreaseQuantity(product)}
+                        className="px-3 py-2 text-green-500 font-bold"
+                      >
+                        −
+                      </button>
+                      <span className="px-4">{cart[product._id]}</span>
+                      <button
+                        onClick={() => increaseQuantity(product)}
+                        className="px-3 py-2 text-green-500 font-bold"
+                      >
+                        +
+                      </button>
+                    </div>
+                    {product.stock < 5 && product.stock > 0 && (
+                      <p className="text-sm text-red-500 mt-1 font-medium">
+                        Only {product.stock} left!
+                      </p>
+                    )}
                   </div>
                 ) : (
-                  <button
-                    className="px-6 py-2 text-white bg-green-500 rounded-lg w-full"
-                    onClick={() => {
-                      addToCart(product, 1);
-                      setCart((prev) => ({
-                        ...prev,
-                        [product._id]: 1,
-                      }));
-                      toast.success(`${product.name} added to cart`);
-                    }}
-                  >
-                    Add to Cart
-                  </button>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      className="px-6 py-2 text-white bg-green-500 rounded-lg w-full"
+                      onClick={() => {
+                        addToCart(product, 1);
+                        setCart((prev) => ({
+                          ...prev,
+                          [product._id]: 1,
+                        }));
+                        toast.success(`${product.name} added to cart`);
+                      }}
+                    >
+                      Add to Cart
+                    </button>
+                    {product.stock < 5 && product.stock > 0 && (
+                      <p className="text-sm text-red-500 mt-1 font-medium">
+                        Only {product.stock} left!
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
