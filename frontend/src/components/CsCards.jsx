@@ -85,6 +85,7 @@ function CsCards() {
                 const CardContent = (
                   <div className="relative w-44 flex-shrink-0 text-center cursor-pointer">
                     <img
+                    loading="lazy"
                       src={subcategory.image || "https://via.placeholder.com/200"}
                       alt={subcategory.subcategory}
                       className={`w-44 h-44 object-contain rounded-2xl shadow-lg bg-white transition-transform transform hover:scale-105 ${
