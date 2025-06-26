@@ -119,7 +119,7 @@ function SubcategoryPage() {
                           loading="lazy"
                           src={product.image}
                           alt={product.name}
-                         className="w-full h-40 object-contain mb-3 rounded-3xl bg-white border border-gray-100 shadow-sm"
+                          className="w-full h-40 object-contain mb-3 "
 
                         />
                       </Link>
