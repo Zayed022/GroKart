@@ -11,6 +11,7 @@ import MinicategoryPage from "../components/MiniCategory";
 import MiniCards from "../components/MiniCards";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import PaanCornerBanner from "../components/PaanCorner";
 
 const Home = () => {
   const { getTotalQuantity } = useContext(CartContext);
@@ -28,6 +29,7 @@ const Home = () => {
     <>
       {/* Responsive Navbar */}
       <Navbar/>
+      
 
       {/* Content */}
       <Hero />
