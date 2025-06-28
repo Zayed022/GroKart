@@ -74,6 +74,7 @@ const generatePdf = () => {
   doc.setTextColor(60);
   doc.text("Item", 17, y + 7);
   doc.text("Qty", pageWidth / 2 - 20, y + 7);
+   doc.text("Desc", pageWidth / 2 - 20, y + 7);
   doc.text("Price", pageWidth / 2 + 10, y + 7);
   doc.text("Total", pageWidth - 35, y + 7);
 
@@ -85,6 +86,7 @@ const generatePdf = () => {
   items.forEach((item) => {
     doc.text(item.name, 17, y);
     doc.text(`${item.quantity}`, pageWidth / 2 - 20, y);
+     doc.text(`${item.description}`, pageWidth / 2 - 20, y);
     doc.text(`₹${item.price}`, pageWidth / 2 + 10, y);
     doc.text(`₹${item.price * item.quantity}`, pageWidth - 35, y);
     y += 6;
@@ -169,7 +171,7 @@ const generatePdf = () => {
         <ul className="text-sm space-y-1">
           {items.map((item, idx) => (
             <li key={idx}>
-              {item.name} (x{item.quantity}) - ₹{item.price * item.quantity}
+              {item.name}- {item.description} (x{item.quantity}) - ₹{item.price * item.quantity}
             </li>
           ))}
         </ul>
