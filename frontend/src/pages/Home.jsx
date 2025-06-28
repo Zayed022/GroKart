@@ -12,6 +12,9 @@ import MiniCards from "../components/MiniCards";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import PaanCornerBanner from "../components/PaanCorner";
+import FruitsBanner from "../components/Fruits&VegetablesBanner";
+import MunchiesBanner from "../components/MunchiesBanner";
+import BannersRow from "../components/Fruits&VegetablesBanner";
 
 const Home = () => {
   const { getTotalQuantity } = useContext(CartContext);
@@ -29,7 +32,7 @@ const Home = () => {
     <>
       {/* Responsive Navbar */}
       <Navbar/>
-      
+      <BannersRow/>
 
       {/* Content */}
       <Hero />

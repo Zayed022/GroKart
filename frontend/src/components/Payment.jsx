@@ -222,6 +222,7 @@ const Payment = () => {
             quantity: item.quantity,
             name: item.name,
             price: item.price,
+            description: item.description,
           })),
           totalAmount: totalPrice,
           address,
