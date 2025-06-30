@@ -15,6 +15,7 @@ import PaanCornerBanner from "../components/PaanCorner";
 import FruitsBanner from "../components/Fruits&VegetablesBanner";
 import MunchiesBanner from "../components/MunchiesBanner";
 import BannersRow from "../components/Fruits&VegetablesBanner";
+import BannerSecond from "../components/MunchiesBanner";
 
 const Home = () => {
   const { getTotalQuantity } = useContext(CartContext);
@@ -32,13 +33,16 @@ const Home = () => {
     <>
       {/* Responsive Navbar */}
       <Navbar/>
-      <BannersRow/>
+      
+      
 
       {/* Content */}
       <Hero />
 
       <CsCards />
+      
       <Footer />
+
     </>
   );
 };

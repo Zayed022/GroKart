@@ -63,31 +63,54 @@ const PaymentSuccess = () => {
           </div>
         </div>
 
-        {/* ✅ Invoice & Support Buttons */}
-        <div className="flex flex-col md:flex-row gap-4 justify-center mt-8">
-          <Link to={`/invoice/${orderId}`} state={{ paymentDetails, address, addressDetails }}>
-            <button className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
-              <FileText size={18} /> View Invoice
-            </button>
+        {/* ✅ Action Buttons Section */}
+        {/* ✅ Action Buttons Section */}
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
+          {/* Invoice Button */}
+          <Link
+            to={`/invoice/${orderId}`}
+            state={{ paymentDetails, address, addressDetails }}
+            className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition duration-200 shadow-sm"
+          >
+            <FileText size={18} /> Invoice
           </Link>
 
-          <a href="tel:+917498881947" className="flex items-center gap-2 px-5 py-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition">
-            <Phone size={18} /> Support
+          {/* Track Order Button */}
+          <Link
+            to="/track-order"
+            className="flex items-center gap-2 px-5 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition duration-200 shadow-sm"
+          >
+            <MapPin size={18} /> Track Order
+          </Link>
+
+          {/* Support Phone */}
+          <a
+            href="tel:+917498881947"
+            className="flex items-center gap-2 px-5 py-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition duration-200 shadow-sm"
+          >
+            <Phone size={18} /> Call Support
           </a>
 
-          <a href="mailto:zayedans022@gmail.com" className="flex items-center gap-2 px-5 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition">
+          {/* Email Support */}
+          <a
+            href="mailto:zayedans022@gmail.com"
+            className="flex items-center gap-2 px-5 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200 shadow-sm"
+          >
             <Mail size={18} /> Email Us
           </a>
         </div>
 
-        <div className="text-center mt-6 flex items-center justify-center">
-          <Link to="/">
-            <button className="group px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-full flex items-center justify-center gap-2 transition duration-300">
-              <ShoppingBagIcon className="w-4 h-4 group-hover:scale-110" />
+        {/* ✅ Continue Shopping */}
+        <div className="text-center mt-6">
+          <Link to="/" className="inline-block">
+            <button className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-full transition duration-300 shadow-sm">
+              <ShoppingBagIcon className="w-5 h-5" />
               Continue Shopping
             </button>
           </Link>
         </div>
+
+
       </div>
     </div>
   );

@@ -1,19 +1,22 @@
+import React from "react";
 import CategoryHeroBanner from "./CategoryHeroBanner";
-import munchies from "../../public/munchies.png"; // your local image or external URL
+import paancorner from "../../public/paancorner.png";
 
-const MunchiesBanner = () => {
+const BannerSecond = () => {
   return (
-    <div className="px-4 py-6">
+    <div className="flex flex-col md:flex-row gap-6 px-4 py-6">
       <CategoryHeroBanner
-        title="Pharmacy at your doorstep!"
-        subtitle="Cough syrups, pain relief sprays & more"
+        title="Paan & More"
+        subtitle="Paan Corner & accessories"
         ctaText="Order Now"
-        ctaLink="/subCategory/Pharmacy"
-        bgColor="bg-teal-100"
-        image={munchies}
+        ctaLink="/subCategory/Fruits%20&%20Vegetables"
+        image={paancorner}
+        bgColor="bg-green-100"
       />
+
+      
     </div>
   );
 };
 
-export default MunchiesBanner;
+export default BannerSecond;

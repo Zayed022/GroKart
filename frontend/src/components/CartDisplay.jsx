@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { Link, useNavigate } from "react-router-dom";
+import { useLocation as useGlobalLocation } from "../context/LocationContext";
 
 const CartDisplay = ({ onClose }) => {
   const { cartItems, updateCartItemQuantity, removeFromCart, getCartTotal } =
@@ -12,6 +13,7 @@ const CartDisplay = ({ onClose }) => {
   const [showMap, setShowMap] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [confirmedLocation, setConfirmedLocation] = useState(null);
+  const { location } = useGlobalLocation();
 
   const navigate = useNavigate();
 
@@ -78,7 +80,7 @@ const CartDisplay = ({ onClose }) => {
       navigate("/address", {
         state: {
           address,
-          location: userLocation,
+          location:  { lat: location.lat, lng: location.lng },
           cartItems,
           totalPrice: getCartTotal(),
         },
@@ -183,22 +185,63 @@ const CartDisplay = ({ onClose }) => {
           </div>
         </div>
 
-        <h3 className="text-lg font-semibold text-right mt-6 text-gray-800">
+        <h3 className="text-lg font-semibold text-right mt-6 mb-6 text-gray-800">
           Total: ₹{totalPrice}
         </h3>
 
-        <button
-          className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 mt-6 shadow-md"
-          onClick={() => {
-            if (cartItems.length === 0) {
-              alert("Your cart is empty. Add items to proceed.");
-              return;
-            }
-            getUserLocation();
-          }}
-        >
-          Add Address to Proceed
-        </button>
+       <section className="mt-6">
+  <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+    <span className="inline-block bg-green-100 text-green-700 text-l font-semibold px-2 py-1 rounded">
+      Deliver To:
+    </span>
+  </h2>
+
+  {location?.address && (
+    <div className="mb-4 bg-white p-5 rounded-xl shadow-md border border-gray-200">
+      <p className="text-sm font-semibold text-gray-800 mb-1">Saved Address:</p>
+      <p className="text-sm text-gray-600 leading-relaxed">{location.address}</p>
+
+      <button
+        className="mt-3 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-semibold transition duration-200 shadow"
+        onClick={() => {
+          if (cartItems.length === 0) {
+            alert("Your cart is empty. Add items to proceed.");
+            return;
+          }
+          navigate("/address", {
+            state: {
+              address: location.address,
+              location: { lat: location.lat, lng: location.lng },
+              cartItems,
+              totalPrice,
+            },
+          });
+        }}
+      >
+        ✅ Deliver to this Address
+      </button>
+    </div>
+  )}
+
+  {location?.address && (
+    <p className="text-sm font-semibold text-gray-600 text-center my-2">OR</p>
+  )}
+
+  <button
+    className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 mt-2 shadow-md"
+    onClick={() => {
+      if (cartItems.length === 0) {
+        alert("Your cart is empty. Add items to proceed.");
+        return;
+      }
+      getUserLocation();
+    }}
+  >
+    {location?.address ? "📍 Change Address" : "➕ Add Address to Proceed"}
+  </button>
+</section>
+
+
 
         {showMap && isLoaded && (
           <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">

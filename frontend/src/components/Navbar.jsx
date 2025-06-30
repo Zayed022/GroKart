@@ -7,14 +7,19 @@ import {
 } from "lucide-react";
 
 import { CartContext } from "../context/Cart";
-import { useAuth } from "../context/AuthContext"; // 👈 Add this
+import { useAuth } from "../context/AuthContext"; 
 import DynamicSearchButton from "./DynamicSearchButton";
 
+import { MapPin } from "lucide-react";
+import { useLocation as useGlobalLocation } from "../context/LocationContext";
+
 function Navbar() {
+  const { location } = useGlobalLocation();
   const { getTotalQuantity } = useContext(CartContext);
   const totalQuantity = getTotalQuantity();
 
-  const { user, token } = useAuth(); // 👈 Assume these are available in your AuthContext
+
+  const { user, token } = useAuth(); //  Assume these are available in your AuthContext
 
   return (
     <nav className="bg-white/30 backdrop-blur-md shadow-md px-6 py-3 sticky top-0 z-50 border-b border-gray-200">
@@ -30,6 +35,22 @@ function Navbar() {
             className="h-10 w-auto object-contain"
           />
         </Link>
+
+        <div>
+<Link to="/location-fetch">
+  <button className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-800 shadow-sm transition-all">
+    <MapPin className="w-4 h-4 text-red-500" />
+    {location?.address ? (
+      <span className="truncate max-w-[150px]">{location.address}</span>
+    ) : (
+      <span>Select Location</span>
+    )}
+  </button>
+</Link>
+
+
+
+        </div>
 
         {/* Search */}
         <DynamicSearchButton />

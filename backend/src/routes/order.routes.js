@@ -14,6 +14,8 @@ import {
     getAllOrders,
     getOrderById,
     generateInvoice,
+    cancelOrderByAdmin,
+    getRecentOrdersByCustomer,
     
 } from "../controllers/order.controllers.js"
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
@@ -35,7 +37,11 @@ router.route("/get-assigned-orders").get(getAssignedOrders)
 router.get("/my-orders",verifyJWT,getMyOrders)
 router.post('/create-order-cashfree',verifyJWT,createOrderUsingCashfree)
 router.get("/get", getAllOrders)
+router.get("/recent-orders", verifyJWT, getRecentOrdersByCustomer);
 router.get("/:orderId", getOrderById);
 router.get("/order/:id/invoice", verifyJWT, generateInvoice);
+router.post("/cancel", cancelOrderByAdmin);
+
+
 
 export default router

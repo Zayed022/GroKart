@@ -829,6 +829,75 @@ const generateInvoice = async (req, res) => {
   }
 };
 
+const cancelOrderByAdmin = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({ message: "orderId is required" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.status === "Delivered") {
+      return res.status(400).json({ message: "Delivered orders cannot be cancelled." });
+    }
+
+    order.status = "Cancelled";
+    order.statusHistory.push({
+      status: "Cancelled",
+      updatedAt: new Date(),
+    });
+
+    await order.save();
+
+    return res.status(200).json({ message: "Order cancelled successfully", order });
+  } catch (error) {
+    console.error("Admin cancel error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getRecentOrdersByCustomer = async (req, res) => {
+  try {
+    // 1. Guard: Ensure user is authenticated
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized. Please log in.",
+      });
+    }
+
+    const customerId = req.user.id;
+
+    // 2. Calculate timestamp for 30 minutes ago
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+    // 3. Fetch orders created in the last 30 minutes
+    const recentOrders = await Order.find({
+      customerId,
+      createdAt: { $gte: thirtyMinutesAgo },
+    })
+      .sort({ createdAt: -1 })
+      .limit(5); // Optional: only latest few
+
+    // 4. Return response
+    res.status(200).json({
+      success: true,
+      message: "Fetched recent orders placed in the past 30 minutes.",
+      data: recentOrders,
+    });
+  } catch (error) {
+    console.error("❌ Error in getRecentOrdersByCustomer:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching recent orders",
+    });
+  }
+};
 
 
 
@@ -846,4 +915,6 @@ export {
   getAllOrders,
   getOrderById,
   generateInvoice,
+  cancelOrderByAdmin,
+  getRecentOrdersByCustomer,
 };

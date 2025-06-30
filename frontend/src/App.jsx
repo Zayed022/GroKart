@@ -27,6 +27,8 @@ import AboutUs from "./components/AboutUs";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Offers from "./components/Offers";
 import OrderInvoice from "./components/OrderInvoice";
+import TrackOrder from "./components/OrderTracker";
+import LocationFetcher from "./components/LocationFetcher";
 
 
 function App() {
@@ -71,6 +73,8 @@ function App() {
       <Route path = "/about" element = {<AboutUs/>}/>
       <Route path = "/offers" element = {<Offers/>}/>
       <Route path = "/invoice/:orderId" element = {<OrderInvoice/>}/>
+      <Route path = "/track-order" element = {<TrackOrder/>}/>
+      <Route path = "/location-fetch" element = {<LocationFetcher/>}/>
 
       
       
