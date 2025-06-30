@@ -29,6 +29,9 @@ import Offers from "./components/Offers";
 import OrderInvoice from "./components/OrderInvoice";
 import TrackOrder from "./components/OrderTracker";
 import LocationFetcher from "./components/LocationFetcher";
+import AccountPrivacy from "./components/AccountPrivacy";
+import EGiftCard from "./components/EGiftCard";
+
 
 
 function App() {
@@ -45,6 +48,7 @@ function App() {
     <Routes>
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      
       <Route path="/" element={
         <ProtectedRoute>
           <Home />
@@ -75,6 +79,8 @@ function App() {
       <Route path = "/invoice/:orderId" element = {<OrderInvoice/>}/>
       <Route path = "/track-order" element = {<TrackOrder/>}/>
       <Route path = "/location-fetch" element = {<LocationFetcher/>}/>
+      <Route path = "/account-privacy" element = {<AccountPrivacy/>}/>
+       <Route path = "/gifts" element = {<EGiftCard/>}/>
 
       
       

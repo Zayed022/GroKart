@@ -76,12 +76,7 @@ const PaymentSuccess = () => {
           </Link>
 
           {/* Track Order Button */}
-          <Link
-            to="/track-order"
-            className="flex items-center gap-2 px-5 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition duration-200 shadow-sm"
-          >
-            <MapPin size={18} /> Track Order
-          </Link>
+          
 
           {/* Support Phone */}
           <a

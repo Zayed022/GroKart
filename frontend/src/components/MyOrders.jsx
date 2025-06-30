@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   CircleDot,
 } from "lucide-react";
+import Navbar from "./Navbar";
 
 const statusOrder = [
   "Placed", "Pending", "Assigned", "Out for Delivery", "Delivered", "Cancelled",
@@ -56,6 +57,7 @@ export default function MyOrders() {
 
     if (authLoading) {
     return (
+     
       <p className="py-20 text-center text-lg font-medium animate-pulse">
         Checking authentication…
       </p>
@@ -87,6 +89,8 @@ export default function MyOrders() {
     );
 
   return (
+    <>
+    <Navbar/>
     <section className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/60 py-12">
       <h1 className="mb-12 text-center text-4xl font-extrabold text-slate-800">
         My Orders
@@ -145,5 +149,6 @@ export default function MyOrders() {
         })}
       </div>
     </section>
+    </>
   );
 }

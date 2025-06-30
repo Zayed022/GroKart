@@ -1,18 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation as useGlobalLocation } from "../context/LocationContext";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 const LocationFetcher = () => {
   const [showMap, setShowMap] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const { setConfirmedLocation } = useGlobalLocation();
   const navigate = useNavigate();
+  const [savedAddresses, setSavedAddresses] = useState([]);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
   });
+
+  useEffect(() => {
+    const stored = localStorage.getItem("savedAddresses");
+    if (stored) {
+      setSavedAddresses(JSON.parse(stored));
+    }
+  }, []);
 
   const getUserLocation = () => {
     if (navigator.geolocation) {
@@ -61,14 +71,23 @@ const LocationFetcher = () => {
         return;
       }
 
-      setConfirmedLocation({
+      // Save to context
+      const newAddress = {
         address,
         lat: userLocation.lat,
         lng: userLocation.lng,
-      });
+      };
 
+      setConfirmedLocation(newAddress);
       alert(`Location Confirmed: ${address}`);
       setShowMap(false);
+
+      // Save to localStorage
+      const existing = JSON.parse(localStorage.getItem("savedAddresses")) || [];
+      const updated = [newAddress, ...existing.filter(a => a.address !== newAddress.address)];
+      localStorage.setItem("savedAddresses", JSON.stringify(updated));
+      setSavedAddresses(updated);
+
       navigate("/");
     } else {
       alert("Please select a valid location first.");
@@ -76,7 +95,10 @@ const LocationFetcher = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
+    <>
+    <Navbar/>
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 space-y-8">
+      {/* Main Card */}
       <div className="bg-white p-10 rounded-3xl shadow-xl border border-gray-100 w-full max-w-2xl text-center space-y-6">
         <div className="flex justify-center items-center gap-2 text-violet-600 font-semibold text-xl">
           <MapPin className="w-6 h-6" />
@@ -95,6 +117,34 @@ const LocationFetcher = () => {
         </button>
       </div>
 
+      {/* Saved Addresses Section */}
+      {savedAddresses.length > 0 && (
+        <div className="w-full max-w-2xl space-y-4">
+          <h3 className="text-xl font-semibold text-gray-800">Saved Addresses</h3>
+          {savedAddresses.map((addr, index) => (
+            <div
+              key={index}
+              className="bg-white p-4 rounded-xl shadow flex justify-between items-center border"
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-800">{addr.address}</p>
+              </div>
+              <button
+                className="bg-green-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-600"
+                onClick={() => {
+                  setConfirmedLocation(addr);
+                  alert(`Location Confirmed: ${addr.address}`);
+                  navigate("/");
+                }}
+              >
+                Deliver Here
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Map Modal */}
       {showMap && isLoaded && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-3xl w-11/12 max-w-3xl p-6 shadow-2xl">
@@ -130,6 +180,8 @@ const LocationFetcher = () => {
         </div>
       )}
     </div>
+    <Footer/>
+    </>
   );
 };
 

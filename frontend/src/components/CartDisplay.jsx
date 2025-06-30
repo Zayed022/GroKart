@@ -5,6 +5,7 @@ import { IoMdClose } from "react-icons/io";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation as useGlobalLocation } from "../context/LocationContext";
+import Navbar from "./Navbar";
 
 const CartDisplay = ({ onClose }) => {
   const { cartItems, updateCartItemQuantity, removeFromCart, getCartTotal } =
@@ -92,6 +93,7 @@ const CartDisplay = ({ onClose }) => {
 
   return (
     <>
+    <Navbar/>
       <div className="fixed right-0 top-0 w-96 h-full bg-[#f2f2f2] shadow-2xl z-50 p-6 overflow-y-auto rounded-l-3xl">
         <div className="flex items-center justify-between mb-6">
           <Link to="/">

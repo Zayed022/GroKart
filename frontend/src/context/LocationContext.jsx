@@ -1,16 +1,26 @@
-// context/LocationContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 
 const LocationContext = createContext();
 
 export const LocationProvider = ({ children }) => {
-  const [location, setLocation] = useState(() => {
-    return JSON.parse(localStorage.getItem("confirmedLocation")) || null;
-  });
+  const [location, setLocation] = useState(null);
 
+  // ✅ Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("confirmedLocation");
+    if (saved) {
+      try {
+        setLocation(JSON.parse(saved));
+      } catch (error) {
+        console.error("Failed to parse saved location:", error);
+      }
+    }
+  }, []);
+
+  // ✅ Save and update location
   const setConfirmedLocation = (loc) => {
-    localStorage.setItem("confirmedLocation", JSON.stringify(loc));
     setLocation(loc);
+    localStorage.setItem("confirmedLocation", JSON.stringify(loc));
   };
 
   return (
@@ -20,4 +30,5 @@ export const LocationProvider = ({ children }) => {
   );
 };
 
+// ✅ Custom Hook
 export const useLocation = () => useContext(LocationContext);
