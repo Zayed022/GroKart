@@ -3,14 +3,17 @@ import { Link } from "react-router-dom";
 import { CartContext } from "../context/Cart.jsx";
 import Cart from "./Cart.jsx";
 import Search from "./Search.jsx";
+import { toast } from "react-hot-toast";
 
 function Items() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
-
   const [showModal, setShowModal] = useState(false);
+  const [cart, setCart] = useState(() => {
+    return JSON.parse(localStorage.getItem("cart")) || {};
+  });
   const toggle = () => setShowModal(!showModal);
 
   const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
@@ -18,14 +21,17 @@ function Items() {
   const increaseQuantity = (product) => {
     const currentQty = cartItems[product._id] || 0;
     addToCart(product, currentQty + 1);
+    toast.success("Added one more!");
   };
 
   const decreaseQuantity = (product) => {
     const currentQty = cartItems[product._id] || 0;
     if (currentQty > 1) {
       addToCart(product, currentQty - 1);
+      toast.success("Removed one item");
     } else {
       removeFromCart(product._id);
+      toast("Removed from cart", { icon: "🗑️" });
     }
   };
 
@@ -42,14 +48,15 @@ function Items() {
     const fetchProducts = async () => {
       try {
         const res = await fetch("https://grokart-2.onrender.com/api/v1/products/get-product");
-        if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         if (Array.isArray(data)) {
           setProducts(data);
           setFilteredProducts(data);
         }
       } catch (err) {
-        console.error("Error fetching products:", err.message);
+        console.error("Error:", err.message);
+        toast.error("Failed to load products.");
       } finally {
         setLoading(false);
       }
@@ -58,7 +65,7 @@ function Items() {
   }, []);
 
   return (
-    <div className="px-4 py-6 sm:px-8">
+    <div className="px-4 py-6 sm:px-8 bg-gray-50 min-h-screen">
       <Search onSearch={handleSearch} />
       <h2 className="text-3xl font-bold text-center mt-4 mb-6 text-gray-800">
         Shop by Category
@@ -76,11 +83,11 @@ function Items() {
             return (
               <div
                 key={product._id}
-                className="bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200"
+                className="bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 relative"
               >
                 {/* Discount Badge */}
                 {product.discount > 0 && (
-                  <div className="absolute m-2 px-2 py-1 text-xs font-bold bg-red-500 text-white rounded-full shadow-md">
+                  <div className="absolute top-2 left-2 px-2 py-1 text-xs font-bold bg-red-500 text-white rounded-full shadow-md z-10">
                     {product.discount}% OFF
                   </div>
                 )}
@@ -96,46 +103,79 @@ function Items() {
 
                 {/* Product Info */}
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg text-gray-800 truncate">{product.name}</h3>
-                  <p className="text-sm text-gray-500">{product.description || "500g"}</p>
+                  <h3 className="font-semibold text-base text-gray-900 truncate">{product.name}</h3>
+                  <p className="text-sm text-gray-500">
+                    {product.description || "No description"}
+                  </p>
 
                   {/* Price Section */}
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-green-600 font-bold text-lg">₹{product.discountedPrice || product.price}</span>
+                    <span className="text-green-600 font-bold text-lg">
+                      ₹{product.discountedPrice || product.price}
+                    </span>
                     {product.discount > 0 && (
-                      <span className="text-sm text-gray-400 line-through">₹{product.price}</span>
+                      <span className="text-sm text-gray-400 line-through">
+                        ₹{product.price}
+                      </span>
                     )}
                   </div>
 
                   {/* Cart Controls */}
-                  <div className="mt-4">
-                    {quantity > 0 ? (
-                      <div className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-full border border-pink-500">
-                        <button
-                          onClick={() => decreaseQuantity(product)}
-                          className="text-pink-500 font-bold text-xl"
-                          aria-label="Decrease quantity"
-                        >
-                          −
-                        </button>
-                        <span className="font-medium text-gray-800">{quantity}</span>
-                        <button
-                          onClick={() => increaseQuantity(product)}
-                          className="text-pink-500 font-bold text-xl"
-                          aria-label="Increase quantity"
-                        >
-                          +
-                        </button>
-                      </div>
-                    ) : (
+                 <div className="mt-4">
+                {product.stock === 0 ? (
+                  <button
+                    disabled
+                    className="px-6 py-2 w-full bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed"
+                  >
+                    Out of Stock
+                  </button>
+                ) : cart[product._id] ? (
+                  <div className="flex flex-col gap-1 items-center justify-center">
+                    <div className="flex items-center justify-center border border-green-500 rounded-lg w-full">
                       <button
-                        className="w-full bg-pink-500 text-white font-semibold py-2 rounded-full hover:bg-pink-600 transition"
-                        onClick={() => addToCart(product, 1)}
+                        onClick={() => decreaseQuantity(product)}
+                        className="px-3 py-2 text-green-500 font-bold"
                       >
-                        Add to Cart
+                        −
                       </button>
+                      <span className="px-4">{cart[product._id]}</span>
+                      <button
+                        onClick={() => increaseQuantity(product)}
+                        className="px-3 py-2 text-green-500 font-bold"
+                      >
+                        +
+                      </button>
+                    </div>
+                    {product.stock < 5 && product.stock > 0 && (
+                      <p className="text-sm text-red-500 mt-1 font-medium">
+                        Only {product.stock} left!
+                      </p>
                     )}
                   </div>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    <button
+                      className="px-6 py-2 text-white bg-green-500 rounded-lg w-full"
+                      onClick={() => {
+                        addToCart(product, 1);
+                        setCart((prev) => ({
+                          ...prev,
+                          [product._id]: 1,
+                        }));
+                        toast.success(`${product.name} added to cart`);
+                      }}
+                    >
+                      Add to Cart
+                    </button>
+                    {product.stock < 5 && product.stock > 0 && (
+                      <p className="text-sm text-red-500 mt-1 font-medium">
+                        Only {product.stock} left!
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
                 </div>
               </div>
             );

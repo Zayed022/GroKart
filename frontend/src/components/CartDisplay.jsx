@@ -64,32 +64,59 @@ const CartDisplay = ({ onClose }) => {
     }
   };
 
+  const isWithinBhiwandiRadius = (lat, lng) => {
+  const bhiwandiCenter = { lat: 19.2965, lng: 73.0615 }; // Approx center of Bhiwandi
+  const radiusInKm = 10; // You can tune this
+
+  const toRad = (value) => (value * Math.PI) / 180;
+
+  const dLat = toRad(lat - bhiwandiCenter.lat);
+  const dLng = toRad(lng - bhiwandiCenter.lng);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(bhiwandiCenter.lat)) *
+      Math.cos(toRad(lat)) *
+      Math.sin(dLng / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = 6371 * c; // Radius of Earth = 6371 km
+
+  return distance <= radiusInKm;
+};
+
+
   const handleConfirmLocation = async () => {
-    if (userLocation) {
-      const address = await getAddressFromLatLng(
-        userLocation.lat,
-        userLocation.lng
-      );
-      if (!address.toLowerCase().includes("bhiwandi")) {
-        alert("Sorry, we are currently not available in your area.");
-        setShowMap(false);
-        return;
-      }
-      setConfirmedLocation(address);
-      alert(`Location Confirmed: ${address}`);
+  if (userLocation) {
+    const { lat, lng } = userLocation;
+
+    // 1. Check using radius instead of address string
+    if (!isWithinBhiwandiRadius(lat, lng)) {
+      alert("Sorry, we are currently not available in your area.");
       setShowMap(false);
-      navigate("/address", {
-        state: {
-          address,
-          location:  { lat: location.lat, lng: location.lng },
-          cartItems,
-          totalPrice: getCartTotal(),
-        },
-      });
-    } else {
-      alert("Please select a valid location first.");
+      return;
     }
-  };
+
+    // 2. Continue fetching address for user display
+    const address = await getAddressFromLatLng(lat, lng);
+
+    setConfirmedLocation(address);
+    alert(`Location Confirmed: ${address}`);
+    setShowMap(false);
+
+    navigate("/address", {
+      state: {
+        address,
+        location: { lat, lng },
+        cartItems,
+        totalPrice: getCartTotal(),
+      },
+    });
+  } else {
+    alert("Please select a valid location first.");
+  }
+};
+
 
   return (
     <>
@@ -257,7 +284,13 @@ const CartDisplay = ({ onClose }) => {
                   zoom={15}
                   mapContainerStyle={{ width: "100%", height: "100%" }}
                 >
-                  <Marker position={userLocation} draggable={true} />
+                  <Marker
+  position={userLocation}
+  draggable={true}
+  onDragEnd={(e) =>
+    setUserLocation({ lat: e.latLng.lat(), lng: e.latLng.lng() })
+  }
+/>
                 </GoogleMap>
               </div>
 

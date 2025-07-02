@@ -46,6 +46,30 @@ export const CartProvider = ({ children }) => {
       }, [])
     );
   };
+
+  const addMultipleToCart = (items) => {
+  const updatedCart = [...cartItems];
+
+  items.forEach((newItem) => {
+    const existingItem = updatedCart.find((item) => item._id === newItem.productId);
+    if (existingItem) {
+      existingItem.quantity += newItem.quantity;
+    } else {
+      updatedCart.push({
+        _id: newItem.productId,
+        name: newItem.name,
+        image: newItem.image || "", // Optional
+        price: newItem.price,
+        quantity: newItem.quantity,
+        description: newItem.description || "",
+      });
+    }
+  });
+
+  setCartItems(updatedCart);
+  localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+};
+
   
   
 
@@ -75,7 +99,8 @@ export const CartProvider = ({ children }) => {
         clearCart,
         getCartTotal,
         updateCartItemQuantity,
-        getTotalQuantity
+        getTotalQuantity,
+        addMultipleToCart,
         
       }}
     >

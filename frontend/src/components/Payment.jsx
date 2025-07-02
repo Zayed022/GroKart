@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { CartContext } from "../context/Cart";
 import { toast } from "react-hot-toast";
+import { OrderContext } from "../context/OrderContext";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -10,7 +11,10 @@ const Payment = () => {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const { cartItems, clearCart } = useContext(CartContext);
-  const { address, addressDetails } = location.state || { address: "No address provided" };
+  const { address, addressDetails } = location.state || {
+    address: "No address provided",
+  };
+  const { addOrder } = useContext(OrderContext);
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [loading, setLoading] = useState(false);
@@ -23,8 +27,8 @@ const Payment = () => {
   const handlingFee = 7;
   const codCharge = 0;
   const GSTCharges = 2;
-  const totalPrice = totalItemPrice + deliveryCharge + handlingFee + codCharge + GSTCharges;
-
+  const totalPrice =
+    totalItemPrice + deliveryCharge + handlingFee + codCharge + GSTCharges;
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -40,22 +44,21 @@ const Payment = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
 
-  if (!user || !user._id || !token) {
-    toast.error("User not found. Please log in again.");
-    navigate("/login");
-    return;
-  }
+    if (!user || !user._id || !token) {
+      toast.error("User not found. Please log in again.");
+      navigate("/login");
+      return;
+    }
     const res = await loadRazorpayScript();
-  
+
     if (!res) {
       alert("Failed to load Razorpay SDK. Check your connection.");
       return;
     }
-  
+
     try {
       console.log("Token being sent:", token);
       console.log("Cart Items being sent:", cartItems);
-
 
       const response = await axios.post(
         "https://grokart-2.onrender.com/api/v1/order/create-order",
@@ -82,10 +85,10 @@ const Payment = () => {
           },
         }
       );
-  
+
       const { razorpayOrder, order } = response.data;
       const { id: order_id, amount, currency } = razorpayOrder;
-  
+
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount,
@@ -112,17 +115,18 @@ const Payment = () => {
             );
 
             clearCart();
-        
+
             navigate("/payment-success-online", {
               state: { order, address, addressDetails },
             });
           } catch (error) {
             console.log("Payment verification failed:", error);
-            toast.error("❌ Payment verification failed. Please contact support.");
+            toast.error(
+              "❌ Payment verification failed. Please contact support."
+            );
           }
         },
-        
-        
+
         prefill: {
           name: user.name,
           email: user.email,
@@ -133,7 +137,7 @@ const Payment = () => {
         },
         redirect: false,
       };
-  
+
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
@@ -142,18 +146,16 @@ const Payment = () => {
     }
   };
 
-  
-
   const handleCashfreePayment = async () => {
     if (!user || !user._id || !token) {
       toast.error("User not found. Please log in again.");
       navigate("/login");
       return;
     }
-  
+
     try {
       setLoading(true);
-  
+
       const response = await axios.post(
         "https://grokart-2.onrender.com/api/v1/order/create-order-cashfree",
         {
@@ -182,33 +184,31 @@ const Payment = () => {
           },
         }
       );
-  
+
       const { paymentSessionId, orderId } = response.data;
-  
+
       if (!paymentSessionId || !orderId) {
         toast.error("Failed to initiate payment session.");
         return;
       }
-  
+
       const cashfree = await load({ mode: "production" }); // Use "sandbox" in dev
       cashfree.checkout({
         paymentSessionId,
         redirectTarget: "_self",
       });
-  
+
       console.log("✅ Cashfree session started for Order:", orderId);
     } catch (error) {
-      console.error("❌ Cashfree payment error:", error.response?.data || error);
+      console.error(
+        "❌ Cashfree payment error:",
+        error.response?.data || error
+      );
       toast.error("Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-  
-
-  
-  
-  
 
   const handleCODPayment = async () => {
     try {
@@ -240,6 +240,12 @@ const Payment = () => {
       clearCart();
       const paymentDetails = response.data;
       toast.success("✅ COD Order Placed!");
+      addOrder({
+        ...response.data.order,
+        address,
+        addressDetails,
+        placedAt: new Date().toISOString(),
+      });
       navigate("/payment-success", {
         state: { paymentDetails, address, addressDetails },
       });
@@ -253,18 +259,21 @@ const Payment = () => {
 
   return (
     <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-2xl p-6 mt-8 space-y-8">
-      <h2 className="text-3xl font-bold text-center text-gray-800">Review & Confirm</h2>
+      <h2 className="text-3xl font-bold text-center text-gray-800">
+        Review & Confirm
+      </h2>
 
       {/* Delivery Address */}
       <section className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
         <h3 className="text-sm font-semibold text-gray-700 mb-1">Deliver To</h3>
         <p className="text-sm text-gray-600">{address}</p>
-        
       </section>
 
       {/* Order Summary */}
       <section>
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Order Summary</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          Order Summary
+        </h3>
         <div className="space-y-2 text-sm text-gray-700">
           {cartItems.map((item, index) => (
             <div key={index} className="flex justify-between">
