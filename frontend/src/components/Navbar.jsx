@@ -67,12 +67,20 @@ function Navbar() {
           </Link>
         </div>
         {/* CENTER: Search */}
-        {/* CENTER: Search */}
-        <div className="hidden md:flex flex-1 justify-center">
-          <div className="w-full max-w-sm">
-            <DynamicSearchButton />
-          </div>
-        </div>
+       {/* CENTER: Search (Desktop) */}
+<div className="hidden md:flex flex-1 justify-center">
+  <div className="w-full max-w-sm">
+    <DynamicSearchButton />
+  </div>
+</div>
+
+{/* CENTER: Search (Mobile - below location) */}
+<div className="flex md:hidden justify-center w-full mt-2">
+  <div className="w-full px-2">
+    <DynamicSearchButton />
+  </div>
+</div>
+
 
         {/* RIGHT: Cart + Profile */}
         <div className="flex items-center justify-between w-full md:w-auto gap-4">
