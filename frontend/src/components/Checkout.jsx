@@ -13,7 +13,7 @@ const Checkout = () => {
 
   const deliveryCharge = 15;
   const handlingFee = 7;
-  const gstAndCharges = 2;
+  const gstAndCharges = 0;
 
   const itemTotal = getCartTotal();
   const grandTotal = (
@@ -99,10 +99,7 @@ const Checkout = () => {
             <span className="text-base">Handling Fee</span>
             <span className="font-medium">₹{handlingFee}</span>
           </div>
-          <div className="flex justify-between text-gray-700">
-            <span className="text-base">GST & Charges</span>
-            <span className="font-medium">₹{gstAndCharges}</span>
-          </div>
+          
 
           <div className="flex justify-between items-center border-t pt-5 mt-4">
             <span className="text-xl font-bold text-gray-800">

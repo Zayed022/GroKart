@@ -14,7 +14,7 @@ const OrderInvoice = () => {
   const items = order.items || [];
   const deliveryFee = 15;
   const handlingFee = 7;
-  const gst = 2;
+  const gst = 0;
   const codCharge = order.paymentMethod === "COD" ? 25 : 0;
   const subtotal = order.totalAmount - codCharge;
   const itemsTotal = subtotal - (deliveryFee + handlingFee + gst);
@@ -115,7 +115,7 @@ items.forEach((item) => {
     ["Items Total", itemsTotal],
     ["Delivery Fee", deliveryFee],
     ["Handling Fee", handlingFee],
-    ["GST & Charges", gst],
+    
     ["Subtotal", subtotal],
     ...(codCharge > 0 ? [["COD Charges", codCharge]] : []),
     ["Total Amount", order.totalAmount],
@@ -192,7 +192,7 @@ items.forEach((item) => {
           <p><strong>Items Total:</strong> ₹{itemsTotal}</p>
           <p><strong>Delivery Fee:</strong> ₹{deliveryFee}</p>
           <p><strong>Handling Fee:</strong> ₹{handlingFee}</p>
-          <p><strong>GST & Charges:</strong> ₹{gst}</p>
+          
           <p><strong>Subtotal:</strong> ₹{subtotal}</p>
           {codCharge > 0 && <p><strong>COD Charges:</strong> ₹{codCharge}</p>}
           <p className="font-bold"><strong>Total:</strong> ₹{order.totalAmount}</p>
