@@ -313,9 +313,7 @@ const assignOrderToDeliveryPartner = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    if (order.assignedTo) {
-      return res.status(400).json({ message: "Order already assigned" });
-    }
+    
 
     // Check if delivery partner exists and is available + approved
     const deliveryPartner = await DeliveryPartner.findById(deliveryPartnerId);
