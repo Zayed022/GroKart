@@ -89,7 +89,7 @@ const orderSchema = new Schema(
   {
     status: {
       type: String,
-      enum: ["Pending", "Picked Up", "Out for Delivery", "Delivered","Cancelled","Placed","Assigned"],
+      enum: ["Confirmed","Ready to Collect","Pending", "Picked Up", "Out for Delivery", "Delivered","Cancelled","Placed","Assigned"],
     },
     updatedAt: {
       type: Date,
@@ -129,6 +129,11 @@ paymentStatusHistory: [
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "DeliveryPartner",
+    },
+
+    shopAssigned:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref:"Shop"
     },
 
     paymentToAdmin: {

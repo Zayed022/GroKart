@@ -53,6 +53,9 @@ app.use("/api/v1/offer",offerRoute);
 import categoryRoute from './routes/category.routes.js'
 app.use("/api/v1/category",categoryRoute);
 
+import shopRoute from './routes/shop.routes.js'
+app.use("/api/v1/shop",shopRoute);
+
 
 
 export {app}
