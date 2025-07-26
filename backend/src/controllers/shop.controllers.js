@@ -286,9 +286,12 @@ const getCompletedOrdersByShops = async (req, res) => {
     const shopId = req.shop._id;
 
     const completedOrders = await Order.find({
-      assignedTo: shopId,
+      shopAssigned: shopId,
       status: "Delivered",
-    }).sort({ deliveredAt: -1 });
+    })
+    // .populate("items.product", "name price") // optional
+    // .populate("user", "name phoneNumber")    // optional
+    .sort({ deliveredAt: -1 });
 
     const formattedOrders = completedOrders.map((order) => ({
       _id: order._id,
@@ -297,8 +300,15 @@ const getCompletedOrdersByShops = async (req, res) => {
       paymentStatus: order.paymentStatus,
       address: order.address || "N/A",
       addressDetails: order.addressDetails || {},
-      deliveredAt: order.deliveredAt || order.updatedAt,
+      deliveredAt: new Date(order.deliveredAt || order.updatedAt).toLocaleString(),
       status: order.status,
+      // Optional:
+      // user: order.user ? { name: order.user.name, phone: order.user.phoneNumber } : null,
+      // items: order.items.map(i => ({
+      //   name: i.product.name,
+      //   quantity: i.quantity,
+      //   price: i.product.price
+      // }))
     }));
 
     res.status(200).json({
@@ -310,6 +320,7 @@ const getCompletedOrdersByShops = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const updateProductAvailability = asyncHandler(async (req, res) => {
   const shopId = req.shop._id; // Assuming you attach shop info after auth

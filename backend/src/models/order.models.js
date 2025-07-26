@@ -134,11 +134,13 @@ paymentStatusHistory: [
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "DeliveryPartner",
+        required: true,
     },
 
     shopAssigned:{
       type: mongoose.Schema.Types.ObjectId,
-      ref:"Shop"
+      ref:"Shop",
+      required: true,
     },
 
     paymentToAdmin: {
