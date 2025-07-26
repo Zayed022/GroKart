@@ -320,7 +320,7 @@ const updateProductAvailability = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Invalid product data' });
   }
 
-  const order = await Order.findOne({ _id: orderId, shop: shopId });
+  const order = await Order.findOne({ _id: orderId });
   if (!order) {
     return res.status(404).json({ message: 'Order not found' });
   }
