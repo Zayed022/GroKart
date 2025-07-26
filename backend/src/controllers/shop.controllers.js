@@ -1,5 +1,6 @@
 import { Shop } from "../models/shop.model.js";
 import { Order } from "../models/order.models.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -310,6 +311,33 @@ const getCompletedOrdersByShops = async (req, res) => {
   }
 };
 
+const updateProductAvailability = asyncHandler(async (req, res) => {
+  const shopId = req.shop._id; // Assuming you attach shop info after auth
+  const { orderId } = req.params;
+  const { productName, available } = req.body;
+
+  if (!productName || typeof available !== 'boolean') {
+    return res.status(400).json({ message: 'Invalid product data' });
+  }
+
+  const order = await Order.findOne({ _id: orderId, shop: shopId });
+  if (!order) {
+    return res.status(404).json({ message: 'Order not found' });
+  }
+
+  const product = order.items.find((item) => item.name === productName);
+  if (!product) {
+    return res.status(404).json({ message: 'Product not found in this order' });
+  }
+
+  // Add or update the availability status on the item
+  product.isAvailable = available;
+
+  await order.save();
+
+  res.status(200).json({ message: 'Product availability updated successfully' });
+});
+
 
 
 export {
@@ -322,4 +350,5 @@ export {
     getAssignedOrdersForShops,
     updateOrderStatusByShop,
     getCompletedOrdersByShops,
+    updateProductAvailability,
 }

@@ -8,7 +8,8 @@ import {
   assignOrderToShop,
   getAssignedOrdersForShops,
   updateOrderStatusByShop,
-  getCompletedOrdersByShops
+  getCompletedOrdersByShops,
+  updateProductAvailability
 } from "../controllers/shop.controllers.js";
 import { verifyJWTShop } from "../middlewares/auth.middlewares.js";
 
@@ -23,4 +24,9 @@ router.post("/assign-order",assignOrderToShop)
 router.get("/get-assigned-orders",verifyJWTShop,getAssignedOrdersForShops)
 router.put("/:orderId/status",verifyJWTShop, updateOrderStatusByShop)
 router.get("/served-orders",verifyJWTShop,getCompletedOrdersByShops)
+router.put(
+  '/:orderId/product-availability',
+  verifyJWTShop, // Ensure shop is authenticated
+  updateProductAvailability
+);
 export default router;

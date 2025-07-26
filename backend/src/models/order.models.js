@@ -31,7 +31,11 @@ const orderSchema = new Schema(
         description:{
           type: String,
           required: true,
-        }
+        },
+        isAvailable: {
+        type: Boolean,
+        default: true, // null = not decided, true = available, false = not available
+      },
       },
     ],
 
