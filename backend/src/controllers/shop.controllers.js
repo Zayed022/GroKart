@@ -349,6 +349,98 @@ const updateProductAvailability = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Product availability updated successfully' });
 });
 
+const getRegisteredShops = async (req, res) => {
+  try {
+    const registeredShops = await Shop.find({
+      isApproved: false,
+    }).select("-password ");
+    res.status(200).json({
+      success: true,
+      count: registeredShops.length,
+      data: registeredShops,
+    });
+  } catch (error) {
+    console.error("Error fetching registered Shops:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}
+
+const approveShop = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ success: false, message: "Email is required" });
+  }
+
+  try {
+    const shop = await Shop.findOne({ email });
+
+    if (!shop) {
+      return res.status(404).json({ success: false, message: "Shop not found" });
+    }
+
+    if (shop.isApproved) {
+      return res.status(200).json({ success: true, message: "Already approved" });
+    }
+
+    shop.isApproved = true;
+    await shop.save();
+
+    return res.status(200).json({ success: true, message: "Shop approved successfully" });
+  } catch (error) {
+    console.error("Error approving shop:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const getAllShop = async (req, res) => {
+  try {
+    const shops = await Shop.find({});
+    return res.status(200).json({
+      success: true,
+      count: shops.length,
+      data: shops,
+    });
+  } catch (error) {
+    console.error("Error fetching shops:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const searchShop = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ success: false, message: "Query is required" });
+    }
+
+    const searchRegex = new RegExp(query, "i");
+
+    const result = await Shop.find({
+      $or: [
+        { _id: query.match(/^[0-9a-fA-F]{24}$/) ? query : undefined }, // only match _id if valid ObjectId
+        { name: { $regex: searchRegex } },
+        { email: { $regex: searchRegex } },
+      ],
+    }).select("-password ");
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: "No shop found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error searching shop:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
 
 
 export {
@@ -362,4 +454,8 @@ export {
     updateOrderStatusByShop,
     getCompletedOrdersByShops,
     updateProductAvailability,
+    getRegisteredShops,
+    approveShop,
+    getAllShop,
+    searchShop
 }

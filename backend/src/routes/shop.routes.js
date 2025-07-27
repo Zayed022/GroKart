@@ -9,7 +9,11 @@ import {
   getAssignedOrdersForShops,
   updateOrderStatusByShop,
   getCompletedOrdersByShops,
-  updateProductAvailability
+  updateProductAvailability,
+  getRegisteredShops,
+  approveShop,
+  getAllShop,
+  searchShop
 } from "../controllers/shop.controllers.js";
 import { verifyJWTShop } from "../middlewares/auth.middlewares.js";
 
@@ -29,4 +33,9 @@ router.put(
   verifyJWTShop, // Ensure shop is authenticated
   updateProductAvailability
 );
+
+router.get("/registered", getRegisteredShops);
+router.post("/approve", approveShop);
+router.get("/get-all-shops",getAllShop)
+router.get("/search",searchShop)
 export default router;
