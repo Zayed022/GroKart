@@ -2,6 +2,7 @@ import { Shop } from "../models/shop.model.js";
 import { Order } from "../models/order.models.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
+
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const shop = await Shop.findById(userId);
@@ -323,30 +324,40 @@ const getCompletedOrdersByShops = async (req, res) => {
 
 
 const updateProductAvailability = asyncHandler(async (req, res) => {
-  const shopId = req.shop._id; // Assuming you attach shop info after auth
+  const shopId = req.shop._id; // Assuming shop is attached in auth middleware
   const { orderId } = req.params;
-  const { productName, available } = req.body;
+  const { productId, available } = req.body;
 
-  if (!productName || typeof available !== 'boolean') {
-    return res.status(400).json({ message: 'Invalid product data' });
+  if (!productId || typeof available !== "boolean") {
+    return res.status(400).json({ message: "Invalid product data" });
   }
 
-  const order = await Order.findOne({ _id: orderId });
+  const order = await Order.findById(orderId);
   if (!order) {
-    return res.status(404).json({ message: 'Order not found' });
+    return res.status(404).json({ message: "Order not found" });
   }
 
-  const product = order.items.find((item) => item.name === productName);
+  const product = order.items.find(
+    (item) => item.productId.toString() === productId
+  );
   if (!product) {
-    return res.status(404).json({ message: 'Product not found in this order' });
+    return res.status(404).json({ message: "Product not found in this order" });
   }
 
-  // Add or update the availability status on the item
   product.isAvailable = available;
-
   await order.save();
 
-  res.status(200).json({ message: 'Product availability updated successfully' });
+  // ✅ Emit real-time event to clients (admin)
+  io.emit("product-availability-updated", {
+    orderId: order._id.toString(),
+    productId: product.productId.toString(),
+    productName: product.name,
+    isAvailable: product.isAvailable,
+  });
+
+  res
+    .status(200)
+    .json({ message: "Product availability updated successfully" });
 });
 
 const getRegisteredShops = async (req, res) => {

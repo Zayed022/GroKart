@@ -731,7 +731,8 @@ const getOrderById = async (req, res) => {
 
     const order = await Order.findById(orderId)
       .populate("customerId",  "name email phone")
-      .populate("assignedTo",  "name email phone");
+      .populate("assignedTo",  "name email phone")
+      .populate("shopAssigned",  "name email phone");
 
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
