@@ -413,17 +413,6 @@ export const createOrderUsingCashfree = async (req, res) => {
 };
 
 
-
-
-
-
-
-
-
-
-        
-  
-
 const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
@@ -461,7 +450,6 @@ const verifyPayment = async (req, res) => {
     res.status(500).json({ error: "Error verifying payment" });
   }
 };
-
 
 const placeOrder = async (req, res) => {
   try {

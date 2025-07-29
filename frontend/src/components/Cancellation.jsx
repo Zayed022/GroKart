@@ -39,6 +39,10 @@ export default function CancellationRefundPolicy() {
             <li>
               <strong>Refund Timeline:</strong> Approved refunds will be processed within <strong>1–2 business days</strong> and credited to your original payment method.
             </li>
+            <p className="text-sm text-gray-400 mt-6">
+  GroKart reserves the right to update or modify this policy at any time without prior notice. For any questions or concerns, please contact us at <a href="mailto:support@grokart.in" className="text-blue-500 underline">grokart.co@gmail.com</a>.
+</p>
+
           </ul>
         </section>
       </div>
