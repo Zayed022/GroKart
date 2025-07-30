@@ -256,6 +256,26 @@ const getProductsBySubCategory = async (req, res) => {
   }
 };
 
+const getHomePageProducts = async (req, res) => {
+  try {
+    const subCategories = await Product.distinct('subCategory');
+    const limit = parseInt(req.query.limit) || 10;
+
+    const result = {};
+
+    for (const subCategory of subCategories) {
+      const products = await Product.find({ subCategory }).limit(limit);
+      result[subCategory] = products;
+    }
+
+    return res.status(200).json({ message: "Homepage products fetched", data: result });
+  } catch (error) {
+    console.error("Error fetching homepage products:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 
 const getProductsByMiniCategory = async (req, res) => {
   const { miniCategory } = req.params;
@@ -454,4 +474,5 @@ export {
   updateStock,
   resetAllStock,
   setStockToEightIfZeroOrLess,
+  getHomePageProducts,
 };
