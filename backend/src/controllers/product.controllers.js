@@ -166,8 +166,10 @@ const getProducts = async (req, res) => {
       maxPrice,
       sort,
     } = req.query;
+
     page = parseInt(page);
     limit = parseInt(limit);
+
     let filter = {};
 
     if (search) {
@@ -176,7 +178,6 @@ const getProducts = async (req, res) => {
     if (category) {
       filter.category = category;
     }
-
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = parseInt(minPrice);
@@ -191,11 +192,14 @@ const getProducts = async (req, res) => {
     } else if (sort === "newest") {
       sortOptions.createdAt = -1;
     }
+
     const products = await Product.find(filter)
       .sort(sortOptions)
       .skip((page - 1) * limit)
       .limit(limit);
-    const totalProducts = await Product.countDocuments();
+
+    const totalProducts = await Product.countDocuments(filter);
+
     res.status(200).json({
       totalPages: Math.ceil(totalProducts / limit),
       currentPage: page,
@@ -204,10 +208,11 @@ const getProducts = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      error: "An error occured while fetching products",
+      error: "An error occurred while fetching products",
     });
   }
 };
+
 
 const getProductsByCategory = async (req, res) => {
   const category = req.params;
@@ -230,17 +235,27 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
-const getProductsBySubCatgeory = async (req, res) => {
-  const { subCategory } = req.params;
-  if (!subCategory) {
-    return res.status(401).json({ message: "Sub-category is required" });
+const getProductsBySubCategory = async (req, res) => {
+  try {
+    const { subCategory } = req.params;
+
+    if (!subCategory) {
+      return res.status(400).json({ message: "Sub-category is required" });
+    }
+
+    const products = await Product.find({ subCategory });
+
+    if (!products.length) {
+      return res.status(404).json({ message: "No products found for this sub-category" });
+    }
+
+    return res.status(200).json({ message: "Products fetched", products });
+  } catch (error) {
+    console.error("Error fetching products by sub-category:", error);
+    return res.status(500).json({ message: "Server error" });
   }
-  const products = await Product.find({ subCategory });
-  if (products.length == 0) {
-    return res.status(201).json({ message: "Product not found" });
-  }
-  return res.status(201).json({ message: "Products fetched", products });
 };
+
 
 const getProductsByMiniCategory = async (req, res) => {
   const { miniCategory } = req.params;
@@ -429,7 +444,7 @@ export {
   deleteProduct,
   getProducts,
   getProductsByCategory,
-  getProductsBySubCatgeory,
+  getProductsBySubCategory,
   getProductsByMiniCategory,
   getAllCategories,
   getAllSubCategories,

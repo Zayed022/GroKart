@@ -17,7 +17,8 @@ import { addProduct,
 
     updateStock,
     resetAllStock,
-    setStockToEightIfZeroOrLess} from "../controllers/product.controllers.js";
+    setStockToEightIfZeroOrLess,
+    getProductsBySubCategory} from "../controllers/product.controllers.js";
 
 const router = Router()
 
@@ -37,7 +38,7 @@ router.route("/products/:id").put(updateProductDetails)
 router.route("/delete-product").delete(deleteProduct)
 router.route("/").get(getProducts)
 router.route("/category/:category").get(getProductsByCategory)
-router.route("/subCategory/:subCategory").get(getProductsBySubCatgeory)
+router.route("/subCategory/:subCategory").get(getProductsBySubCategory)
 router.route("/minicategory/:").get(getProductsByMiniCategory)
 router.route("/get-all-categories").get(getAllCategories)
 router.route("/get-all-sub-categories").get(getAllSubCategories)
