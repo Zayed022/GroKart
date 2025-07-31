@@ -51,6 +51,6 @@ router.put("/stock", updateStock);
 router.put("/reset-stock", resetAllStock);
 router.put("/set-stock-to-eight", setStockToEightIfZeroOrLess);
 router.get("/home-page-products",getHomePageProducts)
-router.put("/zero-stock/:subCategory", verifyJWTAdmin, setStockZeroBySubCategory);
+router.put("/zero-stock/:subCategory", setStockZeroBySubCategory);
 
 export default router
