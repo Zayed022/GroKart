@@ -1,6 +1,7 @@
 import { Product } from "../models/product.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 const addProduct = async (req, res) => {
   const {
@@ -455,6 +456,22 @@ const setStockToEightIfZeroOrLess = async (req, res) => {
   }
 };
 
+const setStockZeroBySubCategory = asyncHandler(async (req, res) => {
+  const { subCategory } = req.params;
+
+  if (!subCategory) {
+    return res.status(400).json({ message: "SubCategory is required" });
+  }
+
+  const result = await Product.updateMany(
+    { subCategory: subCategory },
+    { $set: { stock: 0 } }
+  );
+
+  res.status(200).json({
+    message: `Stock set to 0 for ${result.modifiedCount} product(s) in subCategory '${subCategory}'`,
+  });
+});
 
 export {
   addProduct,
@@ -475,4 +492,5 @@ export {
   resetAllStock,
   setStockToEightIfZeroOrLess,
   getHomePageProducts,
+  setStockZeroBySubCategory,
 };
