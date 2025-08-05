@@ -227,7 +227,7 @@ const updateUserProfile = asyncHandler(async(req,res)=>{
 
 const deleteUserAccount = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user?._id;  // assuming verifyJWT middleware has set req.user
 
     const user = await User.findByIdAndDelete(userId);
 
@@ -241,6 +241,7 @@ const deleteUserAccount = async (req, res) => {
     res.status(500).json({ error: "An error occurred while deleting the user" });
   }
 };
+
 
 
 const searchUser = async (req, res) => {

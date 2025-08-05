@@ -1,29 +1,35 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
-const DeleteComponent = ({ userId, onLogout }) => {
+const DeleteComponent = ({ onLogout }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState({ type: '', message: '' });
+  const [response, setResponse] = useState({ type: "", message: "" });
 
-  const handleDelete = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.delete("https://grokart-2.onrender.com/api/v1/users/profile");
-      setResponse({ type: 'success', message: res.data.message });
-      setTimeout(() => {
-        setLoading(false);
-        onLogout(); // You should redirect or logout here
-      }, 2000);
-    } catch (err) {
-      setResponse({
-        type: 'error',
-        message: err.response?.data?.error || 'Something went wrong!',
-      });
-      setLoading(false);
-    }
-  };
+const handleDelete = async () => {
+  try {
+    setLoading(true);
+
+    const res = await axios.delete("https://grokart-2.onrender.com/api/v1/users/profile", {
+      withCredentials: true, // ✅ THIS IS ENOUGH
+    });
+
+    setResponse({ type: "success", message: res.data.message || "Account deleted successfully." });
+
+    setTimeout(() => {
+      localStorage.clear(); // Optional
+      onLogout();
+    }, 2000);
+  } catch (err) {
+    setResponse({
+      type: "error",
+      message: err.response?.data?.message || "Something went wrong while deleting your account.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto bg-white shadow-xl rounded-xl p-6 mt-10">
@@ -35,7 +41,7 @@ const DeleteComponent = ({ userId, onLogout }) => {
       {response.message && (
         <div
           className={`mb-4 p-3 rounded-lg text-sm ${
-            response.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            response.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
           }`}
         >
           {response.message}
@@ -47,7 +53,7 @@ const DeleteComponent = ({ userId, onLogout }) => {
         onClick={() => setShowConfirm(true)}
         disabled={loading}
       >
-        {loading ? 'Deleting...' : 'Delete My Account'}
+        {loading ? "Processing..." : "Delete My Account"}
       </button>
 
       <AnimatePresence>
@@ -81,7 +87,7 @@ const DeleteComponent = ({ userId, onLogout }) => {
                   onClick={handleDelete}
                   disabled={loading}
                 >
-                  {loading ? 'Deleting...' : 'Confirm'}
+                  {loading ? "Deleting..." : "Confirm"}
                 </button>
               </div>
             </motion.div>

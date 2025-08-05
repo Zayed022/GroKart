@@ -63,14 +63,16 @@ const Login = () => {
       console.log("Server response:", response.data);
 
       // Store user info if needed
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userId", response.data.user._id);
-      localStorage.setItem("email", response.data.user.email);
-      login(token, res.data.user);
+      if (response.data.token) {
+  localStorage.setItem("user", JSON.stringify(response.data.user));
+  localStorage.setItem("token", response.data.token);
+  localStorage.setItem("userId", response.data.user._id);
+  localStorage.setItem("email", response.data.user.email);
+  navigate("/");
+} else {
+  setError("Login failed: No token received.");
+}
 
-      // Redirect to home/dashboard
-      navigate("/");
     } catch (error) {
       console.error("Google login failed:", error);
       setError("Google login failed. Please try again.");
