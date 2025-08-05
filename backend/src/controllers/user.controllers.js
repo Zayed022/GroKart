@@ -227,8 +227,7 @@ const updateUserProfile = asyncHandler(async(req,res)=>{
 
 const deleteUserAccount = async (req, res) => {
   try {
-    // Get userId from authenticated user (assumes JWT middleware sets req.user)
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const user = await User.findByIdAndDelete(userId);
 
