@@ -172,8 +172,8 @@ function Navbar() {
                         <button
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
                           onClick={() => {
-                            localStorage.removeItem("token");
-                            window.location.href = "/login";
+                           
+                            window.location.href = "/logout";
                           }}
                         >
                           Log Out

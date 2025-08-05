@@ -31,6 +31,7 @@ import TrackOrder from "./components/OrderTracker";
 import LocationFetcher from "./components/LocationFetcher";
 import AccountPrivacy from "./components/AccountPrivacy";
 import EGiftCard from "./components/EGiftCard";
+import Logout from "./pages/auth/Logout";
 
 
 
@@ -48,6 +49,7 @@ function App() {
     <Routes>
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/logout" element={<Logout />} />
       
       <Route path="/" element={
         <ProtectedRoute>
