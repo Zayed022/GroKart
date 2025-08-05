@@ -225,18 +225,24 @@ const updateUserProfile = asyncHandler(async(req,res)=>{
   .json(new ApiResponse(200,user,"Account details updated successfully"))
 });
 
-const deleteUserAccount = async(req,res)=>{
-  try{
+const deleteUserAccount = async (req, res) => {
+  try {
+    // Get userId from authenticated user (assumes JWT middleware sets req.user)
+    const userId = req.user.id;
+
     const user = await User.findByIdAndDelete(userId);
-    if(!user){
-      return res.status(404).json({error:"User not found"});
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-    res.status(200).json({message:"Account deleted successfully"})
+
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "An error occurred while deleting the user" });
   }
-  catch(error){
-    res.status(500).json({error:"An error occurred while deleting the user"})
-  }
-}
+};
+
 
 const searchUser = async (req, res) => {
   const { query } = req.query;

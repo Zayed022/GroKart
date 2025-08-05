@@ -32,6 +32,7 @@ import LocationFetcher from "./components/LocationFetcher";
 import AccountPrivacy from "./components/AccountPrivacy";
 import EGiftCard from "./components/EGiftCard";
 import Logout from "./pages/auth/Logout";
+import DeleteComponent from "./components/DeleteComponent";
 
 
 
@@ -50,6 +51,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />
+      <Route path="/delete-account" element={<DeleteComponent/>} />
       
       <Route path="/" element={
         <ProtectedRoute>
