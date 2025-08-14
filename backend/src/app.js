@@ -56,6 +56,9 @@ app.use("/api/v1/category",categoryRoute);
 import shopRoute from './routes/shop.routes.js'
 app.use("/api/v1/shop",shopRoute);
 
+import areaRoute from './routes/area.routes.js'
+app.use("/api/v1/area",areaRoute);
+
 
 
 export {app}
