@@ -1,0 +1,15 @@
+{
+  "name": "Grokart",
+  "short_name": "Grokart",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6f00",
+  "icons": [
+    {
+      "src": "/logo3.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
