@@ -510,8 +510,8 @@ const getEarningsAndDeliveryHistory = async (req, res) => {
     // Calculate earnings and incentives per day
     const history = Object.entries(dailyStats).map(([date, data]) => {
       const numOrders = data.orders.length;
-      const baseEarnings = numOrders * 15;
-      const incentive = Math.floor(numOrders / 6) * 30;
+      const baseEarnings = numOrders * 20;
+      const incentive = 0;
       const totalForDay = baseEarnings + incentive;
 
       totalDeliveries += numOrders;
@@ -527,7 +527,7 @@ const getEarningsAndDeliveryHistory = async (req, res) => {
           _id: order._id,
           deliveredAt: order.deliveredAt,
           amount: order.totalAmount,
-          commission: 15, // fixed per delivery
+          commission: 20, // fixed per delivery
           address: order.deliveryAddress,
         })),
       };
@@ -586,7 +586,8 @@ const getDashboardStats = async (req, res) => {
     deliveredAt: { $gte: startOfDay },
   });
 
-  const incentive = Math.floor(todayDeliveries.length / 6) * 30;
+  //const incentive = Math.floor(todayDeliveries.length / 6) * 30;
+  const incentive = 0;
 
   const totalEarnings = todayDeliveries.reduce(
     (sum, order) => sum + order.deliveryCharge,
@@ -632,8 +633,8 @@ const getDeliveryReports = async (req, res) => {
       0
     );
 
-    const incentive = Math.floor(totalDeliveries / 6) * 30;
-
+    //const incentive = Math.floor(totalDeliveries / 6) * 30;
+    const incentive = 0;
     res.status(200).json({
       success: true,
       range,

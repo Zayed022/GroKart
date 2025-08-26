@@ -139,7 +139,7 @@ paymentStatusHistory: [
 
     shopAssigned:{
       type: mongoose.Schema.Types.ObjectId,
-      ref:"Shop",
+      ref: "Shop",
     },
 
     paymentToAdmin: {

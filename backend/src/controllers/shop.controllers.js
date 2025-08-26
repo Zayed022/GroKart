@@ -193,7 +193,7 @@ const assignOrderToShop = async (req, res) => {
     
 
     // Assign the order
-    order.assignedTo = shopId;
+    order.shopAssigned = shopId;
     order.status = "Assigned"; // Optional: update status
     await order.save();
 
