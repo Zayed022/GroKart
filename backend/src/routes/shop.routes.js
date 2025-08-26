@@ -13,7 +13,11 @@ import {
   getRegisteredShops,
   approveShop,
   getAllShop,
-  searchShop
+  searchShop,
+  getShopEarningsAndOrderHistory,
+  getCompletedOrdersByShop,
+  getCompletedOrdersByShopForAdmin,
+  getShopDailyEarnings
 } from "../controllers/shop.controllers.js";
 import { verifyJWTShop } from "../middlewares/auth.middlewares.js";
 
@@ -37,5 +41,9 @@ router.put(
 router.get("/registered", getRegisteredShops);
 router.post("/approve", approveShop);
 router.get("/get-all-shops",getAllShop)
+router.get("/daily-earnings/:shopId", getShopDailyEarnings);
 router.get("/search",searchShop)
+router.get("/earnings", verifyJWTShop, getShopEarningsAndOrderHistory);
+router.get("/completed-orders", verifyJWTShop, getCompletedOrdersByShop);
+router.get("/completed-by-shop", getCompletedOrdersByShopForAdmin);
 export default router;

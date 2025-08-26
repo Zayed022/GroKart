@@ -21,6 +21,8 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+
+//DP
 const registerDeliveryPartner = async (req, res) => {
   try {
     const {
@@ -115,6 +117,7 @@ const registerDeliveryPartner = async (req, res) => {
   }
 };
 
+//DP
 const deliveryPartnerLogin = async (req, res) => {
   const { email, password } = req.body;
 
@@ -174,6 +177,8 @@ const deliveryPartnerLogin = async (req, res) => {
   }
 };
 
+
+//DP
 const logoutDeliveryPartner = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id; // Assuming protected route with auth
@@ -200,6 +205,8 @@ const logoutDeliveryPartner = async (req, res) => {
   }
 };
 
+
+//DP
 const getMyDetails = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id; // Assuming you attach this in your auth middleware
@@ -219,6 +226,8 @@ const getMyDetails = async (req, res) => {
   }
 };
 
+
+//DP
 const updateMyDetails = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id;
@@ -264,6 +273,8 @@ const updateMyDetails = async (req, res) => {
   }
 };
 
+
+//Admin
 const getAllDeliveryPartner = async (req, res) => {
   try {
     const deliveryPartners = await DeliveryPartner.find({});
@@ -281,6 +292,8 @@ const getAllDeliveryPartner = async (req, res) => {
   }
 };
 
+
+//Admin
 const getAvailableDeliveryPartners = async (req, res) => {
   try {
     const availablePartners = await DeliveryPartner.find({
@@ -297,6 +310,8 @@ const getAvailableDeliveryPartners = async (req, res) => {
   }
 };
 
+
+//Admin
 const assignOrderToDeliveryPartner = async (req, res) => {
   const { orderId, deliveryPartnerId } = req.body;
 
@@ -361,6 +376,8 @@ const assignOrderToDeliveryPartner = async (req, res) => {
   }
 };
 
+
+//Admin
 const getAssignedOrdersForDeliveryPartner = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id; // set by verifyJWTDelivery middleware
@@ -382,6 +399,8 @@ const getAssignedOrdersForDeliveryPartner = async (req, res) => {
   }
 };
 
+
+//DP
 const updateOrderStatusByDeliveryPartner = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id;
@@ -431,6 +450,8 @@ const updateOrderStatusByDeliveryPartner = async (req, res) => {
   }
 };
 
+
+//DP
 const updatePaymentStatusByDeliveryPartner = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id;
@@ -478,6 +499,8 @@ const updatePaymentStatusByDeliveryPartner = async (req, res) => {
   }
 };
 
+
+//DP
 const getEarningsAndDeliveryHistory = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id;
@@ -544,6 +567,8 @@ const getEarningsAndDeliveryHistory = async (req, res) => {
   }
 };
 
+
+//Admin
 const getCompletedOrdersByDeliveryPartner = async (req, res) => {
   try {
     const deliveryPartnerId = req.delivery._id;

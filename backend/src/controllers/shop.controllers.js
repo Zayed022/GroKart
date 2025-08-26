@@ -454,6 +454,220 @@ const searchShop = async (req, res) => {
 };
 
 
+const getShopEarningsAndOrderHistory = async (req, res) => {
+  try {
+    const shopId = req.shop._id;
+
+    // Fetch all delivered orders assigned to this shop
+    const deliveredOrders = await Order.find({
+      shopAssigned: shopId,
+      status: "Delivered",
+    }).sort({ updatedAt: -1 });
+
+    // Group orders by date
+    const dailyStats = {};
+    let totalOrders = 0;
+    let totalEarnings = 0;
+
+    deliveredOrders.forEach((order) => {
+      const deliveredDate = new Date(order.deliveredAt || order.updatedAt);
+      if (isNaN(deliveredDate)) return;
+
+      const dateKey = deliveredDate.toISOString().split("T")[0];
+
+      if (!dailyStats[dateKey]) {
+        dailyStats[dateKey] = { orders: [] };
+      }
+
+      dailyStats[dateKey].orders.push(order);
+    });
+
+    // Calculate earnings per day
+    const history = Object.entries(dailyStats).map(([date, data]) => {
+      const numOrders = data.orders.length;
+
+      let dailyEarnings = 0;
+
+      const orders = data.orders.map((order) => {
+        const shopEarning = order.totalAmount - 25; // admin commission
+        dailyEarnings += shopEarning;
+
+        return {
+          _id: order._id,
+          deliveredAt: order.deliveredAt || order.updatedAt,
+          amount: order.totalAmount,
+          shopEarning,
+          customer: order.customerId,
+          address: order.addressDetails || order.address,
+        };
+      });
+
+      totalOrders += numOrders;
+      totalEarnings += dailyEarnings;
+
+      return {
+        date,
+        numberOfOrders: numOrders,
+        dailyEarnings,
+        orders,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      totalOrders,
+      totalEarnings,
+      dailyHistory: history,
+    });
+  } catch (error) {
+    console.error("Error fetching shop earnings and order history:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getCompletedOrdersByShop = async (req, res) => {
+  try {
+    const shopId = req.shop._id;
+
+    const completedOrders = await Order.find({
+      shopAssigned: shopId,
+      status: "Delivered",
+    }).sort({ deliveredAt: -1 });
+
+    const formattedOrders = completedOrders.map((order) => ({
+      _id: order._id,
+      totalAmount: order.totalAmount,
+      shopEarning: order.totalAmount - 25, // ✅ add shop earning
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      address: order.address || "N/A",
+      addressDetails: order.addressDetails || {},
+      deliveredAt: order.deliveredAt || order.updatedAt,
+      status: order.status,
+      statusHistory: order.statusHistory || [], // ✅ include progress history
+    }));
+
+    res.status(200).json({
+      count: completedOrders.length,
+      orders: formattedOrders,
+    });
+  } catch (error) {
+    console.error("Error fetching completed orders:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+const getCompletedOrdersByShopForAdmin = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ success: false, message: "Query is required" });
+    }
+
+    const searchRegex = new RegExp(query, "i");
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(query);
+
+    // Find matching shops
+    const shops = await Shop.find({
+      $or: [
+        ...(isObjectId ? [{ _id: query }] : []),
+        { name: { $regex: searchRegex } },
+        { email: { $regex: searchRegex } },
+      ],
+    });
+
+    if (shops.length === 0) {
+      return res.status(404).json({ success: false, message: "No matching shop found." });
+    }
+
+    const shopIds = shops.map((s) => s._id);
+
+    const orders = await Order.find({
+      shopAssigned: { $in: shopIds },
+      status: "Delivered",
+    })
+      .populate("customerId", "name email phone")
+      .populate("shopAssigned", "name email")
+      .sort({ updatedAt: -1 });
+
+    if (orders.length === 0) {
+      return res.status(404).json({ success: false, message: "No completed orders found for the given shop." });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Error fetching completed orders:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const getShopDailyEarnings = async (req, res) => {
+  try {
+    const { shopId } = req.params;
+    let { date } = req.query;
+
+    if (!shopId) {
+      return res.status(400).json({ success: false, message: "Shop ID is required" });
+    }
+
+    // Default to today's date if not provided
+    const today = new Date();
+    const targetDate = date ? new Date(date) : today;
+
+    // Start and end of day
+    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+
+    // Fetch completed orders of shop for that date
+    const orders = await Order.find({
+      shopAssigned: shopId,
+      status: "Delivered",
+      updatedAt: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    let totalOrders = orders.length;
+    let grossAmount = 0;
+    let shopReceivedTotal = 0;
+    let commissionTotal = 0;
+
+    orders.forEach((order) => {
+      const fixedCharge = 25;
+      const netAmount = order.totalAmount - fixedCharge;
+      const commission = netAmount * 0.05;
+      const shopReceived = netAmount - commission;
+
+      grossAmount += order.totalAmount;
+      commissionTotal += commission;
+      shopReceivedTotal += shopReceived;
+    });
+
+    return res.status(200).json({
+      success: true,
+      date: startOfDay.toISOString().split("T")[0],
+      shopId,
+      totalOrders,
+      grossAmount,
+      commissionTotal: commissionTotal.toFixed(2),
+      shopReceivedTotal: shopReceivedTotal.toFixed(2),
+    });
+  } catch (error) {
+    console.error("❌ Error in getShopDailyEarnings:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching daily earnings",
+    });
+  }
+};
+
+
+
+
 export {
     registerShop,
     loginShop,
@@ -468,5 +682,9 @@ export {
     getRegisteredShops,
     approveShop,
     getAllShop,
-    searchShop
+    searchShop,
+    getShopEarningsAndOrderHistory,
+    getCompletedOrdersByShop,
+    getCompletedOrdersByShopForAdmin,
+    getShopDailyEarnings,
 }
