@@ -934,14 +934,31 @@ const getPlacedOrders = async (req, res) => {
   try {
     const placedOrders = await Order.find({ status: "Placed" })
       .populate("customerId", "name email phone") // fetch customer details
-      .populate("items.productId", "name price images") // fetch product details
+      .populate("items.productId", "name price image") // fetch product details
       .populate("assignedTo", "name phone isAvailable") // fetch delivery partner if assigned
-      .sort({ createdAt: -1 }); // latest first
+      .populate("shopAssigned", "name address phone") // fetch shop details if assigned
+      .sort({ createdAt: -1 }) // latest first
+      .lean(); // lean to get plain JSON objects
 
     res.status(200).json({
       success: true,
       count: placedOrders.length,
-      orders: placedOrders,
+      orders: placedOrders.map(order => ({
+        _id: order._id,
+        customer: order.customerId,
+        items: order.items,
+        totalAmount: order.totalAmount,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        address: order.address, // ✅ include address
+        addressDetails: order.addressDetails, // ✅ include full details object
+        assignedTo: order.assignedTo,
+        shopAssigned: order.shopAssigned,
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
+        notes: order.notes
+      })),
     });
   } catch (error) {
     console.error("Error fetching placed orders:", error);
@@ -951,6 +968,7 @@ const getPlacedOrders = async (req, res) => {
     });
   }
 };
+
 
 
 
