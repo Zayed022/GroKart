@@ -35,46 +35,58 @@ function chunk(arr, size = 500) {
 const notifyAll = async (req, res) => {
   try {
     const { title, body, image, data } = req.body;
-    if (!title || !body) return res.status(400).json({ error: 'title and body are required' });
+    if (!title || !body) return res.status(400).json({ error: "title and body are required" });
 
     const tokensDocs = await DeviceToken.find({}, { token: 1 }).lean();
-    const tokens = tokensDocs.map(d => d.token);
-    if (!tokens.length) return res.json({ ok: true, sent: 0, message: 'no tokens' });
+    const tokens = tokensDocs.map((d) => d.token);
+    if (!tokens.length) return res.json({ ok: true, sent: 0, message: "no tokens" });
 
     const batches = chunk(tokens, 500);
-    let successCount = 0, failureCount = 0, toDelete = [];
+    let successCount = 0,
+      failureCount = 0,
+      toDelete = [];
 
     const results = await Promise.allSettled(
-      batches.map(batch => {
+      batches.map((batch) => {
         const message = {
-          notification: { title, body, ...(image ? { image } : {}) },
-          data: data ? Object.fromEntries(
-            Object.entries(data).map(([k, v]) => [String(k), String(v)])
-          ) : {},
+          notification: {
+            title,
+            body,
+            ...(image ? { image } : {}),
+          },
+          data: data
+            ? Object.fromEntries(Object.entries(data).map(([k, v]) => [String(k), String(v)]))
+            : {},
           tokens: batch,
           android: {
-            priority: 'high',
-            notification: { sound: 'default', channelId: 'default' },
+            priority: "high",
+            notification: {
+              sound: "default",
+              channelId: "default-channel-id", // ✅ match app
+            },
           },
         };
         return admin.messaging().sendEachForMulticast(message);
       })
     );
 
-    results.forEach(r => {
-      if (r.status === 'fulfilled') {
+    results.forEach((r, batchIndex) => {
+      if (r.status === "fulfilled") {
         successCount += r.value.successCount;
         failureCount += r.value.failureCount;
+
         r.value.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const code = resp.error?.code;
-            if (['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(code)) {
-              toDelete.push(r.value.responses[idx]);
+            if (
+              ["messaging/registration-token-not-registered", "messaging/invalid-registration-token"].includes(code)
+            ) {
+              toDelete.push(batches[batchIndex][idx]); // ✅ delete the token itself
             }
           }
         });
       } else {
-        console.error('Batch failed', r.reason);
+        console.error("Batch failed", r.reason);
       }
     });
 
@@ -84,10 +96,11 @@ const notifyAll = async (req, res) => {
 
     return res.json({ ok: true, successCount, failureCount, removedInvalid: toDelete.length });
   } catch (e) {
-    console.error('notifyAll error', e);
-    return res.status(500).json({ error: 'internal_error' });
+    console.error("notifyAll error", e);
+    return res.status(500).json({ error: "internal_error" });
   }
 };
+
 
 
 /** Targeted send (optional) */

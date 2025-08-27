@@ -17,6 +17,7 @@ const USPs = [
 const Login = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ const Login = () => {
     try {
       const { data } = await axios.post(
         "https://grokart-2.onrender.com/api/v1/users/login",
-        { email, password },
+        { phone, password },
         { withCredentials: true }
       );
 
@@ -122,13 +123,13 @@ const Login = () => {
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Email
+                  Phone
                 </label>
                 <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="phone"
+                  placeholder="9784568715"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   required
                   className="w-full mt-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                 />
@@ -157,12 +158,7 @@ const Login = () => {
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError("Google login failed")}
-              />
-            </div>
+            
 
             <p className="text-sm text-gray-700 dark:text-gray-400 mt-5 text-center">
               Don't have an account?{" "}
