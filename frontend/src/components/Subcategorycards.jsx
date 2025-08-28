@@ -38,6 +38,12 @@ function Subcategorycards() {
                                         </div>
                                     </Link>
                                 ))}
+                                <Link to="/buy-anything">
+    <div className="bg-pink-50 shadow-md p-4 rounded-lg text-center cursor-pointer hover:bg-pink-100 transition border border-dashed border-pink-400">
+      <p className="font-semibold text-pink-600">✨ Buy Anything</p>
+      <p className="text-xs text-gray-500">Order items not listed</p>
+    </div>
+  </Link>
                             </div>
                         </div>
                     ))

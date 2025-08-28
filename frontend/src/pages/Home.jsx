@@ -16,6 +16,7 @@ import FruitsBanner from "../components/Fruits&VegetablesBanner";
 import MunchiesBanner from "../components/MunchiesBanner";
 import BannersRow from "../components/Fruits&VegetablesBanner";
 import BannerSecond from "../components/MunchiesBanner";
+import BuyAnythingComponent from "../components/BuyAnythingComponent";
 
 const Home = () => {
   const { getTotalQuantity } = useContext(CartContext);
@@ -40,6 +41,7 @@ const Home = () => {
       <Hero />
 
       <CsCards />
+      <BuyAnythingComponent/>
       
       <Footer />
 

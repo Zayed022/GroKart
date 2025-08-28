@@ -8,6 +8,8 @@ const orderSchema = new Schema(
       required: true,
     },
 
+    
+
     items: [
       {
         productId: {
@@ -123,6 +125,8 @@ paymentStatusHistory: [
       type: Object,
       default: {},
     },
+
+    
 
     notes: {
       type: Object,

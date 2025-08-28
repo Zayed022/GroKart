@@ -34,6 +34,7 @@ import EGiftCard from "./components/EGiftCard";
 import Logout from "./pages/auth/Logout";
 import DeleteComponent from "./components/DeleteComponent";
 import AIChatbot from "./components/AIChatbot";
+import BuyAnythingPage from "./components/BuyAnythingPage";
 
 
 
@@ -85,7 +86,8 @@ function App() {
       <Route path = "/track-order" element = {<TrackOrder/>}/>
       <Route path = "/location-fetch" element = {<LocationFetcher/>}/>
       <Route path = "/account-privacy" element = {<AccountPrivacy/>}/>
-       <Route path = "/gifts" element = {<EGiftCard/>}/>
+      <Route path = "/gifts" element = {<EGiftCard/>}/>
+      <Route path = "/buy-anything" element = {<BuyAnythingPage/>}/>
 
       
       

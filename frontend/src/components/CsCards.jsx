@@ -106,6 +106,7 @@ function CsCards() {
                   <div key={subcategory._id}>{imageComponent}</div>
                 );
               })}
+              
             </div>
           </div>
         ))}

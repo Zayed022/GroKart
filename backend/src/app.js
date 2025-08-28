@@ -65,6 +65,9 @@ app.use("/api/v1/ai",aiAgentRoute);
 import pushRoute from "./routes/push.routes.js"
 app.use("/api/v1/push",pushRoute);
 
+import wishListRoute from "./routes/wishList.routes.js"
+app.use("/api/v1/wishList",wishListRoute);
+
 
 
 
