@@ -5,24 +5,30 @@ import { DeviceToken } from "../models/DeviceToken.model.js";
 /** Save / update a device token */
 const saveToken = async (req, res) => {
   try {
-    console.log("📥 saveToken hit with body:", req.body);
-    const { token, platform = 'android', meta, userId } = req.body;
+    const { token, platform = "android", meta, userId } = req.body;
+    if (!token) return res.status(400).json({ error: "token is required" });
 
-    if (!token) return res.status(400).json({ error: 'token is required' });
+    // cleanup old tokens of same user
+    if (userId) {
+      await DeviceToken.deleteMany({ user: userId, token: { $ne: token } });
+    }
 
-    // upsert by token
+    const update = { platform, meta, lastSeenAt: new Date() };
+    if (userId) update.user = userId;
+
     const doc = await DeviceToken.findOneAndUpdate(
       { token },
-      { user: userId || undefined, platform, meta, lastSeenAt: new Date() },
+      update,
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
     return res.json({ ok: true, tokenId: doc._id });
   } catch (e) {
-    console.error('saveToken error', e);
-    return res.status(500).json({ error: 'internal_error' });
+    console.error("saveToken error", e);
+    return res.status(500).json({ error: "internal_error" });
   }
 };
+
 
 /** Helper: chunk array (FCM sendMulticast limit = 500) */
 function chunk(arr, size = 500) {
@@ -40,6 +46,7 @@ const notifyAll = async (req, res) => {
     const tokensDocs = await DeviceToken.find({}, { token: 1 }).lean();
     const tokens = tokensDocs.map((d) => d.token);
     if (!tokens.length) return res.json({ ok: true, sent: 0, message: "no tokens" });
+    
 
     const batches = chunk(tokens, 500);
     let successCount = 0,
@@ -86,7 +93,7 @@ const notifyAll = async (req, res) => {
           }
         });
       } else {
-        console.error("Batch failed", r.reason);
+        console.log("Batch failed", r.reason);
       }
     });
 
@@ -96,7 +103,7 @@ const notifyAll = async (req, res) => {
 
     return res.json({ ok: true, successCount, failureCount, removedInvalid: toDelete.length });
   } catch (e) {
-    console.error("notifyAll error", e);
+    console.log("notifyAll error", e);
     return res.status(500).json({ error: "internal_error" });
   }
 };
@@ -119,7 +126,7 @@ const notifyUsers = async (req, res) => {
       notification: { title, body, ...(image ? { image } : {}) },
       data: data ? Object.fromEntries(Object.entries(data).map(([k, v]) => [String(k), String(v)])) : {},
       tokens,
-      android: { priority: 'high', notification: { sound: 'default', channelId: 'default' } },
+      android: { priority: 'high', notification: { sound: 'default', channelId: 'default-channel-id' } },
     });
 
     return res.json({ ok: true, successCount: resp.successCount, failureCount: resp.failureCount });
