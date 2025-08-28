@@ -41,7 +41,7 @@ function BuyAnythingPage() {
       };
 
       const { data } = await axios.post(
-        "http://localhost:2020/api/v1/wishlist/create-wishList-order",
+        "https://grokart-2.onrender.com/api/v1/wishlist/create-wishList-order",
         body,
         {
           headers: { Authorization: `Bearer ${token}` },
