@@ -71,6 +71,9 @@ app.use("/api/v1/wishList",wishListRoute);
 import mobileBannerRoute from "./routes/mobileBanner.routes.js"
 app.use("/api/v1/banner",mobileBannerRoute);
 
+import noticeRoute from "./routes/notice.routes.js"
+app.use("/api/v1/notice",noticeRoute);
+
 
 
 
