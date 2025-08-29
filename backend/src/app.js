@@ -68,6 +68,9 @@ app.use("/api/v1/push",pushRoute);
 import wishListRoute from "./routes/wishList.routes.js"
 app.use("/api/v1/wishList",wishListRoute);
 
+import mobileBannerRoute from "./routes/mobileBanner.routes.js"
+app.use("/api/v1/banner",mobileBannerRoute);
+
 
 
 
