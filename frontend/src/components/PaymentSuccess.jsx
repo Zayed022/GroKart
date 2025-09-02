@@ -39,7 +39,7 @@ const PaymentSuccess = () => {
         <div className="space-y-4 text-gray-700">
           <DetailRow label="Order ID" value={orderId || "N/A"} />
           <DetailRow label="Payment Method" value={paymentDetails.order.paymentMethod.toUpperCase()} icon={<CreditCard />} />
-          <DetailRow label="Base Amount" value={`₹${paymentDetails.order.totalAmount - 24}`} />
+          <DetailRow label="Base Amount" value={`₹${paymentDetails.order.totalAmount - 25}`} />
           <DetailRow label="Total Amount" value={<span className="text-green-700 font-bold text-lg">₹{paymentDetails.order.totalAmount}</span>} />
           <DetailRow
             label="Payment Status"

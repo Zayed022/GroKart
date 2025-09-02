@@ -74,6 +74,9 @@ app.use("/api/v1/banner",mobileBannerRoute);
 import noticeRoute from "./routes/notice.routes.js"
 app.use("/api/v1/notice",noticeRoute);
 
+import feeRoute from "./routes/fee.routes.js"
+app.use("/api/v1/fee",feeRoute);
+
 
 
 
