@@ -42,20 +42,26 @@ export const createFeeConfig = async (req, res) => {
   }
 };
 
-// ✅ Get Active FeeConfig
+let cachedFeeConfig = null;
+
 export const getActiveFeeConfig = async (req, res) => {
   try {
-    const feeConfig = await FeeConfig.findOne({ isActive: true });
-    if (!feeConfig) {
-      return res
-        .status(404)
-        .json({ message: "Fee configuration not found" });
+    if (cachedFeeConfig) {
+      return res.json(cachedFeeConfig);
     }
+
+    const feeConfig = await FeeConfig.findOne({ isActive: true }).lean();
+    if (!feeConfig) {
+      return res.status(404).json({ message: "Fee configuration not found" });
+    }
+
+    cachedFeeConfig = feeConfig; // store in memory
     res.json(feeConfig);
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 // ✅ Update existing FeeConfig
 export const updateFeeConfig = async (req, res) => {

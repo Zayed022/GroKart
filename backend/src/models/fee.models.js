@@ -37,10 +37,7 @@ const feeConfigSchema = new Schema(
       default: false,
     },
 
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+     isActive: { type: Boolean, index: true }
   },
   { timestamps: true }
 );
