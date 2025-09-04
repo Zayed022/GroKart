@@ -15,6 +15,7 @@ const Payment = () => {
   const { addOrder } = useContext(OrderContext);
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [codEnabled, setCodEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
 
   // dynamic fees & flags
@@ -30,6 +31,19 @@ const Payment = () => {
   });
 
   const totalItemPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  useEffect(() => {
+  const fetchSettings = async () => {
+    try {
+      const res = await axios.get("https://grokart-2.onrender.com/api/v1/setting/");
+      setCodEnabled(res.data.codEnabled); // ✅ use res.data
+    } catch (err) {
+      console.error("Failed to fetch settings", err);
+      setCodEnabled(false); // fallback
+    }
+  };
+  fetchSettings();
+}, []);
 
   // fetch fee config
   useEffect(() => {
@@ -289,12 +303,21 @@ const Payment = () => {
       </section>
 
       <button
-        onClick={handleCODPayment}
-        disabled={loading}
-        className={`w-full py-3 text-white rounded-xl text-lg font-semibold transition duration-200 ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
-      >
-        {loading ? "Placing Order..." : "Confirm Order Using COD"}
-      </button>
+  onClick={() => {
+    if (!codEnabled) {
+      alert("Something went wrong.");
+      return; 
+    }
+    handleCODPayment();
+  }}
+  disabled={loading}
+  className={`w-full py-3 text-white rounded-xl text-lg font-semibold transition duration-200 
+    ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
+>
+  {loading ? "Placing Order..." : "Confirm Order Using COD"}
+</button>
+
+
     </div>
   );
 };

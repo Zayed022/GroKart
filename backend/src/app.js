@@ -77,6 +77,9 @@ app.use("/api/v1/notice",noticeRoute);
 import feeRoute from "./routes/fee.routes.js"
 app.use("/api/v1/fee",feeRoute);
 
+import settingRoute from "./routes/setting.routes.js"
+app.use("/api/v1/setting",settingRoute);
+
 
 
 
