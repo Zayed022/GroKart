@@ -98,3 +98,16 @@ export const updateWishlistItem = async (req, res) => {
     return res.status(500).json({ error: "Something went wrong" });
   }
 };
+
+export const getAllWishList = async (req, res) => {
+  try {
+    const wishList = await WishList.find()
+      .select("customerId itemName price description image phone notes createdAt updatedAt");
+
+    res.status(200).json(wishList);
+  } catch (error) {
+    console.error("Error fetching wishlist:", error);
+    res.status(500).json({ message: "An error occurred while fetching wishlist." });
+  }
+};
+
