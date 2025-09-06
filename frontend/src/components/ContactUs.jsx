@@ -22,17 +22,17 @@ export default function ContactUs() {
           <ContactItem
             icon={<BadgeInfo className="text-indigo-600 w-5 h-5" />}
             label="Merchant Legal Entity Name"
-            value="MOHD ZAYED MOHD SALIM ANSARI"
+            value="Grokart"
           />
           <ContactItem
             icon={<Building2 className="text-indigo-600 w-5 h-5" />}
             label="Registered Address"
-            value="1396, Naigaon Road, Behind Rafey Medical, Bhiwandi, Maharashtra, 421302"
+            value=" Naigaon Road, Bhiwandi, Maharashtra, 421302"
           />
           <ContactItem
             icon={<MapPin className="text-indigo-600 w-5 h-5" />}
             label="Operational Address"
-            value="1396, Naigaon Road, Behind Rafey Medical, Bhiwandi, Maharashtra, 421302"
+            value=" Naigaon Road, Bhiwandi, Maharashtra, 421302"
           />
           <ContactItem
             icon={<Phone className="text-indigo-600 w-5 h-5" />}
@@ -47,7 +47,7 @@ export default function ContactUs() {
                 href="mailto:zayedans022@gmail.com"
                 className="text-indigo-600 underline hover:text-indigo-800 transition"
               >
-                grocart.co@gmail.com
+                grokart.co@gmail.com
               </a>
             }
           />
