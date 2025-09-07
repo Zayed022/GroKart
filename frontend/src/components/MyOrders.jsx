@@ -63,7 +63,7 @@ const MyOrders = () => {
                       </span>
                       <span
                         className={`text-xs font-medium px-2 py-1 rounded-full ${
-                          order.paymentStatus === "Success"
+                          order.paymentStatus === "Paid"
                             ? "bg-green-100 text-green-700"
                             : "bg-yellow-100 text-yellow-800"
                         }`}
