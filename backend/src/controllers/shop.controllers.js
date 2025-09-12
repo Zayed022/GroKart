@@ -242,7 +242,7 @@ const updateOrderStatusByShop = async (req, res) => {
 
     const order = await Order.findOne({
       _id: orderId,
-      assignedTo: shopId,
+      shopAssigned: shopId,
     });
 
     if (!order) {
