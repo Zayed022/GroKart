@@ -294,6 +294,16 @@ const getCompletedOrdersByShops = async (req, res) => {
       addressDetails: order.addressDetails || {},
       deliveredAt: new Date(order.deliveredAt || order.updatedAt).toLocaleString(),
       status: order.status,
+
+       items: order.items.map((item) => ({
+        productId: item.productId,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        description: item.description || "",
+        isAvailable: item.isAvailable,
+      })),
+    
       // Optional:
       // user: order.user ? { name: order.user.name, phone: order.user.phoneNumber } : null,
       // items: order.items.map(i => ({
