@@ -666,6 +666,54 @@ const getShopDailyEarnings = async (req, res) => {
   }
 };
 
+const getDailySales = async (req, res) => {
+  try {
+    const shopId = req.shop._id; // from auth middleware
+    const { date } = req.query; // optional: YYYY-MM-DD
+
+    let matchCondition = { 
+      shopAssigned: shopId,
+      status: "Delivered"
+    };
+
+    // if a date is passed, filter for that day
+    if (date) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+
+      matchCondition.deliveredAt = { $gte: start, $lte: end };
+    }
+
+    const sales = await Order.aggregate([
+      { $match: matchCondition },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$deliveredAt" },
+            month: { $month: "$deliveredAt" },
+            day: { $dayOfMonth: "$deliveredAt" },
+          },
+          totalSales: { $sum: "$totalAmount" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.year": -1, "_id.month": -1, "_id.day": -1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Daily sales fetched successfully",
+      data: sales,
+    });
+  } catch (error) {
+    console.error("Error fetching daily sales:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 
 
@@ -688,4 +736,5 @@ export {
     getCompletedOrdersByShop,
     getCompletedOrdersByShopForAdmin,
     getShopDailyEarnings,
+    getDailySales,
 }

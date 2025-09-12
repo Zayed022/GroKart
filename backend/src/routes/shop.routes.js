@@ -17,7 +17,8 @@ import {
   getShopEarningsAndOrderHistory,
   getCompletedOrdersByShop,
   getCompletedOrdersByShopForAdmin,
-  getShopDailyEarnings
+  getShopDailyEarnings,
+  getDailySales
 } from "../controllers/shop.controllers.js";
 import { verifyJWTShop } from "../middlewares/auth.middlewares.js";
 
@@ -45,5 +46,6 @@ router.get("/daily-earnings/:shopId", getShopDailyEarnings);
 router.get("/search",searchShop)
 router.get("/earnings", verifyJWTShop, getShopEarningsAndOrderHistory);
 router.get("/completed-orders", verifyJWTShop, getCompletedOrdersByShop);
+router.get("/daily-sales", verifyJWTShop, getDailySales);
 router.get("/completed-by-shop", getCompletedOrdersByShopForAdmin);
 export default router;
