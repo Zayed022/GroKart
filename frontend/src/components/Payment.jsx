@@ -209,7 +209,6 @@ const Payment = () => {
             handlingFee: fees.handlingFee,
             lateNightFee: activeLateNight,
             surgeFee: activeSurge,
-            gstAmount,
             codCharge: fees.codCharge
           },
           paymentMethod: "cod",

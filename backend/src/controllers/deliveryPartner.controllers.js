@@ -406,7 +406,7 @@ const updateOrderStatusByDeliveryPartner = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ["Picked Up", "Out for Delivery", "Delivered", "Cancelled By Customer"];
+    const validStatuses = ["Picked Up", "Out for Delivery", "Delivered", "Cancelled By Customer",];
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid order status" });
