@@ -12,12 +12,14 @@ const shopSchema = new Schema({
     required: true,
     unique: true,
     match: /^[0-9]{10}$/, // assuming Indian 10-digit phone numbers
+    index: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
+    index: true,
   },
   password: {
     type: String,

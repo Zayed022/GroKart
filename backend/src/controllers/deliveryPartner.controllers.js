@@ -66,7 +66,7 @@ const registerDeliveryPartner = async (req, res) => {
     const panCardProofLocalPath = req.files?.panCardProof[0]?.path;
     console.log(panCardProofLocalPath);
     if (!panCardProofLocalPath) {
-      return res.status(400).json({ message: "Pan Card Proof is required" });
+      return res.status(400).json({ message: "Pan Card is required" });
     }
     const panCardProof = await uploadOnCloudinary(panCardProofLocalPath);
     if (!panCardProof) {

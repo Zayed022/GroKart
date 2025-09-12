@@ -23,8 +23,11 @@ const registerShop = async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
 
-    // Check for existing shop with same email or phone
-    const existingShop = await Shop.findOne({ $or: [{ email }, { phone }] });
+    // Check existing with lean + indexed fields
+    const existingShop = await Shop.findOne(
+      { $or: [{ email }, { phone }] },
+      { _id: 1 }
+    ).lean();
 
     if (existingShop) {
       return res.status(400).json({
@@ -33,14 +36,7 @@ const registerShop = async (req, res) => {
       });
     }
 
-    // Create new shop (password hash handled in schema)
-    const shop = await Shop.create({
-      name,
-      email,
-      password,
-      phone,
-      address,
-    });
+    const shop = await Shop.create({ name, email, password, phone, address });
 
     res.status(201).json({
       success: true,
@@ -59,17 +55,13 @@ const registerShop = async (req, res) => {
 
 const loginShop = async (req, res) => {
   const { email, password } = req.body;
-
   if (!email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const shop = await Shop.findOne({ email });
-
-    if (!shop) {
-      return res.status(404).json({ message: "Shop not found" });
-    }
+    const shop = await Shop.findOne({ email }).select("+password");
+    if (!shop) return res.status(404).json({ message: "Shop not found" });
 
     if (!shop.isApproved) {
       return res.status(403).json({ message: "Access Denied: Not approved" });
@@ -80,22 +72,25 @@ const loginShop = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-      shop._id
-    );
+    const { accessToken, refreshToken } =
+      await generateAccessAndRefreshTokens(shop._id);
 
-    
-    await shop.save();
+    // Update refreshToken in one go (optional)
+    await Shop.updateOne({ _id: shop._id }, { refreshToken });
 
-    const loggedInShop = await Shop.findById(
-      shop._id
-    ).select("-password -refreshToken");
+    const loggedInShop = {
+      id: shop._id,
+      name: shop.name,
+      email: shop.email,
+      phone: shop.phone,
+      address: shop.address,
+      isApproved: shop.isApproved,
+    };
 
     const options = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Set to true in production
-        };
-        
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    };
 
     return res
       .status(200)
@@ -103,12 +98,8 @@ const loginShop = async (req, res) => {
       .cookie("refreshToken", refreshToken, options)
       .json({
         message: "Shop logged in successfully",
-        
-          shop: loggedInShop,
-
-          token: accessToken,
-           
-        
+        user: loggedInShop,
+        token: accessToken,
       });
   } catch (error) {
     console.error("Error logging in Shop:", error);
