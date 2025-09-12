@@ -354,8 +354,7 @@ const assignOrderToDeliveryPartner = async (req, res) => {
     await order.save();
 
     // Optionally mark delivery partner as not available
-    deliveryPartner.isAvailable = false;
-    await deliveryPartner.save();
+    
 
     const io = req.app.get("io");
     io.to(deliveryPartnerId.toString()).emit("newOrderAssigned", {
