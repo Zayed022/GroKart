@@ -211,7 +211,7 @@ const getAssignedOrdersForShops = async (req, res) => {
   try {
     const shopId = req.shop._id; // set by verifyJWTDelivery middleware
 
-    const orders = await Order.find({ assignedTo: shopId })
+    const orders = await Order.find({ shopAssigned: shopId })
       .sort({ createdAt: -1 })
       .populate("customerId", "name address") // optional: include customer info
       .populate("assignedTo", "name phoneNumber") // optional: include delivery partner info
