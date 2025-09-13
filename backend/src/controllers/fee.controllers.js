@@ -43,24 +43,30 @@ export const createFeeConfig = async (req, res) => {
 };
 
 let cachedFeeConfig = null;
+let cacheExpiresAt = 0;
+const CACHE_TTL_MS = 60 * 1000; // 1 minute
 
 export const getActiveFeeConfig = async (req, res) => {
   try {
-    if (cachedFeeConfig) {
+    if (cachedFeeConfig && Date.now() < cacheExpiresAt) {
+      console.log('[fee] returning cached config');
       return res.json(cachedFeeConfig);
     }
 
-    const feeConfig = await FeeConfig.findOne({ isActive: true }).lean();
-    if (!feeConfig) {
-      return res.status(404).json({ message: "Fee configuration not found" });
-    }
+    console.log('[fee] cache miss, querying DB');
+    const feeConfig = await FeeConfig.findOne({ isActive: true })
+                                     .sort({ updatedAt: -1 })
+                                     .lean();
+    if (!feeConfig) return res.status(404).json({ message: "Fee configuration not found" });
 
-    cachedFeeConfig = feeConfig; // store in memory
+    cachedFeeConfig = feeConfig;
+    cacheExpiresAt = Date.now() + CACHE_TTL_MS;
     res.json(feeConfig);
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 
 // ✅ Update existing FeeConfig

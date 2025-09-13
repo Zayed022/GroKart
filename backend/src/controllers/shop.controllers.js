@@ -132,6 +132,8 @@ const getMyDetails = async (req, res) => {
   }
 };
 
+
+
 const getAllShops = async (req, res) => {
   try {
     const shops = await Shop.find({});
