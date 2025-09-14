@@ -77,14 +77,14 @@ const Payment = () => {
   const subTotal = totalItemPrice + fees.deliveryCharge + fees.handlingFee + activeLateNight + activeSurge;
 
   // gst computed from percentage on subtotal (adjust if you prefer GST only on items)
-  const gstAmount = (fees.gstPercentage > 0) ? (subTotal * fees.gstPercentage) / 100 : 0;
+  
 
   // final total including COD charge if any
-  const grandTotalNumber = subTotal + gstAmount + (fees.codCharge || 0);
+  const grandTotalNumber = subTotal  + (fees.codCharge || 0);
 
   // formatted display
   const displayTotal = grandTotalNumber.toFixed(2);
-  const displayGst = gstAmount.toFixed(2);
+  
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -287,12 +287,7 @@ const Payment = () => {
             </div>
           )}
 
-          {fees.gstPercentage > 0 && (
-            <div className="flex justify-between">
-              <span>GST ({fees.gstPercentage}%)</span>
-              <span>₹{displayGst}</span>
-            </div>
-          )}
+          
 
           <div className="border-t border-gray-200 pt-3 mt-3 flex justify-between font-semibold text-xl text-green-700">
             <span>Total Payable</span>
