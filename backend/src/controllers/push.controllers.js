@@ -130,12 +130,13 @@ const notifyUsers = async (req, res) => {
     const tokens = tokensDocs.map(d => d.token);
     if (!tokens.length) return res.json({ ok: true, sent: 0, message: 'no tokens for users' });
 
-    const resp = await admin.messaging().sendMulticast({
-      notification: { title, body, ...(image ? { image } : {}) },
-      data: data ? Object.fromEntries(Object.entries(data).map(([k, v]) => [String(k), String(v)])) : {},
-      tokens,
-      android: { priority: 'high', notification: { sound: 'default', channelId: 'default-channel-id' } },
-    });
+    const resp = await admin.messaging().sendEachForMulticast({
+  notification: { title, body, ...(image ? { image } : {}) },
+  data: data ? Object.fromEntries(Object.entries(data).map(([k, v]) => [String(k), String(v)])) : {},
+  tokens,
+  android: { priority: 'high', notification: { sound: 'default', channelId: 'default-channel-id' } },
+});
+
 
     return res.json({ ok: true, successCount: resp.successCount, failureCount: resp.failureCount });
   } catch (e) {
