@@ -248,5 +248,5 @@ export {
     addCategoryWithSubCategory,
     getAllCategories,
     getMiniCategoriesBySubcategory,
-    updateCategoryImage,
+    updateCategoryImage
 }
