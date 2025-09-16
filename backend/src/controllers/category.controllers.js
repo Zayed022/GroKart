@@ -203,11 +203,50 @@ export const getAllMiniCategories = async (req, res) => {
   }
 };
 
+// Update Category/Subcategory Image
+const updateCategoryImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const imageLocalPath = req.files?.image?.[0]?.path;
+    if (!imageLocalPath) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
+
+    const image = await uploadOnCloudinary(imageLocalPath);
+    if (!image) {
+      return res.status(400).json({ message: "Image upload failed" });
+    }
+
+    // ✅ update only image, skip validation of other required fields
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      { image: image.url },
+      { new: true, runValidators: false }
+    );
+
+    if (!updatedCategory) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    return res.status(200).json({
+      message: "Category image updated successfully",
+      updatedCategory,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+
   
   
 
 export {
     addCategoryWithSubCategory,
     getAllCategories,
-    getMiniCategoriesBySubcategory
+    getMiniCategoriesBySubcategory,
+    updateCategoryImage,
 }

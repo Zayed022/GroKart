@@ -62,17 +62,51 @@ const getAllProducts = async (req, res) => {
   try {
     console.log("Trying to fetch all products...");
 
-    const products = await Product.find();
+    // Extract query params for search, filtering, and pagination
+    const { search, category, minPrice, maxPrice, page = 1, limit = 20 } = req.query;
 
-    //console.log("Fetched products:", products); // See what we get
-    console.log(products.length)
+    // Build MongoDB query
+    const query = {};
 
-    res.status(200).json(products);
+    if (search) {
+      // Index 'name' or 'description' for faster text search
+      query.$text = { $search: search };
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // Pagination and fields projection
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const products = await Product.find(query)
+      .select("name price category stock image") // only fetch required fields
+      .skip(skip)
+      .limit(Number(limit))
+      .lean() // returns plain JS objects → faster
+      .exec();
+
+    const totalProducts = await Product.countDocuments(query);
+
+    res.status(200).json({
+      total: totalProducts,
+      page: Number(page),
+      limit: Number(limit),
+      products,
+    });
   } catch (error) {
-    console.log("Error fetching products:", error.message); // better logging
+    console.error("Error fetching products:", error.message);
     res.status(500).json({ message: "An error occurred while fetching products." });
   }
 };
+
 
 const getProductsAll = async (req, res) => {
   try {

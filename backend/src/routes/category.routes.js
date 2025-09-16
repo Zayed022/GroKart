@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { upload } from "../middlewares/multer.middlewares.js";
-import { addCategoryWithSubCategory, createCategory, getAllCategories, getAllMiniCategories, getAllSubcategories, getMiniCategoriesBySubcategory } from "../controllers/category.controllers.js";
+import { addCategoryWithSubCategory, createCategory, getAllCategories, getAllMiniCategories, getAllSubcategories, getMiniCategoriesBySubcategory, updateCategoryImage } from "../controllers/category.controllers.js";
 
 const router = Router();
 
@@ -29,6 +29,9 @@ router.route("/create").post(
 
 router.get("/subcategories", getAllSubcategories);
 router.get("/minicategories", getAllMiniCategories);
+
+router.put("/:id/image", upload.fields([{ name: "image", maxCount: 1 }]), updateCategoryImage);
+
 
 
 export default router
