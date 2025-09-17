@@ -110,11 +110,25 @@ const adminLogin = async (req, res) => {
   }
 };
 
-const logoutAdmin = async(req,res)=>{
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  return res.status(200).json({message:"Logged out successfully"});
-}
+const logoutAdmin = async (req, res) => {
+  try {
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,       // ❌ set false for local dev without https
+      sameSite: "none",   // ❌ set "lax" or "strict" if you don’t need cross-site
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Logout failed" });
+  }
+};
+
 
 const getAllAdmin = async (req, res) => {
   try {
