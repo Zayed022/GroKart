@@ -17,16 +17,17 @@ const addBanner = async (req, res) => {
     return res.status(400).json({ message: "Image file is required" });
   }
   const image = await uploadOnCloudinary(imageLocalPath);
-  if (!image) {
-    return res.status(400).json({ message: "Image file is required" });
-  }
+if (!image) {
+  return res.status(400).json({ message: "Image file is required" });
+}
 
-  const banner = await MobileBanner.create({
-    title,
-    redirectUrl,
-     isActive: isActive || false,
-    image: image.url,
-  });
+const banner = await MobileBanner.create({
+  title,
+  redirectUrl,
+  isActive: isActive || false,
+  image: image.secure_url,   // ✅ always https
+});
+
   const createdBanner = await MobileBanner.findById(banner._id).select("");
   if (!createdBanner) {
     return res.status(500).json({ message: "Something went wrong" });
