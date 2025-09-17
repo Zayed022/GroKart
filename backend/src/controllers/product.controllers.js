@@ -243,7 +243,7 @@ const getProductsBySubCategory = async (req, res) => {
       return res.status(400).json({ message: "Sub-category is required" });
     }
 
-    const products = await Product.find({ subCategory });
+    const products = await Product.find({ subCategory }).sort({ name: 1 });
 
     if (!products.length) {
       return res.status(404).json({ message: "No products found for this sub-category" });
