@@ -23,7 +23,8 @@ import { addProduct,
     updateProductPrice,
     updateProductDescription,
     updateProductImage,
-    setStockEightBySubCategory} from "../controllers/product.controllers.js";
+    setStockEightBySubCategory,
+    setStockBySubCategory} from "../controllers/product.controllers.js";
 import { verifyJWTAdmin } from "../middlewares/auth.middlewares.js";
 
 const router = Router()
