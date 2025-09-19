@@ -472,6 +472,44 @@ const setStockZeroBySubCategory = asyncHandler(async (req, res) => {
   });
 });
 
+const setStockEightBySubCategory = asyncHandler(async (req, res) => {
+  const { subCategory } = req.params;
+
+  if (!subCategory) {
+    return res.status(400).json({ message: "SubCategory is required" });
+  }
+
+  const result = await Product.updateMany(
+    { subCategory: subCategory },
+    { $set: { stock: 8 } }
+  );
+
+  res.status(200).json({
+    message: `Stock reset to 8 for ${result.modifiedCount} product(s) in subCategory '${subCategory}'`,
+  });
+});
+
+const setStockBySubCategory = asyncHandler(async (req, res) => {
+  const { subCategory } = req.params;
+  const { stock } = req.body;
+
+  if (!subCategory) {
+    return res.status(400).json({ message: "SubCategory is required" });
+  }
+  if (stock === undefined || stock < 0) {
+    return res.status(400).json({ message: "Valid stock value is required" });
+  }
+
+  const result = await Product.updateMany(
+    { subCategory },
+    { $set: { stock } }
+  );
+
+  res.status(200).json({
+    message: `Stock set to ${stock} for ${result.modifiedCount} product(s) in '${subCategory}'`,
+  });
+});
+
 const updateProductPrice = async (req, res) => {
   try {
     const { id, name, price } = req.body;
@@ -599,4 +637,6 @@ export {
   updateProductDescription,
   updateProductPrice,
   updateProductImage,
+  setStockEightBySubCategory,
+  setStockBySubCategory,
 };

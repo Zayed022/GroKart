@@ -22,7 +22,8 @@ import { addProduct,
     setStockZeroBySubCategory,
     updateProductPrice,
     updateProductDescription,
-    updateProductImage} from "../controllers/product.controllers.js";
+    updateProductImage,
+    setStockEightBySubCategory} from "../controllers/product.controllers.js";
 import { verifyJWTAdmin } from "../middlewares/auth.middlewares.js";
 
 const router = Router()
@@ -55,6 +56,8 @@ router.put("/reset-stock", resetAllStock);
 router.put("/set-stock-to-eight", setStockToEightIfZeroOrLess);
 router.get("/home-page-products",getHomePageProducts)
 router.put("/zero-stock/:subCategory", setStockZeroBySubCategory);
+router.put("/eight-stock/:subCategory", setStockEightBySubCategory);
+router.put("/set-stock/:subCategory", setStockBySubCategory);
 router.put("/update-price", updateProductPrice);
 router.put("/update-description", updateProductDescription);
 router.put(
