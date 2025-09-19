@@ -1,49 +1,45 @@
-import {Router} from "express"
+import { Router } from "express";
 import {
-    adminLogin,
-    registerAdmin,
-    logoutAdmin,
-    getAllAdmin,
-    searchOrders,
-    filterOrders,
-    exportOrders,
-    getDailyCollectionByDeliveryPartners,
-    getDailyEarningsByDeliveryPartners,
-    getAllTimeEarningsByDeliveryPartners,
-    getAllDeliveredOrdersWithTimestamps,
-    getDeliveryReports,
-    getAllOrders,
-    getAllProducts,
-    updatePaymentStatusByAdmin,
-    getSales
-} from "../controllers/admin.controllers.js"
-import { isAdminTrue } from "../middlewares/admin.middlewares.js";
+  adminLogin,
+  registerAdmin,
+  logoutAdmin,
+  getAllAdmin,
+  searchOrders,
+  filterOrders,
+  exportOrders,
+  getDailyCollectionByDeliveryPartners,
+  getDailyEarningsByDeliveryPartners,
+  getAllTimeEarningsByDeliveryPartners,
+  getAllDeliveredOrdersWithTimestamps,
+  getDeliveryReports,
+  getAllOrders,
+  getAllProducts,
+  updatePaymentStatusByAdmin,
+  getSales,
+} from "../controllers/admin.controllers.js";
 
-
-import { verifyJWT, verifyJWTAdmin } from "../middlewares/auth.middlewares.js";
+import { verifyJWTAdmin } from "../middlewares/auth.middlewares.js";
 
 const router = Router();
 
-router.route("/register-admin").post(registerAdmin)
-router.route("/login-admin").post(adminLogin)
-router.route("/logout").post(verifyJWTAdmin,logoutAdmin)
-router.route("get-all-admin").get(getAllAdmin)
-router.post("/search", searchOrders);
-router.post("/filter-orders", filterOrders);
-router.post("/export-orders", exportOrders);
-router.get("/daily-collection", getDailyCollectionByDeliveryPartners);
-router.get("/daily-earnings", getDailyEarningsByDeliveryPartners);
-router.get("/all-time-earnings", getAllTimeEarningsByDeliveryPartners);
-router.get("/delivered-orders", getAllDeliveredOrdersWithTimestamps);
-router.get("/report", getDeliveryReports);
-router.get("/get-orders", getAllOrders);
-router.get("/get-products", getAllProducts);
-router.patch("/update-payment-status",updatePaymentStatusByAdmin);
-router.get("/get-sales", getSales);
+// 🔓 Public routes
+router.post("/register-admin", registerAdmin);
+router.post("/login-admin", adminLogin);
 
+// 🔐 Protected routes
+router.post("/logout", verifyJWTAdmin, logoutAdmin);
+router.get("/get-all-admin", verifyJWTAdmin, getAllAdmin);
+router.post("/search", verifyJWTAdmin, searchOrders);
+router.post("/filter-orders", verifyJWTAdmin, filterOrders);
+router.post("/export-orders", verifyJWTAdmin, exportOrders);
+router.get("/daily-collection", verifyJWTAdmin, getDailyCollectionByDeliveryPartners);
+router.get("/daily-earnings", verifyJWTAdmin, getDailyEarningsByDeliveryPartners);
+router.get("/all-time-earnings", verifyJWTAdmin, getAllTimeEarningsByDeliveryPartners);
+router.get("/delivered-orders", verifyJWTAdmin, getAllDeliveredOrdersWithTimestamps);
+router.get("/report", verifyJWTAdmin, getDeliveryReports);
+router.get("/get-orders", verifyJWTAdmin, getAllOrders);
+router.get("/get-products", verifyJWTAdmin, getAllProducts);
+router.patch("/update-payment-status", verifyJWTAdmin, updatePaymentStatusByAdmin);
+router.get("/get-sales", verifyJWTAdmin, getSales);
 
-
-
-
-
-export default router
+export default router;

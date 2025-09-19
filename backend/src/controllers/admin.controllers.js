@@ -40,7 +40,7 @@ const registerAdmin = async(req,res)=>{
             email,
             phone,
             password,
-            isApproved
+            isApproved: false
         });
         await newAdmin.save();
         return res.status(201).json({message:"Admin registered successfully"});
