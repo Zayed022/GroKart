@@ -15,13 +15,8 @@ function SubcategoryPage() {
 
   // Time check for store hours (8:00 AM to 1:30 AM next day)
   const isStoreOpen = () => {
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    const openTime = 8 * 60; // 8:00 AM in minutes
-    const closeTime = (24 + 1) * 60 + 30; // 1:30 AM next day => 25:30 in minutes => 1530
-
-    return currentMinutes >= openTime || currentMinutes <= 90;
+   return true;
+  
   };
 
   const storeOpen = isStoreOpen();

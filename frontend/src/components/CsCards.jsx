@@ -8,9 +8,7 @@ function CsCards() {
 
   // Check store open hours: 8:00 AM to 1:30 AM
   const checkStoreOpen = () => {
-    const now = new Date();
-    const totalMinutes = now.getHours() * 60 + now.getMinutes();
-    setStoreOpen(totalMinutes >= 480 || totalMinutes <= 90);
+   setStoreOpen(true);
   };
 
   useEffect(() => {
