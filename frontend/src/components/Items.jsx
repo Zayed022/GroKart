@@ -94,12 +94,12 @@ function Items() {
 
                 {/* Product Image */}
                 <Link to={`/products/${product._id}`}>
-                  <img
-                    src={product.image || "https://via.placeholder.com/300"}
-                    alt={product.name}
-                    className="w-full h-40 object-cover rounded-t-2xl"
-                  />
-                </Link>
+  <img
+    src={product.image || "https://via.placeholder.com/300"}
+    alt={product.name}
+    className="w-full h-40 object-contain rounded-t-2xl bg-white p-2"
+  />
+</Link>
 
                 {/* Product Info */}
                 <div className="p-4">
