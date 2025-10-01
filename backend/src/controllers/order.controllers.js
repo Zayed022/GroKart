@@ -607,6 +607,7 @@ const applyDiscount = async (cart, couponCode) => {
 
 import { getIO } from "../utils/loaction.js";
 import mongoose from "mongoose";
+import { DeliveryPartner } from "../models/deliveryPartner.model.js";
 //import Order from "../models/order.model.js";  // Ensure the correct model is imported
 
 const updateOrderStatus = async (req, res) => {
@@ -687,8 +688,7 @@ const updateOrderStatusByAdmin = async (req, res) => {
     await order.save();
 
     // Emit real-time socket event
-    const io = getIO();
-    io.to(orderId).emit("orderUpdate", { orderId, status, deliveryPartner });
+    
 
     res.status(200).json({
       message: "✅ Order status updated by Admin",
