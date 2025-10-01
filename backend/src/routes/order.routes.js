@@ -35,7 +35,7 @@ router.route("/status").get(getOrderStatus)
 router.get("/orders-status", getOrdersByStatus); 
 router.get("/placed", getPlacedOrders);
 router.route("/:orderId/status").put(updateOrderStatus)
-router.patch("/update-order-status/:orderId", verifyAdmin, updateOrderStatusByAdmin);
+router.patch("/update-order-status/:orderId", updateOrderStatusByAdmin);
 router.route("/:orderId/payment-status").put(updatePaymentStatusByDeliveryPartner)
 router.route("/assign-partner").post(assignDeliveryPartner)
 router.route("/get-route").get(getDeliveryRoute)
