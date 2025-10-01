@@ -641,6 +641,65 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const updateOrderStatusByAdmin = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status, deliveryPartner } = req.body;
+
+    const validStatuses = [
+      "Pending",
+      "Placed",
+      "Confirmed",
+      "Ready to Collect",
+      "Assigned",
+      "Picked Up",
+      "Out for Delivery",
+      "Delivered",
+      "Cancelled"
+    ];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid order status" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.status = status;
+    if (status === "Delivered") {
+      order.deliveredAt = new Date();
+    }
+
+    // optional: auto-free partner when delivered
+    if (status === "Delivered" && order.assignedTo) {
+      await DeliveryPartner.findByIdAndUpdate(order.assignedTo, {
+        isAvailable: true,
+      });
+    }
+
+    order.statusHistory.push({
+      status,
+      updatedAt: new Date(),
+    });
+
+    await order.save();
+
+    // Emit real-time socket event
+    const io = getIO();
+    io.to(orderId).emit("orderUpdate", { orderId, status, deliveryPartner });
+
+    res.status(200).json({
+      message: "✅ Order status updated by Admin",
+      order,
+    });
+  } catch (error) {
+    console.error("Admin status update error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const getAssignedOrders = async (req, res) => {
   try {
     const { deliveryPartnerId } = req.body;
@@ -981,6 +1040,7 @@ export {
   placeOrder,
   getOrderStatus,
   updateOrderStatus,
+  updateOrderStatusByAdmin,
   assignDeliveryPartner,
   getDeliveryRoute,
   applyDiscount,
